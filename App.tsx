@@ -73,7 +73,7 @@ const App = () => {
     }
   };
 
-  const handleSaveSession = (courseId: string, durationSeconds: number, notes: string) => {
+  const handleSaveSession = (courseId: string, durationSeconds: number, notes: string, addToKnowledge: boolean) => {
     const newSession: StudySession = {
       id: Date.now().toString(),
       courseId,
@@ -85,11 +85,23 @@ const App = () => {
 
     setSessions(prev => [newSession, ...prev]);
 
-    // Update Course Hours
+    // Update Course Hours & Optionally Knowledge Base
     setCourses(prevCourses => prevCourses.map(course => {
       if (course.id === courseId) {
         const hoursToAdd = durationSeconds / 3600;
-        return { ...course, hoursCompleted: parseFloat((course.hoursCompleted + hoursToAdd).toFixed(1)) };
+        let updatedKnowledge = course.knowledge || '';
+        
+        // If user wants to add these notes to the knowledge base for future AI context
+        if (addToKnowledge && notes.trim()) {
+            const today = new Date().toLocaleDateString();
+            updatedKnowledge += `\n\n[Study Session Log - ${today}]:\n${notes}`;
+        }
+
+        return { 
+            ...course, 
+            hoursCompleted: parseFloat((course.hoursCompleted + hoursToAdd).toFixed(1)),
+            knowledge: updatedKnowledge
+        };
       }
       return course;
     }));
