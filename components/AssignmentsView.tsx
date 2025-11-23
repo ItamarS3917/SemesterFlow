@@ -1,25 +1,13 @@
-
 import React, { useState, useRef } from 'react';
-import { Plus, Trash2, CheckCircle, X, BrainCircuit, Upload, Loader2, FileText } from 'lucide-react';
+import { CalendarCheck, Plus, Trash2, CheckCircle, Circle, AlertCircle, Clock, X, BrainCircuit, Upload, Loader2, FileText } from 'lucide-react';
 import { Assignment, AssignmentStatus, Course } from '../types';
-import { GoogleGenAI } from "@google/genai";
+import { useAssignments } from '../hooks/useAssignments';
+import { useCourses } from '../hooks/useCourses';
 import { CalendarMenu } from './CalendarMenu';
 
-interface AssignmentsViewProps {
-  assignments: Assignment[];
-  courses: Course[];
-  onToggleStatus: (id: string) => void;
-  onAddAssignment: (assignment: Assignment) => void;
-  onDeleteAssignment: (id: string) => void;
-}
-
-export const AssignmentsView: React.FC<AssignmentsViewProps> = ({ 
-  assignments, 
-  courses, 
-  onToggleStatus, 
-  onAddAssignment, 
-  onDeleteAssignment 
-}) => {
+export const AssignmentsView = () => {
+  const { assignments, addAssignment, deleteAssignment, toggleAssignmentStatus } = useAssignments();
+  const { courses } = useCourses();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAssignment, setNewAssignment] = useState<Partial<Assignment>>({
     name: '',
@@ -34,7 +22,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [isProcessingFile, setIsProcessingFile] = useState(false);
-  
+
   const questionFileRef = useRef<HTMLInputElement>(null);
   const answerFileRef = useRef<HTMLInputElement>(null);
 
@@ -53,7 +41,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
       createdAt: new Date().toISOString()
     };
 
-    onAddAssignment(assignment);
+    addAssignment(assignment);
     setIsModalOpen(false);
     setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED });
   };
@@ -100,7 +88,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
       alert('Failed to read file.');
     } finally {
       setIsProcessingFile(false);
-      e.target.value = ''; 
+      e.target.value = '';
     }
   };
 
@@ -112,21 +100,22 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
     setIsAnalyzing(true);
     setFeedback('');
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `
-        Act as a strict but helpful university Teaching Assistant.
-        ASSIGNMENT REQUIREMENTS / QUESTION: ${questionContext}
-        MY SUBMISSION / ANSWER: ${studentAnswer}
-        YOUR TASK: Analyze if my answer correctly addresses the requirements. Point out specific errors. Suggest improvements. Format in Markdown.
-      `;
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
+      const response = await fetch('http://localhost:3000/api/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionContext,
+          studentAnswer
+        })
       });
-      setFeedback(response.text || '');
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+      setFeedback(data.feedback || 'No feedback received.');
     } catch (error) {
       console.error("Grading error:", error);
-      setFeedback("Sorry, I encountered an error while grading. Please try again.");
+      setFeedback("Sorry, I encountered an error while grading. Please try again and ensure the backend is running.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -143,7 +132,7 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">Assignment Manager</h2>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="retro-btn bg-indigo-600 text-white px-4 py-2 rounded-none text-sm font-bold hover:bg-indigo-500 flex items-center gap-2 transition-colors"
         >
@@ -176,74 +165,73 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                 assignments
                   .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
                   .map(assignment => {
-                  const course = courses.find(c => c.id === assignment.courseId);
-                  const isCompleted = assignment.status === AssignmentStatus.COMPLETED;
-                  const dueDateObj = new Date(assignment.dueDate);
-                  const startDateObj = new Date(dueDateObj);
-                  startDateObj.setHours(startDateObj.getHours() - 1);
+                    const course = courses.find(c => c.id === assignment.courseId);
+                    const isCompleted = assignment.status === AssignmentStatus.COMPLETED;
+                    const dueDateObj = new Date(assignment.dueDate);
+                    const startDateObj = new Date(dueDateObj);
+                    startDateObj.setHours(startDateObj.getHours() - 1);
 
-                  return (
-                    <tr key={assignment.id} className={`border-b-2 border-black hover:bg-gray-800 transition-colors group ${isCompleted ? 'bg-gray-800/50' : 'bg-gray-900'}`}>
-                      <td className="p-4 border-r-2 border-black">
-                        <button 
-                          onClick={() => onToggleStatus(assignment.id)}
-                          className={`flex items-center gap-2 px-3 py-1 text-[10px] font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${
-                            isCompleted 
-                              ? 'bg-green-500 text-black' 
-                              : assignment.status === AssignmentStatus.IN_PROGRESS 
+                    return (
+                      <tr key={assignment.id} className={`border-b-2 border-black hover:bg-gray-800 transition-colors group ${isCompleted ? 'bg-gray-800/50' : 'bg-gray-900'}`}>
+                        <td className="p-4 border-r-2 border-black">
+                          <button
+                            onClick={() => toggleAssignmentStatus(assignment.id)}
+                            className={`flex items-center gap-2 px-3 py-1 text-[10px] font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${isCompleted
+                              ? 'bg-green-500 text-black'
+                              : assignment.status === AssignmentStatus.IN_PROGRESS
                                 ? 'bg-yellow-400 text-black'
                                 : 'bg-gray-700 text-white'
-                          }`}
-                        >
-                          {isCompleted ? <CheckCircle className="w-3 h-3" /> : <div className="w-3 h-3 bg-black"></div>}
-                          {assignment.status.replace('_', ' ')}
-                        </button>
-                      </td>
-                      <td className="p-4 border-r-2 border-black font-bold text-white">
-                        <span className={isCompleted ? 'line-through text-gray-500' : ''}>{assignment.name}</span>
-                      </td>
-                      <td className="p-4 border-r-2 border-black">
-                        <span className={`px-2 py-1 text-[10px] font-bold border border-black shadow-[2px_2px_0px_0px_#000] uppercase ${course?.bg} ${course?.text?.replace('700', '900') || 'text-black'}`}>
-                          {course?.name || 'Unknown'}
-                        </span>
-                      </td>
-                      <td className="p-4 border-r-2 border-black text-gray-400">
-                        {new Date(assignment.dueDate).toLocaleDateString()}
-                      </td>
-                      <td className="p-4 border-r-2 border-black text-gray-400">{assignment.estimatedHours}H</td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => setReviewAssignment(assignment)}
-                            title="AI Grader & Feedback"
-                            className="retro-btn p-1.5 bg-purple-600 text-white border border-black hover:bg-purple-500"
+                              }`}
                           >
-                            <BrainCircuit className="w-4 h-4" />
+                            {isCompleted ? <CheckCircle className="w-3 h-3" /> : <div className="w-3 h-3 bg-black"></div>}
+                            {assignment.status.replace('_', ' ')}
                           </button>
-                          
-                          <div className="retro-btn p-0 border border-black bg-indigo-600 text-white hover:bg-indigo-500 flex items-center justify-center">
-                             <CalendarMenu 
+                        </td>
+                        <td className="p-4 border-r-2 border-black font-bold text-white">
+                          <span className={isCompleted ? 'line-through text-gray-500' : ''}>{assignment.name}</span>
+                        </td>
+                        <td className="p-4 border-r-2 border-black">
+                          <span className={`px-2 py-1 text-[10px] font-bold border border-black shadow-[2px_2px_0px_0px_#000] uppercase ${course?.bg} ${course?.text?.replace('700', '900') || 'text-black'}`}>
+                            {course?.name || 'Unknown'}
+                          </span>
+                        </td>
+                        <td className="p-4 border-r-2 border-black text-gray-400">
+                          {new Date(assignment.dueDate).toLocaleDateString()}
+                        </td>
+                        <td className="p-4 border-r-2 border-black text-gray-400">{assignment.estimatedHours}H</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setReviewAssignment(assignment)}
+                              title="AI Grader & Feedback"
+                              className="retro-btn p-1.5 bg-purple-600 text-white border border-black hover:bg-purple-500"
+                            >
+                              <BrainCircuit className="w-4 h-4" />
+                            </button>
+
+                            <div className="retro-btn p-0 border border-black bg-indigo-600 text-white hover:bg-indigo-500 flex items-center justify-center">
+                              <CalendarMenu
                                 title={`Due: ${assignment.name}`}
                                 description={`Course: ${course?.name}\nEstimated Hours: ${assignment.estimatedHours}`}
                                 startDate={startDateObj}
                                 endDate={dueDateObj}
                                 buttonClass="p-1.5 text-white w-full h-full flex items-center justify-center"
                                 iconClass="w-4 h-4"
-                             />
-                          </div>
+                              />
+                            </div>
 
-                          <button 
-                            onClick={() => onDeleteAssignment(assignment.id)}
-                            title="Delete Assignment"
-                            className="retro-btn p-1.5 bg-red-600 text-white border border-black hover:bg-red-500"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                            <button
+                              onClick={() => deleteAssignment(assignment.id)}
+                              title="Delete Assignment"
+                              className="retro-btn p-1.5 bg-red-600 text-white border border-black hover:bg-red-500"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
               )}
             </tbody>
           </table>
@@ -263,23 +251,23 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
             <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-gray-900">
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Description / Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
                   className="retro-input w-full p-3 font-mono text-sm"
                   placeholder="e.g., Maman 14"
                   value={newAssignment.name}
-                  onChange={e => setNewAssignment({...newAssignment, name: e.target.value})}
+                  onChange={e => setNewAssignment({ ...newAssignment, name: e.target.value })}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Course</label>
-                <select 
+                <select
                   required
                   className="retro-input w-full p-3 font-mono text-sm"
                   value={newAssignment.courseId || ''}
-                  onChange={e => setNewAssignment({...newAssignment, courseId: e.target.value})}
+                  onChange={e => setNewAssignment({ ...newAssignment, courseId: e.target.value })}
                 >
                   <option value="">SELECT COURSE</option>
                   {courses.map(c => (
@@ -291,28 +279,28 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Due Date</label>
-                  <input 
-                    type="datetime-local" 
+                  <input
+                    type="datetime-local"
                     required
                     className="retro-input w-full p-3 font-mono text-sm"
                     value={newAssignment.dueDate || ''}
-                    onChange={e => setNewAssignment({...newAssignment, dueDate: e.target.value})}
+                    onChange={e => setNewAssignment({ ...newAssignment, dueDate: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Est. Hours</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     min="1"
                     className="retro-input w-full p-3 font-mono text-sm"
                     value={newAssignment.estimatedHours}
-                    onChange={e => setNewAssignment({...newAssignment, estimatedHours: parseInt(e.target.value)})}
+                    onChange={e => setNewAssignment({ ...newAssignment, estimatedHours: parseInt(e.target.value) })}
                   />
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="retro-btn w-full bg-green-500 text-black font-black py-4 uppercase tracking-widest hover:bg-green-400 transition-colors mt-6"
               >
                 Create Assignment
@@ -329,13 +317,13 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
             {/* Header */}
             <div className="p-4 border-b-2 border-black flex justify-between items-center bg-gray-800">
               <div className="flex items-center gap-3">
-                 <div className="bg-indigo-600 p-2 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-                    <BrainCircuit className="w-6 h-6 text-white" />
-                 </div>
-                 <div>
-                    <h3 className="font-black text-white font-mono uppercase">AI Grader</h3>
-                    <p className="text-xs text-gray-400 font-mono">TARGET: {reviewAssignment.name}</p>
-                 </div>
+                <div className="bg-indigo-600 p-2 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+                  <BrainCircuit className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-black text-white font-mono uppercase">AI Grader</h3>
+                  <p className="text-xs text-gray-400 font-mono">TARGET: {reviewAssignment.name}</p>
+                </div>
               </div>
               <button onClick={closeReviewModal} className="text-gray-400 hover:text-white hover:rotate-90 transition-transform">
                 <X className="w-8 h-8" />
@@ -352,22 +340,22 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                         <FileText className="w-4 h-4" />
                         Requirements / Question
                       </label>
-                      <button 
+                      <button
                         onClick={() => questionFileRef.current?.click()}
                         className="retro-btn text-xs bg-indigo-600 text-white px-2 py-1 flex items-center gap-1 hover:bg-indigo-500 border border-black"
                       >
                         <Upload className="w-3 h-3" />
                         PDF
                       </button>
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        ref={questionFileRef} 
-                        accept=".pdf,.txt,.md" 
+                      <input
+                        type="file"
+                        className="hidden"
+                        ref={questionFileRef}
+                        accept=".pdf,.txt,.md"
                         onChange={(e) => handleFileUpload(e, 'question')}
                       />
                     </div>
-                    <textarea 
+                    <textarea
                       className="flex-1 retro-input w-full p-4 text-sm font-mono resize-none"
                       placeholder="Paste assignment requirements here..."
                       value={questionContext}
@@ -381,22 +369,22 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
                         <FileText className="w-4 h-4" />
                         Your Submission
                       </label>
-                      <button 
+                      <button
                         onClick={() => answerFileRef.current?.click()}
                         className="retro-btn text-xs bg-emerald-600 text-white px-2 py-1 flex items-center gap-1 hover:bg-emerald-500 border border-black"
                       >
                         <Upload className="w-3 h-3" />
                         PDF
                       </button>
-                      <input 
-                         type="file" 
-                         className="hidden" 
-                         ref={answerFileRef} 
-                         accept=".pdf,.txt,.md" 
-                         onChange={(e) => handleFileUpload(e, 'answer')}
+                      <input
+                        type="file"
+                        className="hidden"
+                        ref={answerFileRef}
+                        accept=".pdf,.txt,.md"
+                        onChange={(e) => handleFileUpload(e, 'answer')}
                       />
                     </div>
-                    <textarea 
+                    <textarea
                       className="flex-1 retro-input w-full p-4 text-sm font-mono resize-none focus:border-emerald-500"
                       placeholder="Paste your answer here..."
                       value={studentAnswer}
@@ -408,42 +396,42 @@ export const AssignmentsView: React.FC<AssignmentsViewProps> = ({
 
               {feedback && (
                 <div className="animate-fade-in bg-gray-800 border-2 border-black shadow-[4px_4px_0px_0px_#000] p-8 min-h-full">
-                   <div className="prose prose-invert max-w-none">
-                      <h3 className="text-indigo-400 flex items-center gap-2 font-mono font-black uppercase border-b-2 border-gray-700 pb-2">
-                        <BrainCircuit className="w-6 h-6" />
-                        Evaluation Report
-                      </h3>
-                      <div className="whitespace-pre-wrap text-gray-300 leading-relaxed font-mono text-sm mt-4">
-                        {feedback}
-                      </div>
-                   </div>
-                   <div className="mt-8 flex justify-end">
-                      <button 
-                        onClick={() => setFeedback('')}
-                        className="text-indigo-400 font-bold font-mono hover:text-indigo-300 border-b-2 border-transparent hover:border-indigo-400"
-                      >
-                        &lt; CHECK ANOTHER DRAFT
-                      </button>
-                   </div>
+                  <div className="prose prose-invert max-w-none">
+                    <h3 className="text-indigo-400 flex items-center gap-2 font-mono font-black uppercase border-b-2 border-gray-700 pb-2">
+                      <BrainCircuit className="w-6 h-6" />
+                      Evaluation Report
+                    </h3>
+                    <div className="whitespace-pre-wrap text-gray-300 leading-relaxed font-mono text-sm mt-4">
+                      {feedback}
+                    </div>
+                  </div>
+                  <div className="mt-8 flex justify-end">
+                    <button
+                      onClick={() => setFeedback('')}
+                      className="text-indigo-400 font-bold font-mono hover:text-indigo-300 border-b-2 border-transparent hover:border-indigo-400"
+                    >
+                      &lt; CHECK ANOTHER DRAFT
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Footer Actions */}
             {!feedback && (
-                <div className="p-4 border-t-2 border-black bg-gray-800 flex justify-between items-center">
-                    <div className="text-xs text-gray-500 font-mono">
-                        {isProcessingFile && <span className="flex items-center gap-1 text-indigo-400"><Loader2 className="w-3 h-3 animate-spin" /> PROCESSING DATA...</span>}
-                    </div>
-                    <button 
-                        onClick={handleAnalyzeAssignment}
-                        disabled={isAnalyzing || isProcessingFile}
-                        className="retro-btn px-6 py-3 bg-white text-black border-2 border-black font-black uppercase hover:bg-gray-200 disabled:opacity-50 disabled:shadow-none disabled:translate-x-[2px] disabled:translate-y-[2px] flex items-center gap-2"
-                    >
-                        {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <BrainCircuit className="w-5 h-5" />}
-                        {isAnalyzing ? 'ANALYZING...' : 'RUN ANALYSIS'}
-                    </button>
+              <div className="p-4 border-t-2 border-black bg-gray-800 flex justify-between items-center">
+                <div className="text-xs text-gray-500 font-mono">
+                  {isProcessingFile && <span className="flex items-center gap-1 text-indigo-400"><Loader2 className="w-3 h-3 animate-spin" /> PROCESSING DATA...</span>}
                 </div>
+                <button
+                  onClick={handleAnalyzeAssignment}
+                  disabled={isAnalyzing || isProcessingFile}
+                  className="retro-btn px-6 py-3 bg-white text-black border-2 border-black font-black uppercase hover:bg-gray-200 disabled:opacity-50 disabled:shadow-none disabled:translate-x-[2px] disabled:translate-y-[2px] flex items-center gap-2"
+                >
+                  {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <BrainCircuit className="w-5 h-5" />}
+                  {isAnalyzing ? 'ANALYZING...' : 'RUN ANALYSIS'}
+                </button>
+              </div>
             )}
           </div>
         </div>

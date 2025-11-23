@@ -1,19 +1,16 @@
-
 import React, { useState } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
-import { Calendar, Clock, Sparkles, Check, Trash2, Loader2, AlertCircle, BrainCircuit, Settings } from 'lucide-react';
-import { Course, Assignment, PlannedSession, DailyPlan, AssignmentStatus } from '../types';
+import { BrainCircuit, Calendar, Clock, CheckCircle, ArrowRight, Loader2, Settings, Sparkles, AlertCircle, Check, Trash2 } from 'lucide-react';
+import { Course, Assignment, DailyPlan, PlannedSession, AssignmentStatus } from '../types';
+import { useCourses } from '../hooks/useCourses';
+import { useAssignments } from '../hooks/useAssignments';
 import { CalendarMenu } from './CalendarMenu';
 
-interface PlannerViewProps {
-  courses: Course[];
-  assignments: Assignment[];
-}
-
-export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }) => {
+export const PlannerView = () => {
+  const { courses } = useCourses();
+  const { assignments } = useAssignments();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState<DailyPlan | null>(null);
-  
+
   // User Preferences
   const [availableHours, setAvailableHours] = useState(3);
   const [focusArea, setFocusArea] = useState('');
@@ -23,7 +20,6 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
     setGeneratedPlan(null);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const contextData = {
         currentDate: new Date().toLocaleDateString(),
         availableHours: availableHours,
@@ -47,59 +43,24 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
           }))
       };
 
-      const prompt = `
-        Act as an expert academic strategist. 
-        Current Date: ${contextData.currentDate}
-        Available Time: ${contextData.availableHours} hours
-        User Focus Request: ${contextData.userFocusRequest}
-        Data: ${JSON.stringify(contextData)}
-
-        Generate a highly optimized study plan for TODAY. 
-        Rules:
-        1. Check course knowledge base for exams/urgent topics.
-        2. Prioritize deadlines within 3 days.
-        3. Break time into chunks (30-90m).
-      `;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              summary: { type: Type.STRING },
-              totalMinutes: { type: Type.INTEGER },
-              sessions: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    courseId: { type: Type.STRING },
-                    activity: { type: Type.STRING },
-                    durationMinutes: { type: Type.INTEGER },
-                    priority: { type: Type.STRING, enum: ["HIGH", "MEDIUM", "LOW"] },
-                    reasoning: { type: Type.STRING }
-                  },
-                  required: ["courseId", "activity", "durationMinutes", "priority", "reasoning"]
-                }
-              }
-            },
-            required: ["summary", "sessions", "totalMinutes"]
-          }
-        }
+      const response = await fetch('http://localhost:3000/api/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contextData })
       });
 
-      if (response.text) {
-        const data = JSON.parse(response.text);
-        data.sessions = data.sessions.map((s: any, idx: number) => ({ ...s, id: `plan-${idx}` }));
-        setGeneratedPlan(data);
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+      // Ensure session IDs are unique for React keys
+      if (data.sessions) {
+        data.sessions = data.sessions.map((s: any, idx: number) => ({ ...s, id: `plan - ${idx} ` }));
       }
+      setGeneratedPlan(data);
 
     } catch (error) {
       console.error("Planning failed:", error);
-      alert("Failed to generate plan. Please try again.");
+      alert("Failed to generate plan. Please ensure the backend is running.");
     } finally {
       setIsGenerating(false);
     }
@@ -134,30 +95,30 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
               <Settings className="w-5 h-5 text-gray-400" />
               Parameters
             </h3>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-2 font-mono uppercase">Available Time</label>
                 <div className="bg-gray-800 p-4 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-black text-indigo-400 font-mono">{availableHours}H</span>
-                        <span className="text-xs text-gray-500 font-mono uppercase">Today</span>
-                    </div>
-                    <input 
-                        type="range" 
-                        min="0.5" 
-                        max="8" 
-                        step="0.5" 
-                        value={availableHours}
-                        onChange={(e) => setAvailableHours(parseFloat(e.target.value))}
-                        className="w-full h-4 bg-gray-700 appearance-none border border-black"
-                    />
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl font-black text-indigo-400 font-mono">{availableHours}H</span>
+                    <span className="text-xs text-gray-500 font-mono uppercase">Today</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="8"
+                    step="0.5"
+                    value={availableHours}
+                    onChange={(e) => setAvailableHours(parseFloat(e.target.value))}
+                    className="w-full h-4 bg-gray-700 appearance-none border border-black"
+                  />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-2 font-mono uppercase">Primary Directive (Focus)</label>
-                <textarea 
+                <textarea
                   placeholder="e.g. CALCULUS REVIEW..."
                   value={focusArea}
                   onChange={(e) => setFocusArea(e.target.value)}
@@ -165,7 +126,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
                 />
               </div>
 
-              <button 
+              <button
                 onClick={handleGeneratePlan}
                 disabled={isGenerating}
                 className="retro-btn w-full bg-indigo-600 text-white py-4 font-black uppercase tracking-wider hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:shadow-none disabled:translate-x-[2px] disabled:translate-y-[2px]"
@@ -188,8 +149,8 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
           {/* Tips */}
           <div className="bg-gray-800 p-6 border-2 border-black shadow-[4px_4px_0px_0px_#000]">
             <h4 className="font-black text-indigo-400 mb-2 text-xs font-mono uppercase flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                System Info
+              <AlertCircle className="w-4 h-4" />
+              System Info
             </h4>
             <p className="text-xs text-gray-400 font-mono leading-relaxed">
               The AI scans uploaded course data to optimize task prioritization based on exam proximity and complexity.
@@ -213,7 +174,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
               <div className="retro-card p-6 border-indigo-500 shadow-[6px_6px_0px_0px_#6366f1]">
                 <h3 className="text-xl font-black text-white mb-3 font-mono uppercase">Mission Brief</h3>
                 <p className="text-indigo-200 font-mono text-sm leading-relaxed border-l-4 border-indigo-500 pl-4 italic">
-                    "{generatedPlan.summary}"
+                  "{generatedPlan.summary}"
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-xs font-bold font-mono uppercase text-gray-400 bg-gray-900 p-3 border border-black">
                   <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-white" /> Total: {Math.round(generatedPlan.totalMinutes / 60 * 10) / 10} HRS</span>
@@ -231,15 +192,14 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
 
                   return (
                     <div key={session.id} className="retro-card p-0 hover:border-indigo-400 transition-all flex flex-col sm:flex-row animate-fade-in-up overflow-hidden">
-                      
+
                       {/* Time & Priority */}
                       <div className="bg-gray-800 min-w-[120px] flex flex-row sm:flex-col justify-between sm:justify-center items-center p-4 border-b-2 sm:border-b-0 sm:border-r-2 border-black">
                         <div className="text-3xl font-black text-white font-mono">{session.durationMinutes}<span className="text-xs text-gray-500 block font-bold">MIN</span></div>
-                        <span className={`text-[10px] font-bold px-2 py-1 border border-black shadow-[1px_1px_0px_0px_#000] uppercase tracking-wider ${
-                          session.priority === 'HIGH' ? 'bg-red-500 text-black' :
-                          session.priority === 'MEDIUM' ? 'bg-yellow-400 text-black' :
-                          'bg-green-400 text-black'
-                        }`}>
+                        <span className={`text - [10px] font - bold px - 2 py - 1 border border - black shadow - [1px_1px_0px_0px_#000] uppercase tracking - wider ${session.priority === 'HIGH' ? 'bg-red-500 text-black' :
+                            session.priority === 'MEDIUM' ? 'bg-yellow-400 text-black' :
+                              'bg-green-400 text-black'
+                          } `}>
                           {session.priority}
                         </span>
                       </div>
@@ -247,35 +207,35 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
                       {/* Content */}
                       <div className="flex-1 p-5">
                         <div className="flex items-center gap-2 mb-2">
-                            <div className={`w-3 h-3 border border-black ${course?.color}`}></div>
-                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest font-mono">{course?.name || session.courseId}</span>
+                          <div className={`w - 3 h - 3 border border - black ${course?.color} `}></div>
+                          <span className="text-xs font-black text-gray-400 uppercase tracking-widest font-mono">{course?.name || session.courseId}</span>
                         </div>
                         <h4 className="font-bold text-white text-lg mb-2 font-mono">{session.activity}</h4>
                         <p className="text-xs text-indigo-300 font-mono flex items-start gap-2 bg-indigo-900/20 p-2 border border-indigo-900/50">
-                            <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
-                            {session.reasoning}
+                          <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
+                          {session.reasoning}
                         </p>
                       </div>
 
                       {/* Actions */}
                       <div className="bg-gray-900 p-4 flex sm:flex-col gap-3 justify-center border-t-2 sm:border-t-0 sm:border-l-2 border-black">
                         <div className="retro-btn p-0 bg-white text-black hover:bg-gray-200 w-10 h-10 flex items-center justify-center border border-black">
-                             <CalendarMenu 
-                                title={`Study: ${session.activity}`}
-                                description={`Priority: ${session.priority}\nReasoning: ${session.reasoning}`}
-                                startDate={now}
-                                endDate={end}
-                                buttonClass="w-full h-full flex items-center justify-center text-black"
-                                iconClass="w-5 h-5"
-                             />
+                          <CalendarMenu
+                            title={`Study: ${session.activity} `}
+                            description={`Priority: ${session.priority} \nReasoning: ${session.reasoning} `}
+                            startDate={now}
+                            endDate={end}
+                            buttonClass="w-full h-full flex items-center justify-center text-black"
+                            iconClass="w-5 h-5"
+                          />
                         </div>
 
-                        <button 
-                            onClick={() => removeSession(session.id)}
-                            className="retro-btn bg-red-600 text-white hover:bg-red-500 w-10 h-10 flex items-center justify-center border border-black"
-                            title="Remove"
+                        <button
+                          onClick={() => removeSession(session.id)}
+                          className="retro-btn bg-red-600 text-white hover:bg-red-500 w-10 h-10 flex items-center justify-center border border-black"
+                          title="Remove"
                         >
-                            <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
 
@@ -284,9 +244,9 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ courses, assignments }
                 })}
 
                 {generatedPlan.sessions.length === 0 && (
-                    <div className="text-center p-8 bg-gray-800 border-2 border-dashed border-gray-700 font-mono text-gray-500 uppercase text-sm">
-                        Plan cleared. Re-initialize?
-                    </div>
+                  <div className="text-center p-8 bg-gray-800 border-2 border-dashed border-gray-700 font-mono text-gray-500 uppercase text-sm">
+                    Plan cleared. Re-initialize?
+                  </div>
                 )}
               </div>
             </div>

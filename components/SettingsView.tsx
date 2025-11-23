@@ -1,14 +1,8 @@
 
 import React, { useState, useRef } from 'react';
-import { Trash2, Plus, Settings, BookOpen, FileText, Save, X, UploadCloud, File, Loader2, AlertCircle } from 'lucide-react';
+import { Trash2, Plus, Settings, BookOpen, FileText, Save, X, UploadCloud, Loader2 } from 'lucide-react';
 import { Course } from '../types';
-
-interface SettingsViewProps {
-  courses: Course[];
-  onAddCourse: (course: Course) => void;
-  onDeleteCourse: (id: string) => void;
-  onUpdateCourse: (course: Course) => void;
-}
+import { useCourses } from '../hooks/useCourses';
 
 const PRESET_COLORS = [
   { name: 'Blue', bg: 'bg-blue-900', text: 'text-blue-300', color: 'bg-blue-500', border: 'border-blue-700' },
@@ -21,11 +15,12 @@ const PRESET_COLORS = [
   { name: 'Red', bg: 'bg-red-900', text: 'text-red-300', color: 'bg-red-500', border: 'border-red-700' },
 ];
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse, onDeleteCourse, onUpdateCourse }) => {
+export const SettingsView = () => {
+  const { courses, addCourse, deleteCourse, updateCourse } = useCourses();
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseTarget, setNewCourseTarget] = useState(100);
   const [selectedColorIdx, setSelectedColorIdx] = useState(0);
-  
+
   // Knowledge Base Modal State
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [knowledgeInput, setKnowledgeInput] = useState('');
@@ -48,7 +43,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
       ...colorTheme
     };
 
-    onAddCourse(newCourse);
+    addCourse(newCourse);
     setNewCourseName('');
     setNewCourseTarget(100);
   };
@@ -60,7 +55,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
 
   const saveKnowledge = () => {
     if (editingCourse) {
-      onUpdateCourse({
+      updateCourse({
         ...editingCourse,
         knowledge: knowledgeInput
       });
@@ -89,16 +84,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
 
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-        
+
         extractedText = `\n\n--- START OF UPLOADED FILE: ${file.name} ---\n`;
-        
+
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           const pageText = textContent.items.map((item: any) => item.str).join(' ');
           extractedText += `[Page ${i}] ${pageText}\n`;
         }
-        
+
         extractedText += `--- END OF FILE: ${file.name} ---\n`;
 
       } else if (file.type === 'text/plain' || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
@@ -118,7 +113,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
     } finally {
       setIsProcessingFile(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''; 
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -137,7 +132,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
             <BookOpen className="w-5 h-5 text-indigo-400" />
             Manage Courses
           </h3>
-          
+
           <div className="space-y-3 mb-6">
             {courses.map(course => (
               <div key={course.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 group">
@@ -149,7 +144,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button 
+                  <button
                     onClick={() => openKnowledgeModal(course)}
                     className="p-2 text-gray-400 hover:text-indigo-400 hover:bg-indigo-900/20 rounded-lg transition-colors flex items-center gap-1"
                     title="Edit Course Knowledge/Notes"
@@ -157,8 +152,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
                     <FileText className="w-4 h-4" />
                     <span className="text-xs font-medium hidden md:inline">Knowledge</span>
                   </button>
-                  <button 
-                    onClick={() => onDeleteCourse(course.id)}
+                  <button
+                    onClick={() => deleteCourse(course.id)}
                     className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
                     title="Delete Course"
                   >
@@ -175,8 +170,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Course Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newCourseName}
                   onChange={(e) => setNewCourseName(e.target.value)}
                   placeholder="e.g. Introduction to CS"
@@ -185,8 +180,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Target Hours</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={newCourseTarget}
                   onChange={(e) => setNewCourseTarget(parseInt(e.target.value))}
                   className="retro-input w-full p-2 rounded-lg text-sm"
@@ -194,7 +189,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
                 />
               </div>
             </div>
-            
+
             <div className="mb-4">
               <label className="block text-xs text-gray-500 mb-2">Color Theme</label>
               <div className="flex flex-wrap gap-2">
@@ -210,8 +205,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="retro-btn w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-medium hover:bg-black transition-colors flex items-center justify-center gap-2 border border-gray-700"
             >
               <Plus className="w-4 h-4" />
@@ -221,9 +216,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
         </div>
 
         <div className="pt-6 border-t border-gray-700">
-            <p className="text-sm text-gray-500">
-                Note: Deleting a course will also hide its associated assignments and history from the dashboard.
-            </p>
+          <p className="text-sm text-gray-500">
+            Note: Deleting a course will also hide its associated assignments and history from the dashboard.
+          </p>
         </div>
       </div>
 
@@ -240,22 +235,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto flex-1 bg-gray-900">
               {/* File Upload Section */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                   <label className="block text-sm font-medium text-gray-300">Upload Materials</label>
-                   <span className="text-xs text-gray-500">PDF or Text files</span>
+                  <label className="block text-sm font-medium text-gray-300">Upload Materials</label>
+                  <span className="text-xs text-gray-500">PDF or Text files</span>
                 </div>
-                <div 
+                <div
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed border-gray-700 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-gray-800 transition-all ${isProcessingFile ? 'opacity-50 pointer-events-none' : ''}`}
                 >
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
                     accept=".pdf,.txt,.md,.json"
                     onChange={handleFileUpload}
                   />
@@ -284,11 +279,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
                   </p>
                 </div>
                 {knowledgeInput.length > 0 && (
-                  <button 
+                  <button
                     onClick={() => {
-                        if (window.confirm("Are you sure you want to clear all notes for this course?")) {
-                            setKnowledgeInput("");
-                        }
+                      if (window.confirm("Are you sure you want to clear all notes for this course?")) {
+                        setKnowledgeInput("");
+                      }
                     }}
                     className="text-xs text-red-500 hover:text-red-400 font-medium flex items-center gap-1 px-2 py-1 hover:bg-red-900/20 rounded"
                   >
@@ -297,7 +292,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
                   </button>
                 )}
               </div>
-              
+
               <textarea
                 className="retro-input w-full h-64 p-4 rounded-xl text-sm font-mono resize-none leading-relaxed"
                 placeholder="Example: 
@@ -311,13 +306,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ courses, onAddCourse
             </div>
 
             <div className="p-4 border-t border-gray-700 bg-gray-800 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setEditingCourse(null)}
                 className="px-4 py-2 text-gray-400 hover:bg-gray-700 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={saveKnowledge}
                 className="retro-btn px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-500 transition-colors flex items-center gap-2"
               >

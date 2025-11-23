@@ -1,14 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Chat } from "@google/genai";
 import { MessageCircle, X, Send, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { Course, Assignment, UserStats } from '../types';
-
-interface ChatBotProps {
-  courses: Course[];
-  assignments: Assignment[];
-  userStats: UserStats;
-}
+import { useCourses } from '../hooks/useCourses';
+import { useAssignments } from '../hooks/useAssignments';
+import { useStats } from '../hooks/useStats';
 
 interface Message {
   role: 'user' | 'model';
@@ -17,12 +13,15 @@ interface Message {
 
 const STORAGE_KEY = 'semesterflow_chat_history';
 
-export const ChatBot: React.FC<ChatBotProps> = ({ courses, assignments, userStats }) => {
+export const ChatBot = () => {
+  const { courses } = useCourses();
+  const { assignments } = useAssignments();
+  const { userStats } = useStats();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [chatSession, setChatSession] = useState<Chat | null>(null);
+  const [chatSession, setChatSession] = useState<any | null>(null);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -65,12 +64,33 @@ export const ChatBot: React.FC<ChatBotProps> = ({ courses, assignments, userStat
     if (isOpen && !chatSession && isHistoryLoaded) {
       initChat();
     }
-  }, [isOpen, chatSession, isHistoryLoaded]); 
+  }, [isOpen, chatSession, isHistoryLoaded]);
 
   const initChat = async () => {
+    // Chat session is managed on the server or stateless for this simple implementation
+    // We'll just set a flag that we are ready
+    setChatSession({} as any);
+    if (messages.length === 0) {
+      setMessages([{ role: 'model', text: "Hi! I'm here to help you crush your semester. Ask me about your schedule or specific course topics if you've added notes!" }]);
+    }
+  };
+
+  const handleResetChat = () => {
+    setChatSession(null);
+    setMessages([]);
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    const userText = input;
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userText }]);
+    setIsLoading(true);
+
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      
+      // Prepare context data
       const contextData = {
         currentDate: new Date().toLocaleDateString(),
         stats: userStats,
@@ -79,7 +99,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ courses, assignments, userStat
           progress: `${c.hoursCompleted}/${c.totalHoursTarget}h`,
           nextExam: c.nextExamDate,
           completedAssignments: c.completedAssignments,
-          knowledgeBase: c.knowledge || "No notes provided." 
+          knowledgeBase: c.knowledge || "No notes provided."
         })),
         upcomingAssignments: assignments
           .filter(a => a.status !== 'COMPLETED')
@@ -107,59 +127,60 @@ Guidelines:
         parts: [{ text: msg.text }]
       }));
 
-      const chat = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: {
-          systemInstruction: systemInstruction,
-        },
-        history: history
+      const response = await fetch('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userText,
+          history: history,
+          systemInstruction: systemInstruction
+        })
       });
-      
-      setChatSession(chat);
-      
-      if (messages.length === 0) {
-        setMessages([{ role: 'model', text: "Hi! I'm here to help you crush your semester. Ask me about your schedule or specific course topics if you've added notes!" }]);
-      }
-    } catch (error) {
-      console.error("Chat init error:", error);
-      setMessages([{ role: 'model', text: "I'm having trouble connecting right now. Please try again later." }]);
-    }
-  };
 
-  const handleResetChat = () => {
-    setChatSession(null);
-    setMessages([]);
-    localStorage.removeItem(STORAGE_KEY);
-  };
+      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.body) throw new Error('No response body');
 
-  const handleSend = async () => {
-    if (!input.trim() || !chatSession) return;
-
-    const userText = input;
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userText }]);
-    setIsLoading(true);
-
-    try {
-      const resultStream = await chatSession.sendMessageStream({ message: userText });
-      setMessages(prev => [...prev, { role: 'model', text: '' }]);
-      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
       let fullText = '';
-      for await (const chunk of resultStream) {
-        const chunkText = chunk.text || '';
-        fullText += chunkText;
-        setMessages(prev => {
-          const newHistory = [...prev];
-          newHistory[newHistory.length - 1] = { 
-            role: 'model', 
-            text: fullText 
-          };
-          return newHistory;
-        });
+
+      setMessages(prev => [...prev, { role: 'model', text: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr === '[DONE]') break;
+
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.text) {
+                fullText += data.text;
+                setMessages(prev => {
+                  const newHistory = [...prev];
+                  newHistory[newHistory.length - 1] = {
+                    role: 'model',
+                    text: fullText
+                  };
+                  return newHistory;
+                });
+              }
+            } catch (e) {
+              console.error('Error parsing SSE data', e);
+            }
+          }
+        }
       }
+
     } catch (error) {
-      console.error("Streaming error:", error);
-      setMessages(prev => [...prev, { role: 'model', text: "Sorry, something went wrong. Please try asking again." }]);
+      console.error("Chat error:", error);
+      setMessages(prev => [...prev, { role: 'model', text: "Sorry, I'm having trouble connecting to the server. Please ensure the backend is running." }]);
     } finally {
       setIsLoading(false);
     }
@@ -177,9 +198,8 @@ Guidelines:
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300 transform hover:scale-105 border-2 border-black ${
-          isOpen ? 'bg-red-600 rotate-90 text-white' : 'bg-indigo-600 text-white'
-        }`}
+        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300 transform hover:scale-105 border-2 border-black ${isOpen ? 'bg-red-600 rotate-90 text-white' : 'bg-indigo-600 text-white'
+          }`}
       >
         {isOpen ? (
           <X className="w-6 h-6" />
@@ -206,13 +226,13 @@ Guidelines:
               </div>
             </div>
             <div className="flex items-center gap-1">
-                <button 
-                    onClick={handleResetChat} 
-                    title="New Chat / Reload Context" 
-                    className="p-1.5 text-indigo-300 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors flex items-center gap-1"
-                >
-                    <RefreshCw className="w-4 h-4" />
-                </button>
+              <button
+                onClick={handleResetChat}
+                title="New Chat / Reload Context"
+                className="p-1.5 text-indigo-300 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors flex items-center gap-1"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -224,11 +244,10 @@ Guidelines:
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
-                    msg.role === 'user'
-                      ? 'bg-indigo-600 text-white rounded-tr-none shadow-[0_4px_6px_rgba(0,0,0,0.3)]'
-                      : 'bg-gray-800 text-gray-100 border border-gray-700 rounded-tl-none shadow-sm'
-                  }`}
+                  className={`max-w-[85%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${msg.role === 'user'
+                    ? 'bg-indigo-600 text-white rounded-tr-none shadow-[0_4px_6px_rgba(0,0,0,0.3)]'
+                    : 'bg-gray-800 text-gray-100 border border-gray-700 rounded-tl-none shadow-sm'
+                    }`}
                 >
                   {msg.text}
                 </div>
