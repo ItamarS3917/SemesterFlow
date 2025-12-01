@@ -1,16 +1,17 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { Assignment, AssignmentStatus } from '../types';
 import { useAuth } from './AuthContext';
-import * as FirestoreService from '../services/firestore';
+import * as SupabaseDB from '../services/supabaseDB';
 import { CoursesContext } from './CoursesContext';
 
 interface AssignmentsContextType {
     assignments: Assignment[];
     loading: boolean;
-    addAssignment: (assignment: Assignment) => Promise<void>;
+    addAssignment: (assignment: Assignment) => Promise<string>;
     updateAssignment: (assignment: Assignment) => Promise<void>;
     deleteAssignment: (id: string) => Promise<void>;
     toggleAssignmentStatus: (id: string) => Promise<void>;
+    refreshAssignments: () => Promise<void>;
 }
 
 export const AssignmentsContext = createContext<AssignmentsContextType | undefined>(undefined);
@@ -21,6 +22,16 @@ export const AssignmentsProvider: React.FC<{ children: ReactNode }> = ({ childre
     const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const refreshAssignments = async () => {
+        if (!user) return;
+        try {
+            const data = await SupabaseDB.fetchAssignments(user.uid);
+            setAssignments(data);
+        } catch (error) {
+            console.error('Error refreshing assignments:', error);
+        }
+    };
+
     useEffect(() => {
         if (!user) {
             setAssignments([]);
@@ -28,51 +39,73 @@ export const AssignmentsProvider: React.FC<{ children: ReactNode }> = ({ childre
             return;
         }
 
-        const unsubscribe = FirestoreService.subscribeToAssignments(user.uid, (data) => {
-            setAssignments(data);
-            setLoading(false);
-        });
+        const loadAssignments = async () => {
+            try {
+                const data = await SupabaseDB.fetchAssignments(user.uid);
+                setAssignments(data);
+            } catch (error) {
+                console.error('Error loading assignments:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        return () => unsubscribe();
+        loadAssignments();
     }, [user]);
 
-    const addAssignment = async (newAssignment: Assignment) => {
-        if (!user) return;
-        const assignmentWithDate = {
-            ...newAssignment,
-            createdAt: newAssignment.createdAt || new Date().toISOString()
-        };
-        await FirestoreService.addAssignmentToDB(user.uid, assignmentWithDate);
+    const addAssignment = async (newAssignment: Assignment): Promise<string> => {
+        if (!user) throw new Error('Not authenticated');
+        
+        try {
+            const assignmentWithDate = {
+                ...newAssignment,
+                createdAt: newAssignment.createdAt || new Date().toISOString()
+            };
+            
+            // Add assignment and get the DB-generated ID
+            const dbId = await SupabaseDB.addAssignmentToDB(user.uid, assignmentWithDate);
+            await refreshAssignments();
 
-        // Update course count
-        if (coursesContext) {
-            const course = coursesContext.courses.find(c => c.id === newAssignment.courseId);
-            if (course) {
-                await FirestoreService.updateCourseInDB(user.uid, {
-                    ...course,
-                    totalAssignments: course.totalAssignments + 1
-                });
+            // Update course count
+            if (coursesContext) {
+                const course = coursesContext.courses.find(c => c.id === newAssignment.courseId);
+                if (course) {
+                    await SupabaseDB.updateCourseInDB(user.uid, {
+                        ...course,
+                        totalAssignments: course.totalAssignments + 1
+                    });
+                    await coursesContext.refreshCourses();
+                }
             }
+            
+            return dbId;
+        } catch (error) {
+            console.error('Error adding assignment:', error);
+            throw error;
         }
     };
 
     const updateAssignment = async (assignment: Assignment) => {
-        if (user) await FirestoreService.updateAssignmentInDB(user.uid, assignment);
+        if (!user) return;
+        await SupabaseDB.updateAssignmentInDB(user.uid, assignment);
+        await refreshAssignments();
     };
 
     const deleteAssignment = async (id: string) => {
         if (!user) return;
         const assignment = assignments.find(a => a.id === id);
         if (assignment) {
-            await FirestoreService.deleteAssignmentFromDB(user.uid, id);
+            await SupabaseDB.deleteAssignmentFromDB(user.uid, id);
+            await refreshAssignments();
 
             if (coursesContext) {
                 const course = coursesContext.courses.find(c => c.id === assignment.courseId);
                 if (course) {
-                    await FirestoreService.updateCourseInDB(user.uid, {
+                    await SupabaseDB.updateCourseInDB(user.uid, {
                         ...course,
                         totalAssignments: Math.max(0, course.totalAssignments - 1)
                     });
+                    await coursesContext.refreshCourses();
                 }
             }
         }
@@ -91,23 +124,25 @@ export const AssignmentsProvider: React.FC<{ children: ReactNode }> = ({ childre
                 startedAt = new Date().toISOString();
             }
 
-            await FirestoreService.updateAssignmentInDB(user.uid, { ...a, status: newStatus, startedAt });
+            await SupabaseDB.updateAssignmentInDB(user.uid, { ...a, status: newStatus, startedAt });
+            await refreshAssignments();
 
             if (coursesContext) {
                 const course = coursesContext.courses.find(c => c.id === a.courseId);
                 if (course) {
                     const change = newStatus === AssignmentStatus.COMPLETED ? 1 : -1;
-                    await FirestoreService.updateCourseInDB(user.uid, {
+                    await SupabaseDB.updateCourseInDB(user.uid, {
                         ...course,
                         completedAssignments: Math.max(0, course.completedAssignments + change)
                     });
+                    await coursesContext.refreshCourses();
                 }
             }
         }
     };
 
     return (
-        <AssignmentsContext.Provider value={{ assignments, loading, addAssignment, updateAssignment, deleteAssignment, toggleAssignmentStatus }}>
+        <AssignmentsContext.Provider value={{ assignments, loading, addAssignment, updateAssignment, deleteAssignment, toggleAssignmentStatus, refreshAssignments }}>
             {children}
         </AssignmentsContext.Provider>
     );

@@ -30,14 +30,34 @@ export interface Course {
   weakConcepts?: string[]; // Concepts the student struggles with
 }
 
+export interface AttachmentLink {
+  url: string;
+  name: string; // Display name for the link
+  service: string; // 'Dropbox', 'OneDrive', etc.
+  addedAt: string; // ISO Date string
+}
+
+// For actual file uploads to Firebase Storage
+export interface FileAttachment {
+  id: string;
+  name: string;
+  url: string; // Download URL from Firebase Storage
+  storagePath: string; // Path in Firebase Storage (for deletion)
+  size: number; // File size in bytes
+  type: string; // MIME type
+  uploadedAt: string; // ISO Date string
+}
+
 export interface Assignment {
   id: string;
   courseId: string;
   name: string;
-  dueDate: string; // ISO Date string
+  dueDate?: string; // ISO Date string
   estimatedHours: number;
   status: AssignmentStatus;
   notes?: string;
+  attachments?: AttachmentLink[]; // Secure links to Dropbox, OneDrive, etc.
+  files?: FileAttachment[]; // Actual uploaded files in Firebase Storage
   createdAt: string; // ISO Date string (When the assignment was assigned/added)
   startedAt?: string; // ISO Date string (When work actually began)
 }

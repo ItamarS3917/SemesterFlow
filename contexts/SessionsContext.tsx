@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { StudySession } from '../types';
 import { useAuth } from './AuthContext';
-import * as FirestoreService from '../services/firestore';
+import * as SupabaseDB from '../services/supabaseDB';
 import { CoursesContext } from './CoursesContext';
 import { StatsContext } from './StatsContext';
 
@@ -9,6 +9,7 @@ interface SessionsContextType {
     sessions: StudySession[];
     loading: boolean;
     saveSession: (courseId: string, durationSeconds: number, notes: string, addToKnowledge: boolean, topic?: string, difficulty?: number) => Promise<void>;
+    refreshSessions: () => Promise<void>;
 }
 
 export const SessionsContext = createContext<SessionsContextType | undefined>(undefined);
@@ -21,6 +22,16 @@ export const SessionsProvider: React.FC<{ children: ReactNode }> = ({ children }
     const [sessions, setSessions] = useState<StudySession[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const refreshSessions = async () => {
+        if (!user) return;
+        try {
+            const data = await SupabaseDB.fetchSessions(user.uid);
+            setSessions(data);
+        } catch (error) {
+            console.error('Error refreshing sessions:', error);
+        }
+    };
+
     useEffect(() => {
         if (!user) {
             setSessions([]);
@@ -28,19 +39,25 @@ export const SessionsProvider: React.FC<{ children: ReactNode }> = ({ children }
             return;
         }
 
-        const unsubscribe = FirestoreService.subscribeToSessions(user.uid, (data) => {
-            setSessions(data);
-            setLoading(false);
-        });
+        const loadSessions = async () => {
+            try {
+                const data = await SupabaseDB.fetchSessions(user.uid);
+                setSessions(data);
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        return () => unsubscribe();
+        loadSessions();
     }, [user]);
 
     const saveSession = async (courseId: string, durationSeconds: number, notes: string, addToKnowledge: boolean, topic: string = 'General', difficulty: number = 3) => {
         if (!user || !coursesContext || !statsContext) return;
 
         const newSession: StudySession = {
-            id: Date.now().toString(), // Will be ignored by addDoc
+            id: Date.now().toString(),
             courseId,
             startTime: new Date().toISOString(),
             durationSeconds,
@@ -71,13 +88,18 @@ export const SessionsProvider: React.FC<{ children: ReactNode }> = ({ children }
                 totalSemesterHours: parseFloat((statsContext.userStats.totalSemesterHours + hoursToAdd).toFixed(1))
             };
 
-            // Save all atomically (simulated)
-            await FirestoreService.saveSessionTransaction(user.uid, newSession, updatedCourse, updatedStats);
+            // Save all
+            await SupabaseDB.saveSessionTransaction(user.uid, newSession, updatedCourse, updatedStats);
+            
+            // Refresh data
+            await refreshSessions();
+            await coursesContext.refreshCourses();
+            await statsContext.refreshStats();
         }
     };
 
     return (
-        <SessionsContext.Provider value={{ sessions, loading, saveSession }}>
+        <SessionsContext.Provider value={{ sessions, loading, saveSession, refreshSessions }}>
             {children}
         </SessionsContext.Provider>
     );

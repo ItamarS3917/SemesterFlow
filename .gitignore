@@ -42,3 +42,9 @@ server/.env.*
 .firebaserc
 firebase-debug.log
 firestore-debug.log
+
+# AI Agent Directories
+.ai/
+.antigravity/
+.claude/
+.gemini/

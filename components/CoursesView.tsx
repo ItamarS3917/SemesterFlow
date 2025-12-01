@@ -119,7 +119,11 @@ export const CoursesView = () => {
               {courseAssignments.length === 0 ? (
                 <p className="text-gray-500 text-center py-8 font-mono uppercase text-sm">No tasks assigned.</p>
               ) : (
-                courseAssignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).map(assignment => (
+                courseAssignments.sort((a, b) => {
+                  if (!a.dueDate) return 1;
+                  if (!b.dueDate) return -1;
+                  return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+                }).map(assignment => (
                   <div key={assignment.id} className="flex items-center justify-between p-4 bg-gray-800 border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
                     <div className="flex items-center gap-4">
                       <div className={`w-4 h-4 border-2 border-black ${assignment.status === AssignmentStatus.COMPLETED ? 'bg-green-500' : assignment.status === AssignmentStatus.IN_PROGRESS ? 'bg-yellow-400' : 'bg-gray-700'}`}></div>
@@ -127,7 +131,7 @@ export const CoursesView = () => {
                         <div className={`font-bold font-mono text-sm ${assignment.status === AssignmentStatus.COMPLETED ? 'text-gray-500 line-through' : 'text-white'}`}>
                           {assignment.name}
                         </div>
-                        <div className="text-[10px] text-gray-400 font-mono uppercase">Due: {new Date(assignment.dueDate).toLocaleDateString()}</div>
+                        <div className="text-[10px] text-gray-400 font-mono uppercase">Due: {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : 'No Date'}</div>
                       </div>
                     </div>
                     <div className="text-xs font-bold font-mono bg-black text-white px-2 py-1 border border-gray-700">
