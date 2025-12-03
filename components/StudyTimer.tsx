@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Clock, Check, HardDrive, AlertCircle } from 'lucide-react';
+import { Play, Pause, Clock, Check, HardDrive, AlertCircle, Coffee, Zap } from 'lucide-react';
 import { Course, CourseId } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useSessions } from '../hooks/useSessions';
@@ -25,6 +25,10 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
   const [notes, setNotes] = useState('');
   const [addToKnowledge, setAddToKnowledge] = useState(false);
 
+  // Pomodoro State
+  const [targetSeconds, setTargetSeconds] = useState<number | null>(null); // If set, we are in countdown mode
+  const [pomodoroMode, setPomodoroMode] = useState<'work' | 'break'>('work');
+
   // Effect to handle incoming "Break Pattern" requests (props change)
   useEffect(() => {
     if (initialCourseId) setSelectedCourseId(initialCourseId);
@@ -36,20 +40,53 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
     if (isActive) {
       interval = window.setInterval(() => {
-        setSeconds(prev => prev + 1);
+        setSeconds(prev => {
+          const next = prev + 1;
+          // Check for Pomodoro completion
+          if (targetSeconds && next >= targetSeconds) {
+            setIsActive(false);
+            // Play notification sound or alert here if we had one
+            if (Notification.permission === 'granted') {
+              new Notification(pomodoroMode === 'work' ? "Pomodoro Complete!" : "Break Over!");
+            }
+            return next;
+          }
+          return next;
+        });
       }, 1000);
     } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
 
     return () => clearInterval(interval);
-  }, [isActive, seconds]);
+  }, [isActive, seconds, targetSeconds, pomodoroMode]);
+
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   const formatTime = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getDisplayTime = () => {
+    if (targetSeconds) {
+      const remaining = Math.max(0, targetSeconds - seconds);
+      return formatTime(remaining);
+    }
+    return formatTime(seconds);
+  };
+
+  const startPomodoro = (type: 'work' | 'break') => {
+    setPomodoroMode(type);
+    setTargetSeconds(type === 'work' ? 25 * 60 : 5 * 60);
+    setSeconds(0);
+    setIsActive(true);
   };
 
   const handleStop = () => {
@@ -127,7 +164,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%] pointer-events-none"></div>
 
         <div className={`text-7xl font-mono font-bold tracking-widest z-10 transition-colors ${isActive ? 'text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]' : 'text-gray-600'}`}>
-          {formatTime(seconds)}
+          {getDisplayTime()}
         </div>
 
         <div className="text-xs font-mono text-gray-500 mt-4 uppercase tracking-[0.3em] z-10">
@@ -146,21 +183,37 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
       {/* Playback Controls */}
       {seconds === 0 || isActive ? (
-        <div className="flex items-center justify-center gap-6 mb-8">
-          {!isActive ? (
-            <button
-              onClick={() => setIsActive(true)}
-              className="retro-btn flex items-center justify-center w-20 h-20 bg-green-500 text-black border-2 border-black rounded-full hover:bg-green-400 hover:scale-105 transition-transform shadow-[4px_4px_0px_0px_#000]"
-            >
-              <Play className="w-10 h-10 ml-1 fill-current" />
-            </button>
-          ) : (
-            <button
-              onClick={handleStop}
-              className="retro-btn flex items-center justify-center w-20 h-20 bg-yellow-400 text-black border-2 border-black rounded-full hover:bg-yellow-300 hover:scale-105 transition-transform shadow-[4px_4px_0px_0px_#000]"
-            >
-              <Pause className="w-10 h-10 fill-current" />
-            </button>
+        <div className="flex flex-col items-center gap-4 mb-8">
+          <div className="flex items-center justify-center gap-6">
+            {!isActive ? (
+              <button
+                onClick={() => {
+                  setTargetSeconds(null); // Reset to stopwatch
+                  setIsActive(true);
+                }}
+                className="retro-btn flex items-center justify-center w-20 h-20 bg-green-500 text-black border-2 border-black rounded-full hover:bg-green-400 hover:scale-105 transition-transform shadow-[4px_4px_0px_0px_#000]"
+              >
+                <Play className="w-10 h-10 ml-1 fill-current" />
+              </button>
+            ) : (
+              <button
+                onClick={handleStop}
+                className="retro-btn flex items-center justify-center w-20 h-20 bg-yellow-400 text-black border-2 border-black rounded-full hover:bg-yellow-300 hover:scale-105 transition-transform shadow-[4px_4px_0px_0px_#000]"
+              >
+                <Pause className="w-10 h-10 fill-current" />
+              </button>
+            )}
+          </div>
+
+          {!isActive && seconds === 0 && (
+            <div className="flex gap-4">
+              <button onClick={() => startPomodoro('work')} className="retro-btn px-4 py-2 bg-red-500 text-white text-xs font-bold border-2 border-black flex items-center gap-2 hover:bg-red-400">
+                <Zap className="w-4 h-4" /> POMODORO (25m)
+              </button>
+              <button onClick={() => startPomodoro('break')} className="retro-btn px-4 py-2 bg-blue-500 text-white text-xs font-bold border-2 border-black flex items-center gap-2 hover:bg-blue-400">
+                <Coffee className="w-4 h-4" /> BREAK (5m)
+              </button>
+            </div>
           )}
         </div>
       ) : null}

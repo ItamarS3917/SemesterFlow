@@ -105,8 +105,19 @@ export const ChatBot = () => {
           .filter(a => a.status !== 'COMPLETED')
           .map(a => ({
             name: a.name,
+            course: courses.find(c => c.id === a.courseId)?.name || 'Unknown',
             due: a.dueDate,
-            hoursEstimated: a.estimatedHours
+            hoursEstimated: a.estimatedHours,
+            attachedFiles: a.files?.map(f => ({
+              name: f.name,
+              type: f.type,
+              url: f.url
+            })) || [],
+            attachedLinks: a.attachments?.map(att => ({
+              name: att.name,
+              service: att.service,
+              url: att.url
+            })) || []
           }))
       };
 
@@ -120,7 +131,9 @@ Guidelines:
 2. If asked about deadlines, reference the "upcomingAssignments".
 3. If asked about progress, reference specific course stats.
 4. If the user asks a technical question about a course, CHECK THE "knowledgeBase" field.
-5. If the user seems stressed, offer break suggestions.`;
+5. If the user seems stressed, offer break suggestions.
+6. Each assignment may have "attachedFiles" (uploaded to storage) and "attachedLinks" (cloud links). You can tell the user what files are attached to their assignments.
+7. If the user asks about files for an assignment, list the file names and mention they can access them from the Assignments page.`;
 
       const history = messages.map(msg => ({
         role: msg.role,

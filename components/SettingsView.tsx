@@ -27,25 +27,37 @@ export const SettingsView = () => {
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCourseName.trim()) return;
 
+    // Validate target hours
+    const targetHours = Number(newCourseTarget);
+    if (isNaN(targetHours) || targetHours <= 0) {
+      alert("Please enter a valid number for Target Hours (must be greater than 0).");
+      return;
+    }
+
     const colorTheme = PRESET_COLORS[selectedColorIdx];
     const newCourse: Course = {
+      ...colorTheme,
       id: Date.now().toString(),
       name: newCourseName,
-      totalHoursTarget: newCourseTarget,
+      totalHoursTarget: targetHours,
       hoursCompleted: 0,
       totalAssignments: 0,
       completedAssignments: 0,
       knowledge: '',
-      ...colorTheme
     };
 
-    addCourse(newCourse);
-    setNewCourseName('');
-    setNewCourseTarget(100);
+    try {
+      await addCourse(newCourse);
+      setNewCourseName('');
+      setNewCourseTarget(100);
+    } catch (error: any) {
+      console.error("Failed to add course:", error);
+      alert(`Failed to save course: ${error?.message || error?.code || 'Unknown error'}`);
+    }
   };
 
   const openKnowledgeModal = (course: Course) => {
@@ -183,9 +195,18 @@ export const SettingsView = () => {
                 <input
                   type="number"
                   value={newCourseTarget}
-                  onChange={(e) => setNewCourseTarget(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    // Allow empty string for typing, otherwise parse
+                    if (val === '') {
+                      // @ts-ignore - Temporary workaround to allow clearing input if state is strictly number
+                      setNewCourseTarget('');
+                    } else {
+                      setNewCourseTarget(parseInt(val) || 0);
+                    }
+                  }}
                   className="retro-input w-full p-2 rounded-lg text-sm"
-                  min="10"
+                  min="1"
                 />
               </div>
             </div>

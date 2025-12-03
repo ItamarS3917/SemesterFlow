@@ -27,6 +27,7 @@ import { CoursesView } from './components/CoursesView';
 import { ProcrastinationWidget } from './components/ProcrastinationWidget';
 import { StudyPartner } from './components/StudyPartner';
 import { LoginPage } from './components/LoginPage';
+import { DarkModeToggle } from './components/DarkModeToggle';
 
 // Auth & Contexts
 import { useAuth } from './contexts/AuthContext';
@@ -38,11 +39,22 @@ import { useSessions } from './hooks/useSessions';
 
 const AppContent = () => {
   const { user, logout } = useAuth();
-  const { courses } = useCourses();
-  const { assignments } = useAssignments();
-  const { userStats } = useStats();
-  // sessions are used in Analytics and CoursesView, but not directly in AppContent usually, 
-  // except for passing down if we didn't have context. Now they will use hooks.
+  const { courses, loading: coursesLoading } = useCourses();
+  const { assignments, loading: assignmentsLoading } = useAssignments();
+  const { userStats, loading: statsLoading } = useStats();
+  const { loading: sessionsLoading } = useSessions();
+
+  const isLoading = coursesLoading || assignmentsLoading || statsLoading || sessionsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-dots flex flex-col items-center justify-center text-white">
+        <div className="retro-card p-6 text-center border-indigo-500">
+          <p className="font-mono text-xl font-black uppercase">System Booting...</p>
+        </div>
+      </div>
+    );
+  }
 
   const [activeView, setActiveView] = useState<ViewState>('DASHBOARD');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -67,8 +79,8 @@ const AppContent = () => {
         setMobileMenuOpen(false);
       }}
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all border-2 ${activeView === view
-          ? 'bg-indigo-900/50 text-indigo-300 font-bold border-indigo-500 shadow-[3px_3px_0px_0px_#6366f1] translate-x-[-2px] translate-y-[-2px]'
-          : 'border-transparent text-gray-400 hover:bg-gray-800 hover:text-white'
+        ? 'bg-indigo-900/50 text-indigo-300 font-bold border-indigo-500 shadow-[3px_3px_0px_0px_#6366f1] translate-x-[-2px] translate-y-[-2px]'
+        : 'border-transparent text-gray-400 hover:bg-gray-800 hover:text-white'
         }`}
     >
       <Icon className={`w-5 h-5 ${activeView === view ? 'stroke-[3px]' : 'stroke-2'}`} />
@@ -78,8 +90,8 @@ const AppContent = () => {
 
   const Dashboard = () => {
     const upcomingAssignments = assignments
-      .filter(a => a.status !== AssignmentStatus.COMPLETED)
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+      .filter(a => a.status !== AssignmentStatus.COMPLETED && a.dueDate)
+      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
       .slice(0, 3);
 
     return (
@@ -147,7 +159,7 @@ const AppContent = () => {
               <div className="space-y-4">
                 {upcomingAssignments.map(assignment => {
                   const course = courses.find(c => c.id === assignment.courseId);
-                  const daysLeft = Math.ceil((new Date(assignment.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                  const daysLeft = assignment.dueDate ? Math.ceil((new Date(assignment.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)) : null;
                   return (
                     <div key={assignment.id} className="flex items-center p-4 bg-gray-800 border-2 border-gray-700 hover:border-indigo-500 rounded-lg transition-all hover:translate-x-1 group">
                       <div className={`w-2 h-12 ${course?.color || 'bg-gray-600'} border-2 border-black mr-4 shadow-[2px_2px_0px_0px_#000]`}></div>
@@ -161,10 +173,10 @@ const AppContent = () => {
                         <h4 className="font-bold text-white text-sm">{assignment.name}</h4>
                       </div>
                       <div className="text-right font-mono">
-                        <div className={`text-lg font-bold ${daysLeft <= 3 ? 'text-red-400' : 'text-gray-400'}`}>
-                          {daysLeft}d
+                        <div className={`text-lg font-bold ${daysLeft !== null && daysLeft <= 3 ? 'text-red-400' : 'text-gray-400'}`}>
+                          {daysLeft !== null ? `${daysLeft}d` : '-'}
                         </div>
-                        <div className="text-[10px] text-gray-500 uppercase">{new Date(assignment.dueDate).toLocaleDateString()}</div>
+                        <div className="text-[10px] text-gray-500 uppercase">{assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : 'No Date'}</div>
                       </div>
                     </div>
                   );
@@ -269,8 +281,8 @@ const AppContent = () => {
               </h4>
               <p className="text-sm font-bold text-white line-clamp-1">
                 {assignments
-                  .filter(a => a.status !== 'COMPLETED')
-                  .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]?.name || 'All Clear!'}
+                  .filter(a => a.status !== 'COMPLETED' && a.dueDate)
+                  .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())[0]?.name || 'All Clear!'}
               </p>
             </div>
           )}
@@ -314,6 +326,7 @@ const AppContent = () => {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <DarkModeToggle />
             <button className="relative p-2 text-gray-400 hover:bg-gray-800 rounded-lg border-2 border-transparent hover:border-gray-700 transition-colors">
               <Bell className="w-6 h-6" />
               <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-gray-900 rounded-full"></span>

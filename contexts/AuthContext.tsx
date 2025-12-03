@@ -1,20 +1,26 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  signInAnonymously, 
-  signOut, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { auth } from '../services/firebase';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../services/supabase';
+
+// Extend Supabase User type with uid for compatibility if needed, 
+// but for now we'll just use the Supabase User type directly.
+// If other components expect 'uid', we might need to map 'id' to 'uid'.
+// Let's check if we need to add a compatibility layer.
+// Looking at previous code, it seems 'uid' was used. Supabase user has 'id'.
+// Let's add a compatibility wrapper to be safe, or just cast it.
+// Actually, let's just use the Supabase User and see if we need to fix downstream components.
+// Most likely downstream components use user.uid. Supabase user has user.id.
+// Let's add a compatibility interface to minimize breakage.
+
+interface AuthUser extends User {
+  uid: string;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
+  session: Session | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInGuest: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -27,42 +33,65 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Helper to map Supabase user to our AuthUser type (adding uid alias)
+  const mapUser = (sbUser: User | null): AuthUser | null => {
+    if (!sbUser) return null;
+    return {
+      ...sbUser,
+      uid: sbUser.id
+    } as AuthUser;
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(mapUser(session?.user ?? null));
       setLoading(false);
     });
-    return unsubscribe;
+
+    // Listen for changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(mapUser(session?.user ?? null));
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
     } catch (error) {
       console.error("Google Sign In Error:", error);
       alert("Failed to sign in with Google.");
     }
   };
 
-  const signInGuest = async () => {
+  const logout = async () => {
     try {
-      await signInAnonymously(auth);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     } catch (error) {
-      console.error("Guest Sign In Error:", error);
-      alert("Failed to sign in as guest.");
+      console.error("Logout Error:", error);
     }
   };
 
-  const logout = async () => {
-    await signOut(auth);
-  };
-
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInGuest, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, signInWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

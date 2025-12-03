@@ -1,22 +1,47 @@
 import React, { useState, useRef } from 'react';
-import { CalendarCheck, Plus, Trash2, CheckCircle, Circle, AlertCircle, Clock, X, BrainCircuit, Upload, Loader2, FileText } from 'lucide-react';
-import { Assignment, AssignmentStatus, Course } from '../types';
+import { CalendarCheck, Plus, Trash2, CheckCircle, Circle, AlertCircle, Clock, X, BrainCircuit, Upload, Loader2, FileText, ExternalLink, Download } from 'lucide-react';
+import { Assignment, AssignmentStatus, Course, AttachmentLink, FileAttachment } from '../types';
 import { useAssignments } from '../hooks/useAssignments';
 import { useCourses } from '../hooks/useCourses';
+import { useAuth } from '../contexts/AuthContext';
 import { CalendarMenu } from './CalendarMenu';
+import { AttachmentLinks } from './AttachmentLinks';
+import { FileUpload } from './FileUpload';
+import { formatFileSize, getFileTypeIcon } from '../services/storageService';
+import { AssignmentCsvImport } from './AssignmentCsvImport';
+
+// Helper function to format date for datetime-local input
+const formatDateTimeLocal = (dateString: string | undefined): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  // Check if date is valid
+  if (isNaN(date.getTime())) return '';
+  // Format as YYYY-MM-DDTHH:mm (required format for datetime-local input)
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
 
 export const AssignmentsView = () => {
-  const { assignments, addAssignment, deleteAssignment, toggleAssignmentStatus } = useAssignments();
+  const { assignments, addAssignment, updateAssignment, deleteAssignment, toggleAssignmentStatus } = useAssignments();
   const { courses } = useCourses();
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingAssignmentId, setPendingAssignmentId] = useState<string>('');
   const [newAssignment, setNewAssignment] = useState<Partial<Assignment>>({
     name: '',
     estimatedHours: 5,
-    status: AssignmentStatus.NOT_STARTED
+    status: AssignmentStatus.NOT_STARTED,
+    attachments: [],
+    files: []
   });
 
   // AI Grader State
   const [reviewAssignment, setReviewAssignment] = useState<Assignment | null>(null);
+  const [viewAttachmentsFor, setViewAttachmentsFor] = useState<Assignment | null>(null);
   const [questionContext, setQuestionContext] = useState('');
   const [studentAnswer, setStudentAnswer] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -26,24 +51,64 @@ export const AssignmentsView = () => {
   const questionFileRef = useRef<HTMLInputElement>(null);
   const answerFileRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAssignment.name || !newAssignment.courseId || !newAssignment.dueDate) return;
+    if (!newAssignment.name || !newAssignment.courseId || !user) return;
 
-    const assignment: Assignment = {
-      id: Date.now().toString(),
-      courseId: newAssignment.courseId,
-      name: newAssignment.name,
-      dueDate: newAssignment.dueDate,
-      estimatedHours: newAssignment.estimatedHours || 5,
-      status: AssignmentStatus.NOT_STARTED,
-      notes: '',
-      createdAt: new Date().toISOString()
-    };
+    setIsSubmitting(true);
+    try {
+      // First, create the assignment WITHOUT files (to get DB-generated ID)
+      const assignment: Assignment = {
+        id: '', // Will be replaced by DB-generated ID
+        courseId: newAssignment.courseId,
+        name: newAssignment.name,
+        dueDate: newAssignment.dueDate,
+        estimatedHours: newAssignment.estimatedHours || 5,
+        status: AssignmentStatus.NOT_STARTED,
+        notes: '',
+        attachments: newAssignment.attachments || [],
+        files: [], // Start empty - will add after upload
+        createdAt: new Date().toISOString()
+      };
 
-    addAssignment(assignment);
+      // Create assignment and get the DB-generated ID
+      const dbId = await addAssignment(assignment);
+
+      // If there are pending files, update the assignment with them
+      // Note: Files were uploaded to pendingAssignmentId storage path, which is fine
+      // The file URLs remain valid regardless of assignment ID
+      if (newAssignment.files && newAssignment.files.length > 0) {
+        const assignmentWithFiles: Assignment = {
+          ...assignment,
+          id: dbId,
+          files: newAssignment.files
+        };
+        await updateAssignment(assignmentWithFiles);
+      }
+
+      setIsModalOpen(false);
+      setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED, attachments: [], files: [] });
+      setPendingAssignmentId('');
+    } catch (error) {
+      console.error("Failed to create assignment:", error);
+      alert("Failed to create assignment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openCreateModal = () => {
+    // Generate ID upfront so we can upload files before saving
+    setPendingAssignmentId(crypto.randomUUID());
+    setIsModalOpen(true);
+  };
+
+  const closeCreateModal = () => {
     setIsModalOpen(false);
-    setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED });
+    setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED, attachments: [], files: [] });
+    setPendingAssignmentId('');
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'question' | 'answer') => {
@@ -133,13 +198,15 @@ export const AssignmentsView = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">Assignment Manager</h2>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreateModal}
           className="retro-btn bg-indigo-600 text-white px-4 py-2 rounded-none text-sm font-bold hover:bg-indigo-500 flex items-center gap-2 transition-colors"
         >
           <Plus className="w-4 h-4" />
           NEW ASSIGNMENT
         </button>
       </div>
+
+      <AssignmentCsvImport />
 
       <div className="retro-card overflow-hidden p-0 border-2 border-black">
         <div className="overflow-x-auto">
@@ -163,13 +230,17 @@ export const AssignmentsView = () => {
                 </tr>
               ) : (
                 assignments
-                  .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+                  .sort((a, b) => {
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+                  })
                   .map(assignment => {
                     const course = courses.find(c => c.id === assignment.courseId);
                     const isCompleted = assignment.status === AssignmentStatus.COMPLETED;
-                    const dueDateObj = new Date(assignment.dueDate);
-                    const startDateObj = new Date(dueDateObj);
-                    startDateObj.setHours(startDateObj.getHours() - 1);
+                    const dueDateObj = assignment.dueDate ? new Date(assignment.dueDate) : undefined;
+                    const startDateObj = dueDateObj ? new Date(dueDateObj) : undefined;
+                    if (startDateObj) startDateObj.setHours(startDateObj.getHours() - 1);
 
                     return (
                       <tr key={assignment.id} className={`border-b-2 border-black hover:bg-gray-800 transition-colors group ${isCompleted ? 'bg-gray-800/50' : 'bg-gray-900'}`}>
@@ -188,7 +259,18 @@ export const AssignmentsView = () => {
                           </button>
                         </td>
                         <td className="p-4 border-r-2 border-black font-bold text-white">
-                          <span className={isCompleted ? 'line-through text-gray-500' : ''}>{assignment.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className={isCompleted ? 'line-through text-gray-500' : ''}>{assignment.name}</span>
+                            {((assignment.attachments && assignment.attachments.length > 0) || (assignment.files && assignment.files.length > 0)) && (
+                              <button
+                                onClick={() => setViewAttachmentsFor(assignment)}
+                                className="text-xs bg-indigo-600 text-white px-2 py-0.5 border border-black font-bold hover:bg-indigo-500 cursor-pointer"
+                                title="View attachments & files"
+                              >
+                                {(assignment.attachments?.length || 0) + (assignment.files?.length || 0)} 📎
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td className="p-4 border-r-2 border-black">
                           <span className={`px-2 py-1 text-[10px] font-bold border border-black shadow-[2px_2px_0px_0px_#000] uppercase ${course?.bg} ${course?.text?.replace('700', '900') || 'text-black'}`}>
@@ -196,7 +278,7 @@ export const AssignmentsView = () => {
                           </span>
                         </td>
                         <td className="p-4 border-r-2 border-black text-gray-400">
-                          {new Date(assignment.dueDate).toLocaleDateString()}
+                          {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : 'No Due Date'}
                         </td>
                         <td className="p-4 border-r-2 border-black text-gray-400">{assignment.estimatedHours}H</td>
                         <td className="p-4">
@@ -210,14 +292,20 @@ export const AssignmentsView = () => {
                             </button>
 
                             <div className="retro-btn p-0 border border-black bg-indigo-600 text-white hover:bg-indigo-500 flex items-center justify-center">
-                              <CalendarMenu
-                                title={`Due: ${assignment.name}`}
-                                description={`Course: ${course?.name}\nEstimated Hours: ${assignment.estimatedHours}`}
-                                startDate={startDateObj}
-                                endDate={dueDateObj}
-                                buttonClass="p-1.5 text-white w-full h-full flex items-center justify-center"
-                                iconClass="w-4 h-4"
-                              />
+                              {dueDateObj && startDateObj ? (
+                                <CalendarMenu
+                                  title={`Due: ${assignment.name}`}
+                                  description={`Course: ${course?.name}\nEstimated Hours: ${assignment.estimatedHours}`}
+                                  startDate={startDateObj}
+                                  endDate={dueDateObj}
+                                  buttonClass="p-1.5 text-white w-full h-full flex items-center justify-center"
+                                  iconClass="w-4 h-4"
+                                />
+                              ) : (
+                                <div className="p-1.5 text-gray-400 w-full h-full flex items-center justify-center cursor-not-allowed" title="No due date">
+                                  <Clock className="w-4 h-4" />
+                                </div>
+                              )}
                             </div>
 
                             <button
@@ -241,14 +329,14 @@ export const AssignmentsView = () => {
       {/* Add Assignment Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="retro-card w-full max-w-md overflow-hidden animate-fade-in-up border-2 border-white shadow-[8px_8px_0px_0px_#fff]">
-            <div className="p-4 border-b-2 border-black flex justify-between items-center bg-gray-800">
+          <div className="retro-card w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden animate-fade-in-up border-2 border-white shadow-[8px_8px_0px_0px_#fff]">
+            <div className="p-4 border-b-2 border-black flex justify-between items-center bg-gray-800 flex-shrink-0">
               <h3 className="font-black text-white font-mono uppercase">Add New Assignment</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white hover:rotate-90 transition-transform">
+              <button onClick={closeCreateModal} className="text-gray-400 hover:text-white hover:rotate-90 transition-transform">
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-gray-900">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-gray-900 overflow-y-auto flex-1">
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Description / Name</label>
                 <input
@@ -281,10 +369,16 @@ export const AssignmentsView = () => {
                   <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Due Date</label>
                   <input
                     type="datetime-local"
-                    required
                     className="retro-input w-full p-3 font-mono text-sm"
-                    value={newAssignment.dueDate || ''}
-                    onChange={e => setNewAssignment({ ...newAssignment, dueDate: e.target.value })}
+                    value={formatDateTimeLocal(newAssignment.dueDate)}
+                    onInvalid={e => e.preventDefault()}
+                    onChange={e => {
+                      const value = e.target.value;
+                      setNewAssignment({
+                        ...newAssignment,
+                        dueDate: value ? new Date(value).toISOString() : undefined
+                      });
+                    }}
                   />
                 </div>
                 <div>
@@ -299,11 +393,41 @@ export const AssignmentsView = () => {
                 </div>
               </div>
 
+              {/* Link Attachments */}
+              <div>
+                <AttachmentLinks
+                  attachments={newAssignment.attachments || []}
+                  onAttachmentsChange={(attachments) => setNewAssignment({ ...newAssignment, attachments })}
+                  maxAttachments={10}
+                />
+              </div>
+
+              {/* File Uploads */}
+              {user && (
+                <div className="border-t border-gray-700 pt-4 mt-4">
+                  <FileUpload
+                    uid={user.uid}
+                    assignmentId={pendingAssignmentId}
+                    files={newAssignment.files || []}
+                    onFilesChange={(files) => setNewAssignment({ ...newAssignment, files })}
+                    maxFiles={5}
+                  />
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="retro-btn w-full bg-green-500 text-black font-black py-4 uppercase tracking-widest hover:bg-green-400 transition-colors mt-6"
+                disabled={isSubmitting}
+                className="retro-btn w-full bg-green-500 text-black font-black py-4 uppercase tracking-widest hover:bg-green-400 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Create Assignment
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    CREATING...
+                  </>
+                ) : (
+                  'Create Assignment'
+                )}
               </button>
             </form>
           </div>
@@ -433,6 +557,114 @@ export const AssignmentsView = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* View Attachments Modal */}
+      {viewAttachmentsFor && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="retro-card w-full max-w-2xl overflow-hidden animate-fade-in-up border-2 border-white shadow-[8px_8px_0px_0px_#fff]">
+            <div className="p-4 border-b-2 border-black flex justify-between items-center bg-gray-800">
+              <div>
+                <h3 className="font-black text-white font-mono uppercase">Attachments</h3>
+                <p className="text-xs text-gray-400 font-mono mt-1">{viewAttachmentsFor.name}</p>
+              </div>
+              <button
+                onClick={() => setViewAttachmentsFor(null)}
+                className="text-gray-400 hover:text-white hover:rotate-90 transition-transform"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 bg-gray-900 max-h-[70vh] overflow-y-auto space-y-6">
+              {/* Uploaded Files Section */}
+              {viewAttachmentsFor.files && viewAttachmentsFor.files.length > 0 && (
+                <div>
+                  <h4 className="text-green-400 font-bold font-mono text-xs uppercase mb-3 flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    Uploaded Files ({viewAttachmentsFor.files.length})
+                  </h4>
+                  <div className="space-y-3">
+                    {viewAttachmentsFor.files.map((file) => (
+                      <div
+                        key={file.id}
+                        className="retro-card bg-gray-800 p-4 border-green-500 hover:border-green-400"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
+                            <span className="text-2xl">{getFileTypeIcon(file.type)}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white font-bold font-mono text-sm mb-1 truncate">
+                                {file.name}
+                              </p>
+                              <p className="text-gray-500 text-xs font-mono">
+                                {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <a
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="retro-btn bg-green-600 text-white hover:bg-green-500 px-4 py-2 text-sm font-bold flex items-center gap-2 flex-shrink-0"
+                          >
+                            <Download className="w-4 h-4" />
+                            Open
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Link Attachments Section */}
+              {viewAttachmentsFor.attachments && viewAttachmentsFor.attachments.length > 0 && (
+                <div>
+                  <h4 className="text-indigo-400 font-bold font-mono text-xs uppercase mb-3 flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    Cloud Links ({viewAttachmentsFor.attachments.length})
+                  </h4>
+                  <div className="space-y-3">
+                    {viewAttachmentsFor.attachments.map((attachment, index) => (
+                      <div
+                        key={index}
+                        className="retro-card bg-gray-800 p-4 border-indigo-500 hover:border-indigo-400"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0 mr-4">
+                            <p className="text-white font-bold font-mono text-sm mb-1 truncate">
+                              {attachment.name}
+                            </p>
+                            <p className="text-gray-500 text-xs font-mono truncate">
+                              {attachment.service} • {attachment.url}
+                            </p>
+                          </div>
+                          <a
+                            href={attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="retro-btn bg-indigo-600 text-white hover:bg-indigo-500 px-4 py-2 text-sm font-bold flex items-center gap-2 flex-shrink-0"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Open
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {(!viewAttachmentsFor.attachments || viewAttachmentsFor.attachments.length === 0) &&
+                (!viewAttachmentsFor.files || viewAttachmentsFor.files.length === 0) && (
+                  <div className="text-center py-8 text-gray-500 font-mono">
+                    <p>No attachments or files</p>
+                  </div>
+                )}
+            </div>
           </div>
         </div>
       )}
