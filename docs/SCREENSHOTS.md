@@ -81,7 +81,7 @@ Save all screenshots in: `docs/images/`
 ### Naming Convention
 Use descriptive names with lowercase and hyphens:
 
-```
+```text
 docs/images/
 ├── dashboard-light.png
 ├── dashboard-dark.png

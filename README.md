@@ -80,22 +80,26 @@
 > **Note:** Add screenshots by running the app and taking screenshots. Save them in a `docs/images/` folder.
 
 ### Dashboard View
-```
+
+```text
 [Screenshot Placeholder: Dashboard showing courses, stats, and upcoming assignments]
 ```
 
 ### Study Timer in Action
-```
+
+```text
 [Screenshot Placeholder: Timer interface with course selection and AI chat]
 ```
 
 ### Analytics
-```
+
+```text
 [Screenshot Placeholder: Charts showing study time breakdown and trends]
 ```
 
 ### AI Study Partner
-```
+
+```text
 [Screenshot Placeholder: Chat interface with AI providing study help]
 ```
 
@@ -199,7 +203,7 @@ App runs on `http://localhost:5173`
 
 ## 📁 Project Structure
 
-```
+```text
 SemesterFlow/
 ├── components/          # React components
 │   ├── Analytics.tsx
