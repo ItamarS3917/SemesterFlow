@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "latest",
+    "@sentry/react": "^10.29.0",
     "@supabase/supabase-js": "^2.47.0",
     "@types/papaparse": "^5.5.0",
     "lucide-react": "^0.554.0",
