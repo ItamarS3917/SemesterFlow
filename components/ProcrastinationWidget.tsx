@@ -4,6 +4,7 @@ import { AlertTriangle, Clock, Zap, BrainCircuit, ArrowRight, Loader2 } from 'lu
 import { Assignment, AssignmentStatus, Course } from '../types';
 import { useAssignments } from '../hooks/useAssignments';
 import { useCourses } from '../hooks/useCourses';
+import { API_ENDPOINTS } from '../config';
 
 interface ProcrastinationWidgetProps {
     onBreakPattern: (courseId: string, assignmentName: string) => void;
@@ -79,7 +80,7 @@ export const ProcrastinationWidget: React.FC<ProcrastinationWidgetProps> = ({
                 daysLeft: Math.round(a.daysLeft)
             }));
 
-            const response = await fetch('http://localhost:3000/api/procrastination', {
+            const response = await fetch(API_ENDPOINTS.PROCRASTINATION, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

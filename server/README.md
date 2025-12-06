@@ -98,10 +98,20 @@ Backend proxy server for SemesterFlow that securely handles AI API calls and pro
 
 ## Production Deployment
 
+### Frontend Configuration
+
+Set the API base URL in your production frontend `.env`:
+
+```env
+VITE_API_BASE_URL=https://your-backend-domain.com
+```
+
+### Backend Configuration
+
 For production deployment:
 
 1. Set `NODE_ENV=production`
-2. Configure production ALLOWED_ORIGINS
+2. Configure production ALLOWED_ORIGINS (must include your frontend domain)
 3. Use a process manager (PM2, systemd)
 4. Enable HTTPS with a reverse proxy (nginx, Apache)
 5. Set up monitoring and logging
@@ -110,6 +120,15 @@ For production deployment:
    - Request signing
    - Additional rate limiting
    - IP whitelisting
+
+### Example Production .env
+
+```env
+NODE_ENV=production
+PORT=3000
+GEMINI_API_KEY=your_production_api_key
+ALLOWED_ORIGINS=https://your-frontend-domain.com,https://www.your-frontend-domain.com
+```
 
 ## Troubleshooting
 

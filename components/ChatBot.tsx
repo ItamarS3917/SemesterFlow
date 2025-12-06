@@ -5,6 +5,7 @@ import { Course, Assignment, UserStats } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useAssignments } from '../hooks/useAssignments';
 import { useStats } from '../hooks/useStats';
+import { API_ENDPOINTS } from '../config';
 
 interface Message {
   role: 'user' | 'model';
@@ -140,7 +141,7 @@ Guidelines:
         parts: [{ text: msg.text }]
       }));
 
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch(API_ENDPOINTS.CHAT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

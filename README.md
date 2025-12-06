@@ -150,6 +150,9 @@ Create a `.env` file in the root directory:
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
+# Backend API Configuration (optional - defaults to http://localhost:3000)
+# VITE_API_BASE_URL=http://localhost:3000
+
 # Optional: Sentry (for error tracking)
 VITE_SENTRY_DSN=your_sentry_dsn
 ```
@@ -162,6 +165,9 @@ GEMINI_API_KEY=your_gemini_api_key
 
 # Server Port (optional)
 PORT=3000
+
+# CORS Allowed Origins (optional - defaults to localhost)
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:4173
 ```
 
 ### 4. Set Up Supabase Database

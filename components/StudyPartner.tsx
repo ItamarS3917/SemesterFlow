@@ -20,6 +20,7 @@ import {
 import { Course, TeacherPersonality, StudyMode } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useSessions } from '../hooks/useSessions';
+import { API_ENDPOINTS } from '../config';
 
 interface Message {
     role: 'user' | 'model';
@@ -138,7 +139,7 @@ export const StudyPartner = () => {
                 parts: [{ text: msg.text }]
             }));
 
-            const response = await fetch('http://localhost:3000/api/study-partner/chat', {
+            const response = await fetch(API_ENDPOINTS.STUDY_PARTNER.CHAT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -207,7 +208,7 @@ export const StudyPartner = () => {
         
         setIsMapping(true);
         try {
-            const response = await fetch('http://localhost:3000/api/study-partner/concept-map', {
+            const response = await fetch(API_ENDPOINTS.STUDY_PARTNER.CONCEPT_MAP, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
