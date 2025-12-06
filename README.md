@@ -238,6 +238,35 @@ SemesterFlow/
 
 ---
 
+## 🔒 Security
+
+SemesterFlow implements multiple security layers to protect your data and API keys:
+
+### Backend Security Architecture
+- **API Key Protection**: All AI API keys (GEMINI_API_KEY) are stored server-side only and never exposed to the frontend
+- **Rate Limiting**: 
+  - Global: 100 requests per 15 minutes per IP
+  - API endpoints: 20 requests per minute per IP
+- **Security Headers**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy
+- **Input Validation**: Required field validation and 500KB payload size limits
+- **CORS Configuration**: Configurable allowed origins to prevent unauthorized access
+
+### Database Security (Supabase)
+- **Row Level Security (RLS)**: All tables enforce user-based access control
+- **Authentication**: Supabase Auth with email verification
+- **Secure Storage**: Files stored in Supabase Storage with access controls
+
+### Best Practices
+1. ✅ Never commit `.env` files - Use `.env.example` as a template
+2. ✅ Keep dependencies updated - Run `npm audit` regularly
+3. ✅ Use HTTPS in production
+4. ✅ Configure ALLOWED_ORIGINS for production deployment
+5. ✅ Rotate API keys periodically
+
+For detailed security documentation, see [server/README.md](server/README.md).
+
+---
+
 ## 🔧 Configuration
 
 ### Supabase Setup
