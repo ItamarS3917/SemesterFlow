@@ -15,6 +15,13 @@ const validateBody = (requiredFields) => {
         if (missing.length > 0) {
             return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
         }
+        
+        // Sanitize input by checking for excessively large payloads
+        const bodyStr = JSON.stringify(req.body);
+        if (bodyStr.length > 500000) { // 500KB limit for request body
+            return res.status(413).json({ error: 'Request payload too large' });
+        }
+        
         next();
     };
 };

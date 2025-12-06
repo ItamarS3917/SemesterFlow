@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Clock, Zap, BrainCircuit, ArrowRight, Loader2 } from 'lucide-react';
 import { Assignment, AssignmentStatus, Course } from '../types';
-import { GoogleGenAI } from "@google/genai";
 import { useAssignments } from '../hooks/useAssignments';
 import { useCourses } from '../hooks/useCourses';
 
@@ -70,7 +69,6 @@ export const ProcrastinationWidget: React.FC<ProcrastinationWidgetProps> = ({
         setIsAnalyzing(true);
         setAiTip(null);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const historyData = completedOrStarted.map(a => ({
                 name: a.name,
                 delayPercent: Math.round(((new Date(a.startedAt!).getTime() - new Date(a.createdAt).getTime()) / (new Date(a.dueDate).getTime() - new Date(a.createdAt).getTime())) * 100) + '%'
@@ -81,28 +79,22 @@ export const ProcrastinationWidget: React.FC<ProcrastinationWidgetProps> = ({
                 daysLeft: Math.round(a.daysLeft)
             }));
 
-            const prompt = `
-            Act as a productivity coach. 
-            User's Procrastination Score: ${procrastinationScore.toFixed(1)}/10 (High is bad).
-            
-            History (Delay % before starting): 
-            ${JSON.stringify(historyData)}
-            
-            Current "Danger Zone" tasks:
-            ${JSON.stringify(dangerData)}
-            
-            Task: Give ONE short, punchy, specific psychological tip to break this specific user's pattern. 
-            If they have danger zone tasks, focus on "Just start for 5 minutes". 
-            Do not be generic. Max 2 sentences.
-        `;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
+            const response = await fetch('http://localhost:3000/api/procrastination', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    procrastinationScore: procrastinationScore.toFixed(1),
+                    historyData,
+                    dangerData
+                })
             });
 
-            setAiTip(response.text);
+            if (!response.ok) throw new Error('Failed to get advice');
+            
+            const data = await response.json();
+            setAiTip(data.tip);
         } catch (e) {
+            console.error('Failed to get AI advice:', e);
             setAiTip("Just commit to 5 minutes. Action kills anxiety.");
         } finally {
             setIsAnalyzing(false);

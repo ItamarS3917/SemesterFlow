@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const chatRoutes = require('./routes/chat');
 const gradeRoutes = require('./routes/grade');
 const planRoutes = require('./routes/plan');
+const procrastinationRoutes = require('./routes/procrastination');
+const studyPartnerRoutes = require('./routes/study-partner');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,10 +40,25 @@ app.use(limiter);
 app.use('/api/chat', chatRoutes);
 app.use('/api/grade', gradeRoutes);
 app.use('/api/plan', planRoutes);
+app.use('/api/procrastination', procrastinationRoutes);
+app.use('/api/study-partner', studyPartnerRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Security Headers Middleware
+app.use((req, res, next) => {
+    // Prevent clickjacking
+    res.setHeader('X-Frame-Options', 'DENY');
+    // Prevent MIME type sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    // XSS Protection
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    // Referrer Policy
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
 });
 
 // Error Handling

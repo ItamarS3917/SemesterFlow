@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Chat, Type } from "@google/genai";
 import {
     Bot,
     Send,
@@ -42,12 +41,13 @@ export const StudyPartner = () => {
     const [mode, setMode] = useState<StudyMode>('GUIDED_LEARNING');
 
     // Chat State
-    const [chatSession, setChatSession] = useState<Chat | null>(null);
+    const [chatSession, setChatSession] = useState<any | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [startTime, setStartTime] = useState<number>(Date.now());
+    const [systemInstruction, setSystemInstruction] = useState<string>('');
 
     // Concept Map State
     const [conceptMap, setConceptMap] = useState<ConceptNode[]>([]);
@@ -75,8 +75,6 @@ export const StudyPartner = () => {
         if (!selectedCourse) return;
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
             let personaInstruction = "";
             switch (personality) {
                 case 'STRICT':
@@ -100,7 +98,7 @@ export const StudyPartner = () => {
                 modeInstruction = "Your goal is to guide the student through learning. If they say 'I don't understand', break the concept down into smaller, simpler questions. Track which concepts they struggle with.";
             }
 
-            const systemInstruction = `
+            const instruction = `
         ${personaInstruction}
         ${modeInstruction}
         
@@ -114,18 +112,8 @@ export const StudyPartner = () => {
         3. If you detect a specific concept the user fails to understand, tag it internally to remember it.
       `;
 
-            const chat = ai.chats.create({
-                model: 'gemini-2.5-flash',
-                config: { systemInstruction },
-                history: [
-                    {
-                        role: 'model',
-                        parts: [{ text: `[SYSTEM: Session initialized. Personality: ${personality}. Mode: ${mode}.]\n\nHello! I'm ready to help you with ${selectedCourse.name}. ${mode === 'QUIZ_ME' ? 'Shall I start with a question?' : 'What topic are we tackling today?'}` }]
-                    }
-                ]
-            });
-
-            setChatSession(chat);
+            setSystemInstruction(instruction);
+            setChatSession({} as any); // Mark as initialized
             setMessages([{
                 role: 'model',
                 text: `Hello! I'm ready to help you with ${selectedCourse.name}. ${mode === 'QUIZ_ME' ? 'Shall I start with a question?' : 'What topic are we tackling today?'}`
@@ -145,18 +133,60 @@ export const StudyPartner = () => {
         setIsTyping(true);
 
         try {
-            const result = await chatSession.sendMessageStream({ message: userMsg });
+            const history = messages.map(msg => ({
+                role: msg.role,
+                parts: [{ text: msg.text }]
+            }));
 
+            const response = await fetch('http://localhost:3000/api/study-partner/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: userMsg,
+                    history: history,
+                    systemInstruction: systemInstruction
+                })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.body) throw new Error('No response body');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
             let fullText = '';
+
             setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
-            for await (const chunk of result) {
-                fullText += chunk.text;
-                setMessages(prev => {
-                    const newHistory = [...prev];
-                    newHistory[newHistory.length - 1] = { role: 'model', text: fullText };
-                    return newHistory;
-                });
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const dataStr = line.slice(6);
+                        if (dataStr === '[DONE]') break;
+
+                        try {
+                            const data = JSON.parse(dataStr);
+                            if (data.text) {
+                                fullText += data.text;
+                                setMessages(prev => {
+                                    const newHistory = [...prev];
+                                    newHistory[newHistory.length - 1] = {
+                                        role: 'model',
+                                        text: fullText
+                                    };
+                                    return newHistory;
+                                });
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE data', e);
+                        }
+                    }
+                }
             }
 
             // After 3 turns, try to map concepts or update weaknesses
@@ -166,47 +196,32 @@ export const StudyPartner = () => {
 
         } catch (error) {
             console.error("Chat error", error);
-            setMessages(prev => [...prev, { role: 'model', text: "Connection interrupted. Please try again." }]);
+            setMessages(prev => [...prev, { role: 'model', text: "Connection interrupted. Please ensure the backend server is running." }]);
         } finally {
             setIsTyping(false);
         }
     };
 
     const generateConceptMap = async (lastContext: string) => {
+        if (!selectedCourse) return;
+        
         setIsMapping(true);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `
-            Based on the discussion about ${selectedCourse?.name}:
-            "${lastContext}"
-            
-            Identify key concepts discussed and their relationships.
-            Also identify any "Weak Concepts" the student seems to misunderstand.
-            
-            Return JSON only:
-            {
-                "nodes": [{ "id": "concept_name", "label": "Concept Name", "relatedTo": ["other_concept_id"] }],
-                "weaknesses": ["concept1", "concept2"]
-            }
-        `;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: { responseMimeType: "application/json" }
+            const response = await fetch('http://localhost:3000/api/study-partner/concept-map', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    courseKnowledge: selectedCourse.knowledge || lastContext,
+                    courseName: selectedCourse.name
+                })
             });
 
-            if (response.text) {
-                const data = JSON.parse(response.text);
-                if (data.nodes && data.nodes.length > 0) {
-                    setConceptMap(data.nodes);
-                }
-                if (data.weaknesses && data.weaknesses.length > 0 && selectedCourse) {
-                    // Merge new weaknesses with existing ones, unique only
-                    const current = selectedCourse.weakConcepts || [];
-                    const updated = Array.from(new Set([...current, ...data.weaknesses]));
-                    updateCourse({ ...selectedCourse, weakConcepts: updated });
-                }
+            if (!response.ok) throw new Error('Failed to generate concept map');
+            
+            const data = await response.json();
+            
+            if (data.conceptMap && data.conceptMap.length > 0) {
+                setConceptMap(data.conceptMap);
             }
         } catch (e) {
             console.error("Mapping failed", e);
