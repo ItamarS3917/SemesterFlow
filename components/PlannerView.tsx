@@ -4,6 +4,7 @@ import { Course, Assignment, DailyPlan, PlannedSession, AssignmentStatus } from 
 import { useCourses } from '../hooks/useCourses';
 import { useAssignments } from '../hooks/useAssignments';
 import { CalendarMenu } from './CalendarMenu';
+import { API_ENDPOINTS } from '../config';
 
 export const PlannerView = () => {
   const { courses } = useCourses();
@@ -43,7 +44,7 @@ export const PlannerView = () => {
           }))
       };
 
-      const response = await fetch('http://localhost:3000/api/plan', {
+      const response = await fetch(API_ENDPOINTS.PLAN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contextData })
