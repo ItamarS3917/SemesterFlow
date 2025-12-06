@@ -328,7 +328,7 @@ All tables have RLS policies to ensure users can only access their own data.
 
 ## 🤝 Contributing
 
-We love contributions! Check out our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We love contributions! Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
 ### Quick Contribution Guide
 
@@ -406,8 +406,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - [MCP Setup Guide](docs/MCP_SETUP_GUIDE.md) - Set up monitoring and error tracking
 - [Component Architecture](COMPONENT_ARCHITECTURE.md) - Understand the codebase
-- [API Documentation](docs/API.md) - Backend API reference *(coming soon)*
-- [Deployment Guide](docs/DEPLOYMENT.md) - Deploy to production *(coming soon)*
+- [API Documentation](docs/API_REFERENCE.md) - Backend API reference
+- [Deployment Guide](docs/DEPLOYMENT.md) - Deploy to production
 
 ---
 
