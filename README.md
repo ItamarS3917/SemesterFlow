@@ -404,10 +404,12 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📚 Documentation
 
-- [MCP Setup Guide](docs/MCP_SETUP_GUIDE.md) - Set up monitoring and error tracking
+- [MCP Setup Guide](MCP_SETUP_GUIDE.md) - Set up monitoring and error tracking
 - [Component Architecture](COMPONENT_ARCHITECTURE.md) - Understand the codebase
-- [API Documentation](docs/API_REFERENCE.md) - Backend API reference
+- [API Reference](docs/API_REFERENCE.md) - Backend API reference
 - [Deployment Guide](docs/DEPLOYMENT.md) - Deploy to production
+- [Contributing Guide](docs/CONTRIBUTING.md) - Contribution guidelines
+- [Architecture Overview](docs/ARCHITECTURE.md) - System architecture details
 
 ---
 
