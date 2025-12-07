@@ -150,6 +150,9 @@ Create a `.env` file in the root directory:
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
+# Backend API Configuration (optional - defaults to http://localhost:3000)
+# VITE_API_BASE_URL=http://localhost:3000
+
 # Optional: Sentry (for error tracking)
 VITE_SENTRY_DSN=your_sentry_dsn
 ```
@@ -162,6 +165,9 @@ GEMINI_API_KEY=your_gemini_api_key
 
 # Server Port (optional)
 PORT=3000
+
+# CORS Allowed Origins (optional - defaults to localhost)
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:4173
 ```
 
 ### 4. Set Up Supabase Database
@@ -235,6 +241,35 @@ SemesterFlow/
 ├── constants.ts        # Initial data & constants
 └── supabase_schema.sql # Database schema
 ```
+
+---
+
+## 🔒 Security
+
+SemesterFlow implements multiple security layers to protect your data and API keys:
+
+### Backend Security Architecture
+- **API Key Protection**: All AI API keys (GEMINI_API_KEY) are stored server-side only and never exposed to the frontend
+- **Rate Limiting**: 
+  - Global: 100 requests per 15 minutes per IP
+  - API endpoints: 20 requests per minute per IP
+- **Security Headers**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy
+- **Input Validation**: Required field validation and 500KB payload size limits
+- **CORS Configuration**: Configurable allowed origins to prevent unauthorized access
+
+### Database Security (Supabase)
+- **Row Level Security (RLS)**: All tables enforce user-based access control
+- **Authentication**: Supabase Auth with email verification
+- **Secure Storage**: Files stored in Supabase Storage with access controls
+
+### Best Practices
+1. ✅ Never commit `.env` files - Use `.env.example` as a template
+2. ✅ Keep dependencies updated - Run `npm audit` regularly
+3. ✅ Use HTTPS in production
+4. ✅ Configure ALLOWED_ORIGINS for production deployment
+5. ✅ Rotate API keys periodically
+
+For detailed security documentation, see [server/README.md](server/README.md).
 
 ---
 
