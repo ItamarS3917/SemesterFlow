@@ -8,12 +8,7 @@ const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 router.post('/', apiLimiter, validateBody(['message', 'history']), async (req, res) => {
     try {
-        const { message, history, systemInstruction } = req.body;
-
-        // Set headers for SSE (Server-Sent Events) / Streaming
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
+        const { message, history, systemInstruction, stream = true } = req.body;
 
         const chat = genAI.chats.create({
             model: 'gemini-2.5-flash',
@@ -23,15 +18,28 @@ router.post('/', apiLimiter, validateBody(['message', 'history']), async (req, r
             history: history
         });
 
-        const resultStream = await chat.sendMessageStream({ message });
+        if (stream) {
+            // Set headers for SSE (Server-Sent Events) / Streaming
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
 
-        for await (const chunk of resultStream) {
-            const chunkText = chunk.text || '';
-            res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+            const resultStream = await chat.sendMessageStream({ message });
+
+            for await (const chunk of resultStream) {
+                const chunkText = chunk.text || '';
+                res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
+            }
+
+            res.write('data: [DONE]\n\n');
+            res.end();
+        } else {
+            // Non-streaming response
+            const result = await chat.sendMessage({ message });
+            const response = await result.response;
+            const text = response.text();
+            res.json({ text });
         }
-
-        res.write('data: [DONE]\n\n');
-        res.end();
 
     } catch (error) {
         console.error('Chat API Error:', error);

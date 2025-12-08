@@ -45,10 +45,33 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
           // Check for Pomodoro completion
           if (targetSeconds && next >= targetSeconds) {
             setIsActive(false);
-            // Play notification sound or alert here if we had one
+            // Play notification sound
             if (Notification.permission === 'granted') {
               new Notification(pomodoroMode === 'work' ? "Pomodoro Complete!" : "Break Over!");
             }
+
+            // Play sound
+            try {
+              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const oscillator = audioContext.createOscillator();
+              const gainNode = audioContext.createGain();
+
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+
+              oscillator.type = 'sine';
+              oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+              oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.5);
+
+              gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+              oscillator.start();
+              oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+              console.error("Audio play failed", e);
+            }
+
             return next;
           }
           return next;

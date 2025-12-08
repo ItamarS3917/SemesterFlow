@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { supabase } from "./supabase.js";
+import { addEvent } from "./google-calendar.js";
 
 export const TOOLS = {
     ADD_ASSIGNMENT: "add_assignment",
+    ADD_TO_CALENDAR: "add_to_calendar",
 };
 
 export const ToolSchemas = {
@@ -18,6 +20,20 @@ export const ToolSchemas = {
                 estimatedHours: { type: "number", description: "Estimated hours to complete" },
             },
             required: ["courseId", "name"],
+        },
+    },
+    [TOOLS.ADD_TO_CALENDAR]: {
+        name: TOOLS.ADD_TO_CALENDAR,
+        description: "Add an event to the user's primary Google Calendar",
+        inputSchema: {
+            type: "object",
+            properties: {
+                summary: { type: "string", description: "Title of the event" },
+                description: { type: "string", description: "Description of the event" },
+                startTime: { type: "string", description: "Start time in ISO format (e.g. 2023-10-27T10:00:00Z)" },
+                endTime: { type: "string", description: "End time in ISO format (e.g. 2023-10-27T11:00:00Z)" },
+            },
+            required: ["summary", "startTime", "endTime"],
         },
     },
 };
@@ -49,6 +65,28 @@ export async function handleCallTool(name: string, args: any) {
 
         return {
             content: [{ type: "text", text: `Assignment created: ${data.name} (ID: ${data.id})` }],
+        };
+    }
+
+    if (name === TOOLS.ADD_TO_CALENDAR) {
+        const schema = z.object({
+            summary: z.string(),
+            description: z.string().optional().default(""),
+            startTime: z.string(),
+            endTime: z.string(),
+        });
+
+        const parsed = schema.parse(args);
+
+        const event = await addEvent(
+            parsed.summary,
+            parsed.description,
+            parsed.startTime,
+            parsed.endTime
+        );
+
+        return {
+            content: [{ type: "text", text: `Event added to calendar: ${event.summary} (Link: ${event.htmlLink})` }],
         };
     }
 

@@ -12,12 +12,17 @@ import { Course, Assignment, StudySession, AssignmentStatus } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useAssignments } from '../hooks/useAssignments';
 import { useSessions } from '../hooks/useSessions';
+import { SkeletonDashboard } from './Skeletons';
 
 export const CoursesView = () => {
-  const { courses } = useCourses();
+  const { courses, loading } = useCourses();
   const { assignments } = useAssignments();
   const { sessions } = useSessions();
   const [selectedCourseId, setSelectedCourseId] = useState<string>(courses[0]?.id || '');
+
+  if (loading) {
+    return <SkeletonDashboard />;
+  }
 
   if (courses.length === 0) {
     return (

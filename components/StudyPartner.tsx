@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '../services/supabase';
 import {
     Bot,
     Send,
@@ -22,6 +23,8 @@ import { useCourses } from '../hooks/useCourses';
 import { useSessions } from '../hooks/useSessions';
 import { API_ENDPOINTS } from '../config';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 interface Message {
     role: 'user' | 'model';
     text: string;
@@ -42,13 +45,11 @@ export const StudyPartner = () => {
     const [mode, setMode] = useState<StudyMode>('GUIDED_LEARNING');
 
     // Chat State
-    const [chatSession, setChatSession] = useState<any | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [startTime, setStartTime] = useState<number>(Date.now());
-    const [systemInstruction, setSystemInstruction] = useState<string>('');
 
     // Concept Map State
     const [conceptMap, setConceptMap] = useState<ConceptNode[]>([]);
@@ -68,38 +69,33 @@ export const StudyPartner = () => {
         }
     }, [selectedCourseId, personality, mode]);
 
-    const startNewSession = async () => {
-        setMessages([]);
-        setConceptMap([]);
-        setStartTime(Date.now());
+    const getSystemInstruction = () => {
+        if (!selectedCourse) return "";
 
-        if (!selectedCourse) return;
+        let personaInstruction = "";
+        switch (personality) {
+            case 'STRICT':
+                personaInstruction = "You are a strict, no-nonsense professor. You have high standards. Correct errors bluntly. Do not praise mediocrity. Focus on precision.";
+                break;
+            case 'ENCOURAGING':
+                personaInstruction = "You are a warm, supportive tutor. Use emojis. Celebrate small wins. If the student struggles, reassure them that it's normal.";
+                break;
+            case 'HUMOROUS':
+                personaInstruction = "You are a funny, witty study buddy. Use analogies, jokes, and pop culture references to explain complex topics. Keep it lighthearted.";
+                break;
+            case 'SOCRATIC':
+                personaInstruction = "You are a master of the Socratic Method. You ALMOST NEVER give the answer directly. Instead, ask guided questions to help the student derive the answer themselves.";
+                break;
+        }
 
-        try {
-            let personaInstruction = "";
-            switch (personality) {
-                case 'STRICT':
-                    personaInstruction = "You are a strict, no-nonsense professor. You have high standards. Correct errors bluntly. Do not praise mediocrity. Focus on precision.";
-                    break;
-                case 'ENCOURAGING':
-                    personaInstruction = "You are a warm, supportive tutor. Use emojis. Celebrate small wins. If the student struggles, reassure them that it's normal.";
-                    break;
-                case 'HUMOROUS':
-                    personaInstruction = "You are a funny, witty study buddy. Use analogies, jokes, and pop culture references to explain complex topics. Keep it lighthearted.";
-                    break;
-                case 'SOCRATIC':
-                    personaInstruction = "You are a master of the Socratic Method. You ALMOST NEVER give the answer directly. Instead, ask guided questions to help the student derive the answer themselves.";
-                    break;
-            }
+        let modeInstruction = "";
+        if (mode === 'QUIZ_ME') {
+            modeInstruction = "Your goal is to test the student. Generate one tough question at a time based on the course material. Wait for their answer, grade it, and then move to the next.";
+        } else {
+            modeInstruction = "Your goal is to guide the student through learning. If they say 'I don't understand', break the concept down into smaller, simpler questions. Track which concepts they struggle with.";
+        }
 
-            let modeInstruction = "";
-            if (mode === 'QUIZ_ME') {
-                modeInstruction = "Your goal is to test the student. Generate one tough question at a time based on the course material. Wait for their answer, grade it, and then move to the next.";
-            } else {
-                modeInstruction = "Your goal is to guide the student through learning. If they say 'I don't understand', break the concept down into smaller, simpler questions. Track which concepts they struggle with.";
-            }
-
-            const instruction = `
+        return `
         ${personaInstruction}
         ${modeInstruction}
         
@@ -112,21 +108,23 @@ export const StudyPartner = () => {
         2. Format using Markdown.
         3. If you detect a specific concept the user fails to understand, tag it internally to remember it.
       `;
+    };
 
-            setSystemInstruction(instruction);
-            setChatSession({} as any); // Mark as initialized
-            setMessages([{
-                role: 'model',
-                text: `Hello! I'm ready to help you with ${selectedCourse.name}. ${mode === 'QUIZ_ME' ? 'Shall I start with a question?' : 'What topic are we tackling today?'}`
-            }]);
+    const startNewSession = async () => {
+        setMessages([]);
+        setConceptMap([]);
+        setStartTime(Date.now());
 
-        } catch (error) {
-            console.error("Failed to init chat", error);
-        }
+        if (!selectedCourse) return;
+
+        setMessages([{
+            role: 'model',
+            text: `Hello! I'm ready to help you with ${selectedCourse.name}. ${mode === 'QUIZ_ME' ? 'Shall I start with a question?' : 'What topic are we tackling today?'}`
+        }]);
     };
 
     const handleSend = async () => {
-        if (!input.trim() || !chatSession) return;
+        if (!input.trim()) return;
 
         const userMsg = input;
         setInput('');
@@ -134,57 +132,72 @@ export const StudyPartner = () => {
         setIsTyping(true);
 
         try {
-            const history = messages.map(msg => ({
-                role: msg.role,
-                parts: [{ text: msg.text }]
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            if (!token) {
+                throw new Error("Not authenticated");
+            }
+
+            // Prepare history for API (exclude the last user message we just added locally)
+            // Actually, the API expects history + new message.
+            // We should send the *previous* messages as history.
+            const history = messages.map(m => ({
+                role: m.role,
+                parts: [{ text: m.text }]
             }));
 
-            const response = await fetch(API_ENDPOINTS.STUDY_PARTNER.CHAT, {
+            // Add system instruction to the first message or as a separate config?
+            // The API route handles systemInstruction separately.
+
+            const response = await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     message: userMsg,
                     history: history,
-                    systemInstruction: systemInstruction
+                    systemInstruction: getSystemInstruction()
                 })
             });
 
-            if (!response.ok) throw new Error('Network response was not ok');
-            if (!response.body) throw new Error('No response body');
+            if (!response.ok) {
+                throw new Error('Failed to send message');
+            }
 
-            const reader = response.body.getReader();
+            const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let fullText = '';
 
             setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+            if (reader) {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
 
-                const chunk = decoder.decode(value);
-                const lines = chunk.split('\n\n');
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n\n');
 
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const dataStr = line.slice(6);
-                        if (dataStr === '[DONE]') break;
-
-                        try {
-                            const data = JSON.parse(dataStr);
-                            if (data.text) {
-                                fullText += data.text;
-                                setMessages(prev => {
-                                    const newHistory = [...prev];
-                                    newHistory[newHistory.length - 1] = {
-                                        role: 'model',
-                                        text: fullText
-                                    };
-                                    return newHistory;
-                                });
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') break;
+                            try {
+                                const json = JSON.parse(data);
+                                if (json.text) {
+                                    fullText += json.text;
+                                    setMessages(prev => {
+                                        const newHistory = [...prev];
+                                        newHistory[newHistory.length - 1] = { role: 'model', text: fullText };
+                                        return newHistory;
+                                    });
+                                }
+                            } catch (e) {
+                                console.error("Error parsing SSE data", e);
                             }
-                        } catch (e) {
-                            console.error('Error parsing SSE data', e);
                         }
                     }
                 }
@@ -197,32 +210,69 @@ export const StudyPartner = () => {
 
         } catch (error) {
             console.error("Chat error", error);
-            setMessages(prev => [...prev, { role: 'model', text: "Connection interrupted. Please ensure the backend server is running." }]);
+            setMessages(prev => [...prev, { role: 'model', text: "Connection interrupted. Please try again." }]);
         } finally {
             setIsTyping(false);
         }
     };
 
     const generateConceptMap = async (lastContext: string) => {
-        if (!selectedCourse) return;
-        
         setIsMapping(true);
         try {
-            const response = await fetch(API_ENDPOINTS.STUDY_PARTNER.CONCEPT_MAP, {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            if (!token) return;
+
+            const prompt = `
+            Based on the discussion about ${selectedCourse?.name}:
+            "${lastContext}"
+            
+            Identify key concepts discussed and their relationships.
+            Also identify any "Weak Concepts" the student seems to misunderstand.
+            
+            Return JSON only:
+            {
+                "nodes": [{ "id": "concept_name", "label": "Concept Name", "relatedTo": ["other_concept_id"] }],
+                "weaknesses": ["concept1", "concept2"]
+            }
+        `;
+
+            const response = await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
-                    courseKnowledge: selectedCourse.knowledge || lastContext,
-                    courseName: selectedCourse.name
+                    message: prompt,
+                    history: [], // No history needed for this extraction task
+                    systemInstruction: "You are a JSON extractor. Return only valid JSON.",
+                    stream: false
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to generate concept map');
-            
-            const data = await response.json();
-            
-            if (data.conceptMap && data.conceptMap.length > 0) {
-                setConceptMap(data.conceptMap);
+            if (response.ok) {
+                const data = await response.json();
+                // The API returns { text: "..." }
+                // We need to parse the text as JSON
+                try {
+                    // Clean up markdown code blocks if present
+                    let jsonStr = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const jsonData = JSON.parse(jsonStr);
+
+                    if (jsonData.nodes && jsonData.nodes.length > 0) {
+                        setConceptMap(jsonData.nodes);
+                    }
+                    if (jsonData.weaknesses && jsonData.weaknesses.length > 0 && selectedCourse) {
+                        // Merge new weaknesses with existing ones, unique only
+                        const current = selectedCourse.weakConcepts || [];
+                        const updated = Array.from(new Set([...current, ...jsonData.weaknesses]));
+                        updateCourse({ ...selectedCourse, weakConcepts: updated });
+                    }
+                } catch (e) {
+                    console.error("Failed to parse concept map JSON", e);
+                }
             }
         } catch (e) {
             console.error("Mapping failed", e);
