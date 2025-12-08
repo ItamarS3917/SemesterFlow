@@ -21,6 +21,7 @@ import {
 import { Course, TeacherPersonality, StudyMode } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useSessions } from '../hooks/useSessions';
+import { API_ENDPOINTS } from '../config';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 

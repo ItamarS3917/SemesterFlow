@@ -11,6 +11,7 @@ import { FileUpload } from './FileUpload';
 import { formatFileSize, getFileTypeIcon } from '../services/storageService';
 import { AssignmentCsvImport } from './AssignmentCsvImport';
 import { SkeletonList } from './Skeletons';
+import { API_ENDPOINTS } from '../config';
 
 // Helper function to format date for datetime-local input
 const formatDateTimeLocal = (dateString: string | undefined): string => {
@@ -180,7 +181,7 @@ export const AssignmentsView = () => {
     setIsAnalyzing(true);
     setFeedback('');
     try {
-      const response = await fetch('http://localhost:3000/api/grade', {
+      const response = await fetch(API_ENDPOINTS.GRADE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const chatRoutes = require('./routes/chat');
 const gradeRoutes = require('./routes/grade');
 const planRoutes = require('./routes/plan');
+const procrastinationRoutes = require('./routes/procrastination');
+const studyPartnerRoutes = require('./routes/study-partner');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +28,19 @@ app.use(cors({
     }
 }));
 
+// Security Headers Middleware (must be before routes)
+app.use((req, res, next) => {
+    // Prevent clickjacking
+    res.setHeader('X-Frame-Options', 'DENY');
+    // Prevent MIME type sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    // XSS Protection
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    // Referrer Policy
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
 // Global Rate Limiter (Basic protection)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -40,6 +55,8 @@ app.use('/api/chat', authMiddleware, chatRoutes);
 app.use('/api/grade', authMiddleware, gradeRoutes);
 app.use('/api/plan', authMiddleware, planRoutes);
 app.use('/api/vector', authMiddleware, require('./routes/vector'));
+app.use('/api/procrastination', procrastinationRoutes);
+app.use('/api/study-partner', studyPartnerRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
