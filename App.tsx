@@ -36,6 +36,10 @@ import { useCourses } from './hooks/useCourses';
 import { useAssignments } from './hooks/useAssignments';
 import { useStats } from './hooks/useStats';
 import { useSessions } from './hooks/useSessions';
+import { ToastProvider } from './contexts/ToastContext';
+import { ToastContainer } from './components/ToastContainer';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { SkeletonDashboard } from './components/Skeletons';
 
 const AppContent = () => {
   const { user, logout } = useAuth();
@@ -44,17 +48,7 @@ const AppContent = () => {
   const { userStats, loading: statsLoading } = useStats();
   const { loading: sessionsLoading } = useSessions();
 
-  const isLoading = coursesLoading || assignmentsLoading || statsLoading || sessionsLoading;
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-dots flex flex-col items-center justify-center text-white">
-        <div className="retro-card p-6 text-center border-indigo-500">
-          <p className="font-mono text-xl font-black uppercase">System Booting...</p>
-        </div>
-      </div>
-    );
-  }
 
   const [activeView, setActiveView] = useState<ViewState>('DASHBOARD');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -92,7 +86,14 @@ const AppContent = () => {
     const upcomingAssignments = assignments
       .filter(a => a.status !== AssignmentStatus.COMPLETED && a.dueDate)
       .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
       .slice(0, 3);
+
+    const isDashboardLoading = coursesLoading || assignmentsLoading || statsLoading || sessionsLoading;
+
+    if (isDashboardLoading) {
+      return <SkeletonDashboard />;
+    }
 
     return (
       <div className="space-y-8 animate-fade-in">
@@ -377,7 +378,12 @@ const App = () => {
 
   return (
     <AppProvider>
-      <AppContent />
+      <ToastProvider>
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
+        <ToastContainer />
+      </ToastProvider>
     </AppProvider>
   );
 };

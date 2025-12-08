@@ -4,11 +4,13 @@ import { Assignment, AssignmentStatus, Course, AttachmentLink, FileAttachment } 
 import { useAssignments } from '../hooks/useAssignments';
 import { useCourses } from '../hooks/useCourses';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { CalendarMenu } from './CalendarMenu';
 import { AttachmentLinks } from './AttachmentLinks';
 import { FileUpload } from './FileUpload';
 import { formatFileSize, getFileTypeIcon } from '../services/storageService';
 import { AssignmentCsvImport } from './AssignmentCsvImport';
+import { SkeletonList } from './Skeletons';
 
 // Helper function to format date for datetime-local input
 const formatDateTimeLocal = (dateString: string | undefined): string => {
@@ -26,9 +28,10 @@ const formatDateTimeLocal = (dateString: string | undefined): string => {
 };
 
 export const AssignmentsView = () => {
-  const { assignments, addAssignment, updateAssignment, deleteAssignment, toggleAssignmentStatus } = useAssignments();
+  const { assignments, addAssignment, updateAssignment, deleteAssignment, toggleAssignmentStatus, loading } = useAssignments();
   const { courses } = useCourses();
   const { user } = useAuth();
+  const { addToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingAssignmentId, setPendingAssignmentId] = useState<string>('');
   const [newAssignment, setNewAssignment] = useState<Partial<Assignment>>({
@@ -52,6 +55,17 @@ export const AssignmentsView = () => {
   const answerFileRef = useRef<HTMLInputElement>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">Assignment Manager</h2>
+        </div>
+        <SkeletonList count={5} />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,9 +105,10 @@ export const AssignmentsView = () => {
       setIsModalOpen(false);
       setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED, attachments: [], files: [] });
       setPendingAssignmentId('');
+      addToast({ type: 'success', message: 'Assignment created successfully!' });
     } catch (error) {
       console.error("Failed to create assignment:", error);
-      alert("Failed to create assignment. Please try again.");
+      addToast({ type: 'error', message: 'Failed to create assignment. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -124,7 +139,7 @@ export const AssignmentsView = () => {
         // @ts-ignore 
         const pdfjsLib = window.pdfjsLib;
         if (!pdfjsLib) {
-          alert('PDF processing library not loaded. Please refresh.');
+          addToast({ type: 'error', message: 'PDF processing library not loaded. Please refresh.' });
           setIsProcessingFile(false);
           return;
         }
@@ -150,7 +165,7 @@ export const AssignmentsView = () => {
       }
     } catch (error) {
       console.error('Error processing file:', error);
-      alert('Failed to read file.');
+      addToast({ type: 'error', message: 'Failed to read file.' });
     } finally {
       setIsProcessingFile(false);
       e.target.value = '';
@@ -159,7 +174,7 @@ export const AssignmentsView = () => {
 
   const handleAnalyzeAssignment = async () => {
     if (!questionContext.trim() || !studentAnswer.trim()) {
-      alert("Please provide both the assignment question/requirements and your answer.");
+      addToast({ type: 'info', message: 'Please provide both the assignment question and your answer.' });
       return;
     }
     setIsAnalyzing(true);

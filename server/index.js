@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -35,9 +35,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-app.use('/api/chat', chatRoutes);
-app.use('/api/grade', gradeRoutes);
-app.use('/api/plan', planRoutes);
+const authMiddleware = require('./middleware/authMiddleware');
+app.use('/api/chat', authMiddleware, chatRoutes);
+app.use('/api/grade', authMiddleware, gradeRoutes);
+app.use('/api/plan', authMiddleware, planRoutes);
+app.use('/api/vector', authMiddleware, require('./routes/vector'));
 
 // Health Check
 app.get('/health', (req, res) => {

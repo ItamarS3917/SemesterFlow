@@ -1,0 +1,23 @@
+{
+  "name": "mcp-nightly-commit",
+  "version": "1.0.0",
+  "description": "MCP server for nightly git commits with validation",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "schedule": "node dist/scheduler.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "node-cron": "^3.0.3",
+    "simple-git": "^3.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^5.0.0"
+  }
+}

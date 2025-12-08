@@ -103,7 +103,7 @@
 - [x] Session save to PostgreSQL database
 - [x] Minimum 60-second validation
 - [x] Micro-sprint mode integration
-- [ ] Sound notifications (optional)
+- [x] Sound notifications (optional)
 - [ ] Browser notification on timer complete (optional)
 
 ### 1.5 Course Management ✅ COMPLETE
@@ -188,15 +188,15 @@
 - [x] Profile management
 - [x] Course management interface
 - [x] Data sync controls
-- [ ] Theme toggle (dark/light) - pending
+- [x] Theme toggle (dark/light)
 - [ ] Export data functionality - pending
 - [ ] Privacy settings - pending
 
 ### 1.12 Deployment Preparation ⚪ NOT STARTED
-- [ ] Environment variable setup (.env.example documented)
-- [ ] Production Firebase configuration
-- [ ] Vercel deployment configuration
-- [ ] Backend deployment to Render/Railway
+- [x] Environment variable setup (.env.example documented)
+- [ ] Production Supabase configuration
+- [x] Vercel deployment configuration
+- [x] Backend deployment configuration (render.yaml)
 - [ ] Environment secrets configuration
 - [ ] Custom domain setup
 - [ ] SSL certificate
@@ -206,10 +206,10 @@
 - [ ] Error tracking setup (Sentry)
 
 ### 1.13 Polish & UX ⚪ NOT STARTED
-- [ ] Loading states for all async operations
-- [ ] Skeleton screens
-- [ ] Error boundaries
-- [ ] Toast notifications system
+- [x] Loading states for all async operations
+- [x] Skeleton screens
+- [x] Error boundaries
+- [x] Toast notifications system
 - [ ] Form validation feedback
 - [ ] Empty state illustrations
 - [ ] Onboarding tutorial
@@ -537,10 +537,10 @@
 
 ### High Priority
 - [ ] **Deploy to Production**: Vercel frontend + Render backend
-- [ ] **Environment Setup**: Production Firebase project
-- [ ] **Error Boundaries**: Catch React errors gracefully
-- [ ] **Loading States**: Add skeletons for async operations
-- [ ] **Toast Notifications**: User feedback system
+- [ ] **Environment Setup**: Production Supabase project
+- [x] **Error Boundaries**: Catch React errors gracefully
+- [x] **Loading States**: Add skeletons for async operations
+- [x] **Toast Notifications**: User feedback system
 
 ### Medium Priority
 - [ ] **Onboarding Tutorial**: First-time user guide
