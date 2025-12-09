@@ -11,6 +11,7 @@ import { FileUpload } from './FileUpload';
 import { formatFileSize, getFileTypeIcon } from '../services/storageService';
 import { AssignmentCsvImport } from './AssignmentCsvImport';
 import { SkeletonList } from './Skeletons';
+import { EmptyState } from './EmptyState';
 import { API_ENDPOINTS } from '../config';
 
 // Helper function to format date for datetime-local input
@@ -224,28 +225,31 @@ export const AssignmentsView = () => {
 
       <AssignmentCsvImport />
 
-      <div className="retro-card overflow-hidden p-0 border-2 border-black">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-800 text-xs uppercase text-white font-bold font-mono border-b-2 border-black">
-                <th className="p-4 border-r-2 border-black">Status</th>
-                <th className="p-4 border-r-2 border-black">Assignment</th>
-                <th className="p-4 border-r-2 border-black">Course</th>
-                <th className="p-4 border-r-2 border-black">Due Date</th>
-                <th className="p-4 border-r-2 border-black">Est. Hours</th>
-                <th className="p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm font-mono">
-              {assignments.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-500 font-bold uppercase">
-                    No assignments yet. Initialize tasks.
-                  </td>
+      {assignments.length === 0 ? (
+        <EmptyState
+          icon={CalendarCheck}
+          title="No Assignments Yet"
+          description="You're all clear! No pending tasks found. Enjoy your free time or add a new assignment to get organized."
+          actionLabel="Create Assignment"
+          onAction={openCreateModal}
+          color="emerald"
+        />
+      ) : (
+        <div className="retro-card overflow-hidden p-0 border-2 border-black">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-800 text-xs uppercase text-white font-bold font-mono border-b-2 border-black">
+                  <th className="p-4 border-r-2 border-black">Status</th>
+                  <th className="p-4 border-r-2 border-black">Assignment</th>
+                  <th className="p-4 border-r-2 border-black">Course</th>
+                  <th className="p-4 border-r-2 border-black">Due Date</th>
+                  <th className="p-4 border-r-2 border-black">Est. Hours</th>
+                  <th className="p-4">Actions</th>
                 </tr>
-              ) : (
-                assignments
+              </thead>
+              <tbody className="text-sm font-mono">
+                {assignments
                   .sort((a, b) => {
                     if (!a.dueDate) return 1;
                     if (!b.dueDate) return -1;
@@ -335,12 +339,12 @@ export const AssignmentsView = () => {
                         </td>
                       </tr>
                     );
-                  })
-              )}
-            </tbody>
-          </table>
+                  })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Add Assignment Modal */}
       {isModalOpen && (
