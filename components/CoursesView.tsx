@@ -8,13 +8,18 @@ import {
   Target,
   FileText
 } from 'lucide-react';
-import { Course, Assignment, StudySession, AssignmentStatus } from '../types';
+import { Course, Assignment, StudySession, AssignmentStatus, ViewState } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useAssignments } from '../hooks/useAssignments';
 import { useSessions } from '../hooks/useSessions';
 import { SkeletonDashboard } from './Skeletons';
+import { EmptyState } from './EmptyState';
 
-export const CoursesView = () => {
+interface CoursesViewProps {
+  onNavigate?: (view: ViewState) => void;
+}
+
+export const CoursesView: React.FC<CoursesViewProps> = ({ onNavigate }) => {
   const { courses, loading } = useCourses();
   const { assignments } = useAssignments();
   const { sessions } = useSessions();
@@ -26,11 +31,14 @@ export const CoursesView = () => {
 
   if (courses.length === 0) {
     return (
-      <div className="text-center py-20 animate-fade-in border-2 border-dashed border-gray-700 rounded-xl">
-        <BookOpen className="w-16 h-16 text-gray-700 mx-auto mb-4" />
-        <h3 className="text-xl font-black text-white font-mono">NO COURSES FOUND</h3>
-        <p className="text-gray-500 mt-2 font-mono">Initialize courses in Settings.</p>
-      </div>
+      <EmptyState
+        icon={BookOpen}
+        title="No Courses Found"
+        description="You haven't added any courses yet. Go to Settings to set up your semester subjects and start tracking your progress."
+        actionLabel="Go to Settings"
+        onAction={() => onNavigate?.('SETTINGS')}
+        color="indigo"
+      />
     );
   }
 

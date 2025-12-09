@@ -40,6 +40,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import { ToastContainer } from './components/ToastContainer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { SkeletonDashboard } from './components/Skeletons';
+import { EmptyState } from './components/EmptyState';
 
 const AppContent = () => {
   const { user, logout } = useAuth();
@@ -183,7 +184,15 @@ const AppContent = () => {
                   );
                 })}
                 {upcomingAssignments.length === 0 && (
-                  <div className="text-center py-10 text-gray-500 font-mono">No active assignments. Chill out. 🏖️</div>
+                  <EmptyState
+                    icon={CalendarCheck}
+                    title="No Deadlines"
+                    description="You're all caught up! Enjoy your free time."
+                    actionLabel="View All"
+                    onAction={() => setActiveView('ASSIGNMENTS')}
+                    color="indigo"
+                    compact={true}
+                  />
                 )}
               </div>
             </div>
@@ -228,7 +237,17 @@ const AppContent = () => {
                     </div>
                   </div>
                 ))}
-                {courses.length === 0 && <div className="text-xs text-gray-500 font-mono">No courses found. Add one in settings!</div>}
+                {courses.length === 0 && (
+                  <EmptyState
+                    icon={BookOpen}
+                    title="No Courses"
+                    description="Add courses in Settings to see stats."
+                    actionLabel="Setup"
+                    onAction={() => setActiveView('SETTINGS')}
+                    color="emerald"
+                    compact={true}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -352,7 +371,7 @@ const AppContent = () => {
           {activeView === 'ASSIGNMENTS' && <AssignmentsView />}
           {activeView === 'ANALYTICS' && <Analytics />}
           {activeView === 'SETTINGS' && <SettingsView />}
-          {activeView === 'COURSES' && <CoursesView />}
+          {activeView === 'COURSES' && <CoursesView onNavigate={(view) => setActiveView(view)} />}
         </div>
 
         {/* AI ChatBot Integration */}
