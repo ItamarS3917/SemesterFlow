@@ -4,6 +4,7 @@ import { Play, Pause, Clock, Check, HardDrive, AlertCircle, Coffee, Zap } from '
 import { Course, CourseId } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useSessions } from '../hooks/useSessions';
+import { useToast } from '../contexts/ToastContext';
 
 interface StudyTimerProps {
   initialTopic?: string;
@@ -16,6 +17,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 }) => {
   const { courses } = useCourses();
   const { addSession } = useSessions();
+  const { addToast } = useToast();
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [selectedCourseId, setSelectedCourseId] = useState<CourseId>(initialCourseId || courses[0]?.id || '');
@@ -118,7 +120,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
   const handleSave = () => {
     if (seconds < 60) {
-      alert("Session too short to save (minimum 1 minute).");
+      addToast({ type: 'error', message: 'Session too short to save (minimum 1 minute).' });
       return;
     }
     const finalNotes = topic.trim() ? `[FOCUS: ${topic.toUpperCase()}] - ${notes}` : notes;
@@ -131,6 +133,8 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
       topic: topic || 'Study Session',
       difficultyRating: 3
     });
+
+    addToast({ type: 'success', message: 'Study session saved successfully!' });
 
     // Reset
     setSeconds(0);

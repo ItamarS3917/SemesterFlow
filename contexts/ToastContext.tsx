@@ -11,7 +11,7 @@ export interface Toast {
 
 interface ToastContextType {
     toasts: Toast[];
-    showToast: (message: string, type?: ToastType) => void;
+    addToast: (toast: Omit<Toast, 'id'>) => void;
     removeToast: (id: string) => void;
 }
 
@@ -32,7 +32,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setToasts(prev => prev.filter(t => t.id !== id));
     }, []);
 
-    const showToast = useCallback((message: string, type: ToastType = 'info') => {
+    const addToast = useCallback(({ message, type = 'info' }: Omit<Toast, 'id'>) => {
         const id = Date.now().toString();
         setToasts(prev => [...prev, { id, message, type }]);
 
@@ -43,7 +43,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, [removeToast]);
 
     return (
-        <ToastContext.Provider value={{ toasts, showToast, removeToast }}>
+        <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
             {children}
         </ToastContext.Provider>
     );
