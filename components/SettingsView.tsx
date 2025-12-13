@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { Trash2, Plus, Settings, BookOpen, FileText, Save, X, UploadCloud, Loader2 } from 'lucide-react';
 import { Course } from '../types';
 import { useCourses } from '../hooks/useCourses';
+import { useToast } from '../contexts/ToastContext';
 
 const PRESET_COLORS = [
   { name: 'Blue', bg: 'bg-blue-900', text: 'text-blue-300', color: 'bg-blue-500', border: 'border-blue-700' },
@@ -17,6 +18,7 @@ const PRESET_COLORS = [
 
 export const SettingsView = () => {
   const { courses, addCourse, deleteCourse, updateCourse } = useCourses();
+  const { addToast } = useToast();
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseTarget, setNewCourseTarget] = useState(100);
   const [selectedColorIdx, setSelectedColorIdx] = useState(0);
@@ -29,12 +31,16 @@ export const SettingsView = () => {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCourseName.trim()) return;
+
+    if (!newCourseName.trim()) {
+      addToast({ type: 'error', message: 'Course Name is required.' });
+      return;
+    }
 
     // Validate target hours
     const targetHours = Number(newCourseTarget);
     if (isNaN(targetHours) || targetHours <= 0) {
-      alert("Please enter a valid number for Target Hours (must be greater than 0).");
+      addToast({ type: 'error', message: 'Target Hours must be a positive number.' });
       return;
     }
 
@@ -54,9 +60,10 @@ export const SettingsView = () => {
       await addCourse(newCourse);
       setNewCourseName('');
       setNewCourseTarget(100);
+      addToast({ type: 'success', message: 'Course added successfully!' });
     } catch (error: any) {
       console.error("Failed to add course:", error);
-      alert(`Failed to save course: ${error?.message || error?.code || 'Unknown error'}`);
+      addToast({ type: 'error', message: `Failed the save course: ${error?.message || 'Unknown error'}` });
     }
   };
 
@@ -89,7 +96,7 @@ export const SettingsView = () => {
         // @ts-ignore 
         const pdfjsLib = window.pdfjsLib;
         if (!pdfjsLib) {
-          alert('PDF processing library not loaded. Please refresh the page.');
+          addToast({ type: 'error', message: 'PDF processing library not loaded. Please refresh.' });
           setIsProcessingFile(false);
           return;
         }
@@ -112,16 +119,17 @@ export const SettingsView = () => {
         const text = await file.text();
         extractedText = `\n\n--- START OF UPLOADED FILE: ${file.name} ---\n${text}\n--- END OF FILE: ${file.name} ---\n`;
       } else {
-        alert('Unsupported file type. Please upload PDF or Text files (.txt, .md).');
+        addToast({ type: 'error', message: 'Unsupported file type. Please upload PDF or Text files.' });
         setIsProcessingFile(false);
         return;
       }
 
       setKnowledgeInput(prev => prev + extractedText);
+      addToast({ type: 'success', message: 'File processed successfully!' });
 
     } catch (error) {
       console.error('Error processing file:', error);
-      alert('Failed to read file. Please try again or check if the PDF is valid.');
+      addToast({ type: 'error', message: 'Failed to read file. Please try again.' });
     } finally {
       setIsProcessingFile(false);
       if (fileInputRef.current) {

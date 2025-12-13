@@ -71,7 +71,19 @@ export const AssignmentsView = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAssignment.name || !newAssignment.courseId || !user) return;
+
+    if (!user) {
+      addToast({ type: 'error', message: 'You must be logged in to create assignments.' });
+      return;
+    }
+    if (!newAssignment.name?.trim()) {
+      addToast({ type: 'error', message: 'Assignment name is required.' });
+      return;
+    }
+    if (!newAssignment.courseId) {
+      addToast({ type: 'error', message: 'Please select a course.' });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
