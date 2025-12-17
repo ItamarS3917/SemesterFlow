@@ -142,7 +142,7 @@
 - [x] Session history table
 - [x] Responsive chart sizing
 - [x] Color-coded visualizations
-- [ ] Export to CSV (pending)
+- [x] Export to CSV - completed
 - [ ] Date range filters (pending)
 
 ### 1.8 AI Features - Backend ✅ COMPLETE
@@ -189,7 +189,7 @@
 - [x] Course management interface
 - [x] Data sync controls
 - [x] Theme toggle (dark/light)
-- [ ] Export data functionality - pending
+- [x] Export data functionality - completed
 - [ ] Privacy settings - pending
 
 ### 1.12 Deployment Preparation ⚪ NOT STARTED
