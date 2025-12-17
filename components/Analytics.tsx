@@ -12,7 +12,9 @@ import {
   calculateStreak,
   calculateMonthlyComparison
 } from '../utils/analyticsCalculations';
-import { ArrowUp, ArrowDown, Minus, Calendar, Zap, Clock, Trophy, Flame } from 'lucide-react';
+import { ArrowUp, ArrowDown, Minus, Calendar, Zap, Clock, Trophy, Flame, Download } from 'lucide-react';
+import { exportSessionsToCSV } from '../utils/exportData';
+import { useToast } from '../contexts/ToastContext';
 
 
 // Hex mapping for Tailwind colors used in constants.ts
@@ -33,6 +35,7 @@ const COLORS: Record<string, string> = {
 export const Analytics: React.FC = () => {
   const { courses } = useCourses();
   const { sessions } = useSessions();
+  const { addToast } = useToast();
   const [dateRange, setDateRange] = useState<'WEEK' | 'MONTH' | 'SEMESTER'>('MONTH');
 
   // --- Metrics Calculations ---
@@ -55,25 +58,47 @@ export const Analytics: React.FC = () => {
   const lastWeekHours = weeklyData[weeklyData.length - 2]?.hours || 0;
   const trend = currentWeekHours > lastWeekHours ? 'UP' : currentWeekHours < lastWeekHours ? 'DOWN' : 'FLAT';
 
+  const handleExportSessions = () => {
+    try {
+      exportSessionsToCSV(sessions, courses);
+      addToast({ type: 'success', message: 'Study sessions exported successfully!' });
+    } catch (error) {
+      console.error('Export error:', error);
+      addToast({ type: 'error', message: 'Failed to export sessions.' });
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">Progress & Analytics</h2>
 
-        {/* Date Range Selector */}
-        <div className="flex bg-gray-800 p-1 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-          {(['WEEK', 'MONTH', 'SEMESTER'] as const).map((range) => (
-            <button
-              key={range}
-              onClick={() => setDateRange(range)}
-              className={`px-4 py-1 text-xs font-bold font-mono uppercase transition-all ${dateRange === range
-                ? 'bg-indigo-600 text-white border border-black'
-                : 'text-gray-400 hover:text-white'
-                }`}
-            >
-              {range}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Export Button */}
+          <button
+            onClick={handleExportSessions}
+            disabled={sessions.length === 0}
+            className="retro-btn bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 text-xs font-bold font-mono uppercase flex items-center gap-2 border-2 border-black shadow-[2px_2px_0px_0px_#000] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+
+          {/* Date Range Selector */}
+          <div className="flex bg-gray-800 p-1 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+            {(['WEEK', 'MONTH', 'SEMESTER'] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setDateRange(range)}
+                className={`px-4 py-1 text-xs font-bold font-mono uppercase transition-all ${dateRange === range
+                  ? 'bg-indigo-600 text-white border border-black'
+                  : 'text-gray-400 hover:text-white'
+                  }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

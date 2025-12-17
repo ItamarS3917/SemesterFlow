@@ -1,9 +1,12 @@
 
 import React, { useState, useRef } from 'react';
-import { Trash2, Plus, Settings, BookOpen, FileText, Save, X, UploadCloud, Loader2 } from 'lucide-react';
+import { Trash2, Plus, Settings, BookOpen, FileText, Save, X, UploadCloud, Loader2, Download, Database } from 'lucide-react';
 import { Course } from '../types';
 import { useCourses } from '../hooks/useCourses';
+import { useAssignments } from '../hooks/useAssignments';
+import { useSessions } from '../hooks/useSessions';
 import { useToast } from '../contexts/ToastContext';
+import { exportCoursesToCSV, exportAssignmentsToCSV, exportSessionsToCSV, exportAllDataAsJSON } from '../utils/exportData';
 
 const PRESET_COLORS = [
   { name: 'Blue', bg: 'bg-blue-900', text: 'text-blue-300', color: 'bg-blue-500', border: 'border-blue-700' },
@@ -18,6 +21,8 @@ const PRESET_COLORS = [
 
 export const SettingsView = () => {
   const { courses, addCourse, deleteCourse, updateCourse } = useCourses();
+  const { assignments } = useAssignments();
+  const { sessions } = useSessions();
   const { addToast } = useToast();
   const [newCourseName, setNewCourseName] = useState('');
   const [newCourseTarget, setNewCourseTarget] = useState(100);
@@ -138,6 +143,47 @@ export const SettingsView = () => {
     }
   };
 
+  // Export handlers
+  const handleExportCourses = () => {
+    try {
+      exportCoursesToCSV(courses);
+      addToast({ type: 'success', message: 'Courses exported successfully!' });
+    } catch (error) {
+      console.error('Export error:', error);
+      addToast({ type: 'error', message: 'Failed to export courses.' });
+    }
+  };
+
+  const handleExportAssignments = () => {
+    try {
+      exportAssignmentsToCSV(assignments);
+      addToast({ type: 'success', message: 'Assignments exported successfully!' });
+    } catch (error) {
+      console.error('Export error:', error);
+      addToast({ type: 'error', message: 'Failed to export assignments.' });
+    }
+  };
+
+  const handleExportSessions = () => {
+    try {
+      exportSessionsToCSV(sessions, courses);
+      addToast({ type: 'success', message: 'Study sessions exported successfully!' });
+    } catch (error) {
+      console.error('Export error:', error);
+      addToast({ type: 'error', message: 'Failed to export sessions.' });
+    }
+  };
+
+  const handleExportAllData = () => {
+    try {
+      exportAllDataAsJSON(courses, assignments, sessions);
+      addToast({ type: 'success', message: 'Complete backup exported successfully!' });
+    } catch (error) {
+      console.error('Export error:', error);
+      addToast({ type: 'error', message: 'Failed to export data backup.' });
+    }
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="retro-card p-6">
@@ -247,6 +293,86 @@ export const SettingsView = () => {
         <div className="pt-6 border-t border-gray-700">
           <p className="text-sm text-gray-500">
             Note: Deleting a course will also hide its associated assignments and history from the dashboard.
+          </p>
+        </div>
+      </div>
+
+      {/* Export Data Section */}
+      <div className="retro-card p-6">
+        <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
+          <Database className="w-5 h-5 text-emerald-400" />
+          Export Your Data
+        </h3>
+        <p className="text-sm text-gray-500 mb-6">
+          Download your study data in CSV or JSON format. Perfect for backups, external analysis, or portfolio building.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Export Courses */}
+          <button
+            onClick={handleExportCourses}
+            disabled={courses.length === 0}
+            className="retro-btn bg-gray-800 text-white border-2 border-gray-700 hover:border-emerald-500 p-4 flex flex-col items-start gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[4px_4px_0px_0px_#10b981] hover:translate-x-[-2px] hover:translate-y-[-2px]"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <BookOpen className="w-5 h-5 text-emerald-400" />
+              <span className="font-bold text-sm">Export Courses</span>
+            </div>
+            <span className="text-xs text-gray-400 font-mono">
+              {courses.length} course{courses.length !== 1 ? 's' : ''} • CSV format
+            </span>
+          </button>
+
+          {/* Export Assignments */}
+          <button
+            onClick={handleExportAssignments}
+            disabled={assignments.length === 0}
+            className="retro-btn bg-gray-800 text-white border-2 border-gray-700 hover:border-blue-500 p-4 flex flex-col items-start gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[4px_4px_0px_0px_#3b82f6] hover:translate-x-[-2px] hover:translate-y-[-2px]"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <FileText className="w-5 h-5 text-blue-400" />
+              <span className="font-bold text-sm">Export Assignments</span>
+            </div>
+            <span className="text-xs text-gray-400 font-mono">
+              {assignments.length} assignment{assignments.length !== 1 ? 's' : ''} • CSV format
+            </span>
+          </button>
+
+          {/* Export Study Sessions */}
+          <button
+            onClick={handleExportSessions}
+            disabled={sessions.length === 0}
+            className="retro-btn bg-gray-800 text-white border-2 border-gray-700 hover:border-purple-500 p-4 flex flex-col items-start gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[4px_4px_0px_0px_#a855f7] hover:translate-x-[-2px] hover:translate-y-[-2px]"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <Download className="w-5 h-5 text-purple-400" />
+              <span className="font-bold text-sm">Export Study Sessions</span>
+            </div>
+            <span className="text-xs text-gray-400 font-mono">
+              {sessions.length} session{sessions.length !== 1 ? 's' : ''} • CSV format
+            </span>
+          </button>
+
+          {/* Export Complete Backup */}
+          <button
+            onClick={handleExportAllData}
+            disabled={courses.length === 0 && assignments.length === 0 && sessions.length === 0}
+            className="retro-btn bg-gradient-to-br from-indigo-600 to-purple-600 text-white border-2 border-black p-4 flex flex-col items-start gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[4px_4px_0px_0px_#6366f1] hover:translate-x-[-2px] hover:translate-y-[-2px]"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <Database className="w-5 h-5 text-white" />
+              <span className="font-bold text-sm">Complete Backup</span>
+            </div>
+            <span className="text-xs text-white/80 font-mono">
+              All data • JSON format
+            </span>
+          </button>
+        </div>
+
+        <div className="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+          <p className="text-xs text-gray-400 font-mono leading-relaxed">
+            <span className="font-bold text-emerald-400">💡 TIP:</span> Use CSV exports for spreadsheet analysis (Excel, Google Sheets). 
+            Use the complete backup for full data preservation and potential data restoration.
           </p>
         </div>
       </div>
