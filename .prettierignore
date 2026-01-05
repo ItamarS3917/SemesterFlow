@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+build
+coverage
+.git
+.env
+.env.*
+*.log
+package-lock.json
+server/package-lock.json
+mcp-server/package-lock.json
+mcp-nightly-commit/package-lock.json
