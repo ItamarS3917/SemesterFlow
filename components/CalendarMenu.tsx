@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, Download } from 'lucide-react';
 
@@ -12,14 +11,14 @@ interface CalendarMenuProps {
   iconClass?: string;
 }
 
-export const CalendarMenu: React.FC<CalendarMenuProps> = ({ 
-  title, 
-  description, 
-  startDate, 
-  endDate, 
+export const CalendarMenu: React.FC<CalendarMenuProps> = ({
+  title,
+  description,
+  startDate,
+  endDate,
   location = '',
-  buttonClass = "text-gray-400 hover:text-indigo-400 p-1 rounded-md hover:bg-indigo-900/20",
-  iconClass = "w-4 h-4"
+  buttonClass = 'text-gray-400 hover:text-indigo-400 p-1 rounded-md hover:bg-indigo-900/20',
+  iconClass = 'w-4 h-4',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -34,7 +33,7 @@ export const CalendarMenu: React.FC<CalendarMenuProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const formatISO = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const formatISO = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, '');
 
   const generateUrls = () => {
     const start = formatISO(startDate);
@@ -83,11 +82,7 @@ END:VCALENDAR`;
 
   return (
     <div className="relative inline-block text-left" ref={menuRef}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className={buttonClass}
-        title="Add to Calendar"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className={buttonClass} title="Add to Calendar">
         <Calendar className={iconClass} />
       </button>
 

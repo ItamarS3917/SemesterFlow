@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Clock, Check, HardDrive, AlertCircle, Coffee, Zap } from 'lucide-react';
 import { Course, CourseId } from '../types';
@@ -11,16 +10,15 @@ interface StudyTimerProps {
   initialCourseId?: string;
 }
 
-export const StudyTimer: React.FC<StudyTimerProps> = ({
-  initialTopic = '',
-  initialCourseId
-}) => {
+export const StudyTimer: React.FC<StudyTimerProps> = ({ initialTopic = '', initialCourseId }) => {
   const { courses } = useCourses();
   const { addSession } = useSessions();
   const { addToast } = useToast();
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [selectedCourseId, setSelectedCourseId] = useState<CourseId>(initialCourseId || courses[0]?.id || '');
+  const [selectedCourseId, setSelectedCourseId] = useState<CourseId>(
+    initialCourseId || courses[0]?.id || ''
+  );
 
   // Report State
   const [topic, setTopic] = useState(initialTopic);
@@ -42,19 +40,21 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
     if (isActive) {
       interval = window.setInterval(() => {
-        setSeconds(prev => {
+        setSeconds((prev) => {
           const next = prev + 1;
           // Check for Pomodoro completion
           if (targetSeconds && next >= targetSeconds) {
             setIsActive(false);
             // Play notification sound
             if (Notification.permission === 'granted') {
-              new Notification(pomodoroMode === 'work' ? "Pomodoro Complete!" : "Break Over!");
+              new Notification(pomodoroMode === 'work' ? 'Pomodoro Complete!' : 'Break Over!');
             }
 
             // Play sound
             try {
-              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const audioContext = new (
+                window.AudioContext || (window as any).webkitAudioContext
+              )();
               const oscillator = audioContext.createOscillator();
               const gainNode = audioContext.createGain();
 
@@ -63,7 +63,10 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
               oscillator.type = 'sine';
               oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-              oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.5);
+              oscillator.frequency.exponentialRampToValueAtTime(
+                440,
+                audioContext.currentTime + 0.5
+              );
 
               gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
               gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
@@ -71,7 +74,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
               oscillator.start();
               oscillator.stop(audioContext.currentTime + 0.5);
             } catch (e) {
-              console.error("Audio play failed", e);
+              console.error('Audio play failed', e);
             }
 
             return next;
@@ -131,7 +134,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
       durationSeconds: seconds,
       notes: finalNotes,
       topic: topic || 'Study Session',
-      difficultyRating: 3
+      difficultyRating: 3,
     });
 
     addToast({ type: 'success', message: 'Study session saved successfully!' });
@@ -145,7 +148,7 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
   };
 
   const handleDiscard = () => {
-    if (window.confirm("Discard this session data? It cannot be recovered.")) {
+    if (window.confirm('Discard this session data? It cannot be recovered.')) {
       setSeconds(0);
       setNotes('');
       setTopic('');
@@ -161,24 +164,29 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
           <Clock className="w-6 h-6 text-indigo-400" />
           CHRONO_STATION
         </h2>
-        <div className={`px-3 py-1 border-2 border-black font-bold text-xs font-mono uppercase shadow-[2px_2px_0px_0px_#000] transition-colors duration-300 ${isActive ? 'bg-red-600 text-white animate-pulse' : 'bg-gray-700 text-gray-300'}`}>
+        <div
+          className={`px-3 py-1 border-2 border-black font-bold text-xs font-mono uppercase shadow-[2px_2px_0px_0px_#000] transition-colors duration-300 ${isActive ? 'bg-red-600 text-white animate-pulse' : 'bg-gray-700 text-gray-300'}`}
+        >
           {isActive ? '• RECORDING' : 'STANDBY MODE'}
         </div>
       </div>
 
       {/* Course Selector (Disabled while active) */}
       <div className="mb-8">
-        <label className="block text-xs font-bold text-gray-500 mb-2 font-mono uppercase tracking-widest">Target Frequency (Subject)</label>
+        <label className="block text-xs font-bold text-gray-500 mb-2 font-mono uppercase tracking-widest">
+          Target Frequency (Subject)
+        </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {courses.map(course => (
+          {courses.map((course) => (
             <button
               key={course.id}
               onClick={() => !isActive && seconds === 0 && setSelectedCourseId(course.id)}
               disabled={isActive || seconds > 0}
-              className={`p-2 border-2 text-center transition-all font-mono text-[10px] font-bold uppercase ${selectedCourseId === course.id
-                ? `bg-indigo-900 border-indigo-500 text-white shadow-[2px_2px_0px_0px_#6366f1]`
-                : 'bg-gray-800 border-gray-600 text-gray-500'
-                } ${(isActive || seconds > 0) ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'}`}
+              className={`p-2 border-2 text-center transition-all font-mono text-[10px] font-bold uppercase ${
+                selectedCourseId === course.id
+                  ? `bg-indigo-900 border-indigo-500 text-white shadow-[2px_2px_0px_0px_#6366f1]`
+                  : 'bg-gray-800 border-gray-600 text-gray-500'
+              } ${isActive || seconds > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-400'}`}
             >
               {course.name}
             </button>
@@ -190,7 +198,9 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
       <div className="flex flex-col items-center justify-center mb-8 bg-black p-8 border-4 border-gray-800 rounded-lg relative shadow-[inset_0_0_20px_rgba(0,0,0,0.8)]">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%] pointer-events-none"></div>
 
-        <div className={`text-7xl font-mono font-bold tracking-widest z-10 transition-colors ${isActive ? 'text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]' : 'text-gray-600'}`}>
+        <div
+          className={`text-7xl font-mono font-bold tracking-widest z-10 transition-colors ${isActive ? 'text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]' : 'text-gray-600'}`}
+        >
           {getDisplayTime()}
         </div>
 
@@ -234,10 +244,16 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
           {!isActive && seconds === 0 && (
             <div className="flex gap-4">
-              <button onClick={() => startPomodoro('work')} className="retro-btn px-4 py-2 bg-red-500 text-white text-xs font-bold border-2 border-black flex items-center gap-2 hover:bg-red-400">
+              <button
+                onClick={() => startPomodoro('work')}
+                className="retro-btn px-4 py-2 bg-red-500 text-white text-xs font-bold border-2 border-black flex items-center gap-2 hover:bg-red-400"
+              >
                 <Zap className="w-4 h-4" /> POMODORO (25m)
               </button>
-              <button onClick={() => startPomodoro('break')} className="retro-btn px-4 py-2 bg-blue-500 text-white text-xs font-bold border-2 border-black flex items-center gap-2 hover:bg-blue-400">
+              <button
+                onClick={() => startPomodoro('break')}
+                className="retro-btn px-4 py-2 bg-blue-500 text-white text-xs font-bold border-2 border-black flex items-center gap-2 hover:bg-blue-400"
+              >
                 <Coffee className="w-4 h-4" /> BREAK (5m)
               </button>
             </div>
@@ -264,7 +280,9 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
           <div className="space-y-4">
             {/* Topic Field */}
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 mb-1 font-mono uppercase">Operation Focus (Topic)</label>
+              <label className="block text-[10px] font-bold text-gray-400 mb-1 font-mono uppercase">
+                Operation Focus (Topic)
+              </label>
               <input
                 type="text"
                 value={topic}
@@ -276,7 +294,9 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
 
             {/* Notes Field */}
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 mb-1 font-mono uppercase">Log Entry (Observations)</label>
+              <label className="block text-[10px] font-bold text-gray-400 mb-1 font-mono uppercase">
+                Log Entry (Observations)
+              </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -291,15 +311,20 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
               className={`cursor-pointer border-2 border-dashed p-3 transition-all ${addToKnowledge ? 'bg-indigo-900/40 border-indigo-500' : 'border-gray-600 hover:border-gray-500'}`}
             >
               <div className="flex items-start gap-3">
-                <div className={`w-5 h-5 mt-0.5 border-2 border-black flex items-center justify-center transition-colors ${addToKnowledge ? 'bg-indigo-500' : 'bg-gray-700'}`}>
+                <div
+                  className={`w-5 h-5 mt-0.5 border-2 border-black flex items-center justify-center transition-colors ${addToKnowledge ? 'bg-indigo-500' : 'bg-gray-700'}`}
+                >
                   {addToKnowledge && <Check className="w-3 h-3 text-white" />}
                 </div>
                 <div>
-                  <span className={`text-xs font-bold font-mono uppercase block ${addToKnowledge ? 'text-indigo-300' : 'text-gray-400'}`}>
+                  <span
+                    className={`text-xs font-bold font-mono uppercase block ${addToKnowledge ? 'text-indigo-300' : 'text-gray-400'}`}
+                  >
                     Update Neural Net (Knowledge Base)
                   </span>
                   <p className="text-[10px] text-gray-500 font-mono leading-tight mt-1">
-                    Check this to append this report to the course's long-term memory. The AI Architect will use this data to personalize future study plans and answers.
+                    Check this to append this report to the course's long-term memory. The AI
+                    Architect will use this data to personalize future study plans and answers.
                   </p>
                 </div>
               </div>
@@ -321,7 +346,8 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({
       <div className="mt-6 pt-4 border-t border-gray-800 flex items-start gap-2 opacity-60">
         <AlertCircle className="w-4 h-4 text-gray-500 mt-0.5" />
         <p className="text-[10px] text-gray-500 font-mono leading-relaxed">
-          Consistency Protocol: Sessions under 60 seconds are discarded automatically to prevent data corruption.
+          Consistency Protocol: Sessions under 60 seconds are discarded automatically to prevent
+          data corruption.
         </p>
       </div>
     </div>

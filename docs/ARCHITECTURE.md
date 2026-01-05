@@ -112,6 +112,7 @@ SemesterFlow/
 ## Data Flow Architecture
 
 ### 1. Authentication Flow
+
 ```
 User clicks "Sign in with Google"
     ↓
@@ -129,6 +130,7 @@ App.tsx renders AppContent (logged in)
 ```
 
 ### 2. Data CRUD Flow (Example: Adding a Course)
+
 ```
 User fills form in CoursesView.tsx
     ↓
@@ -146,6 +148,7 @@ All components using useCourses() re-render
 ```
 
 ### 3. AI Chat Flow
+
 ```
 User types message in ChatBot.tsx
     ↓
@@ -167,6 +170,7 @@ ChatBot.tsx updates messages in real-time
 ### Tables
 
 #### `courses`
+
 ```sql
 id               UUID PRIMARY KEY
 user_id          UUID REFERENCES auth.users(id)
@@ -186,6 +190,7 @@ created_at            TIMESTAMPTZ
 ```
 
 #### `assignments`
+
 ```sql
 id               UUID PRIMARY KEY
 user_id          UUID REFERENCES auth.users(id)
@@ -202,6 +207,7 @@ started_at       TIMESTAMPTZ
 ```
 
 #### `sessions`
+
 ```sql
 id                UUID PRIMARY KEY
 user_id           UUID REFERENCES auth.users(id)
@@ -216,6 +222,7 @@ created_at        TIMESTAMPTZ
 ```
 
 #### `user_stats`
+
 ```sql
 id                     UUID PRIMARY KEY
 user_id                UUID UNIQUE REFERENCES auth.users(id)
@@ -230,6 +237,7 @@ updated_at             TIMESTAMPTZ
 ```
 
 #### `course_knowledge` (For future RAG implementation)
+
 ```sql
 id           UUID PRIMARY KEY
 course_id    UUID REFERENCES courses(id) ON DELETE CASCADE
@@ -242,6 +250,7 @@ created_at   TIMESTAMPTZ
 ### Row Level Security (RLS) Policies
 
 **All tables have RLS enabled** with policies:
+
 - SELECT: `auth.uid() = user_id`
 - INSERT: `auth.uid() = user_id`
 - UPDATE: `auth.uid() = user_id`
@@ -254,6 +263,7 @@ This ensures users can only access their own data.
 ## State Management
 
 ### Context Hierarchy
+
 ```
 <AuthProvider>              ← Supabase Auth state
   <AppProvider>             ← Wraps all data contexts
@@ -271,6 +281,7 @@ This ensures users can only access their own data.
 ```
 
 ### Data Fetching Strategy
+
 - **On Mount**: Each context fetches data from Supabase
 - **On Update**: Local state updates immediately, then syncs to Supabase
 - **Real-time**: NOT currently implemented (polling on mount only)
@@ -282,6 +293,7 @@ This ensures users can only access their own data.
 ## Component Architecture
 
 ### Smart Components (Have Logic)
+
 - `App.tsx` - Main app, routing, view state
 - `StudyTimer.tsx` - Timer logic, session saving
 - `ChatBot.tsx` - Chat state, streaming responses
@@ -290,6 +302,7 @@ This ensures users can only access their own data.
 - `ProcrastinationWidget.tsx` - Procrastination scoring
 
 ### Presentational Components (Display Only)
+
 - `Analytics.tsx` - Charts (uses hooks for data)
 - `AssignmentsView.tsx` - Assignment list
 - `CoursesView.tsx` - Course cards
@@ -297,7 +310,9 @@ This ensures users can only access their own data.
 - `LoginPage.tsx` - Login UI
 
 ### Shared UI Patterns
+
 All components use:
+
 - **Neo-brutalist design**: Bold borders, strong shadows
 - **Retro styling**: Monospace fonts, CRT effects
 - **Tailwind-like classes**: `retro-card`, `retro-btn`, `retro-input`
@@ -307,15 +322,18 @@ All components use:
 ## API Endpoints (Express Server)
 
 ### Base URL
+
 - **Development**: `http://localhost:3000`
 - **Production**: TBD (deploy to Render/Railway)
 
 ### Endpoints
 
 #### `POST /api/chat`
+
 **Purpose**: AI chatbot conversation
 
 **Request**:
+
 ```json
 {
   "message": "What's my next exam?",
@@ -328,6 +346,7 @@ All components use:
 ```
 
 **Response**: Server-Sent Events (SSE) stream
+
 ```
 data: {"text": "Your"}
 data: {"text": " next"}
@@ -336,9 +355,11 @@ data: [DONE]
 ```
 
 #### `POST /api/plan`
+
 **Purpose**: Generate daily study plan
 
 **Request**:
+
 ```json
 {
   "contextData": {
@@ -352,6 +373,7 @@ data: [DONE]
 ```
 
 **Response**:
+
 ```json
 {
   "date": "12/1/2025",
@@ -371,6 +393,7 @@ data: [DONE]
 ```
 
 #### `POST /api/grade`
+
 **Purpose**: (Future) Auto-grade assignments
 
 **Status**: Schema defined, not implemented
@@ -386,16 +409,16 @@ data: [DONE]
 interface Course {
   id: string;
   name: string;
-  color: string;          // Tailwind class (bg-blue-500)
-  bg: string;             // Background class
-  text: string;           // Text color class
-  border: string;         // Border class
+  color: string; // Tailwind class (bg-blue-500)
+  bg: string; // Background class
+  text: string; // Text color class
+  border: string; // Border class
   totalHoursTarget: number;
   hoursCompleted: number;
   totalAssignments: number;
   completedAssignments: number;
-  nextExamDate?: string;  // ISO date
-  knowledge?: string;     // Course notes
+  nextExamDate?: string; // ISO date
+  knowledge?: string; // Course notes
   weakConcepts?: string[];
 }
 
@@ -404,30 +427,30 @@ interface Assignment {
   id: string;
   courseId: string;
   name: string;
-  dueDate: string;        // ISO date
+  dueDate: string; // ISO date
   estimatedHours: number;
   status: AssignmentStatus;
   notes?: string;
-  createdAt: string;      // ISO date
-  startedAt?: string;     // ISO date
+  createdAt: string; // ISO date
+  startedAt?: string; // ISO date
 }
 
 enum AssignmentStatus {
   NOT_STARTED = 'NOT_STARTED',
   IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED'
+  COMPLETED = 'COMPLETED',
 }
 
 // Study Session
 interface StudySession {
   id: string;
   courseId: string;
-  startTime: string;      // ISO timestamp
+  startTime: string; // ISO timestamp
   durationSeconds: number;
   notes?: string;
-  date: string;           // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   topic?: string;
-  difficulty?: number;    // 1-5
+  difficulty?: number; // 1-5
 }
 
 // User Stats
@@ -438,7 +461,7 @@ interface UserStats {
   weeklyTarget: number;
   currentPhase: number;
   phaseName: string;
-  phaseProgress: number;  // 0-100
+  phaseProgress: number; // 0-100
 }
 ```
 
@@ -447,6 +470,7 @@ interface UserStats {
 ## Common Patterns & Best Practices
 
 ### 1. Database Operations
+
 ```typescript
 // ✅ CORRECT: Use context hooks
 import { useCourses } from '../hooks/useCourses';
@@ -459,6 +483,7 @@ const { data } = await supabase.from('courses').select();
 ```
 
 ### 2. Authentication Checks
+
 ```typescript
 // ✅ CORRECT: Use AuthContext
 import { useAuth } from '../contexts/AuthContext';
@@ -471,6 +496,7 @@ const session = await supabase.auth.getSession();
 ```
 
 ### 3. State Updates
+
 ```typescript
 // ✅ CORRECT: Update through context
 const { updateCourse } = useCourses();
@@ -481,6 +507,7 @@ course.hoursCompleted = 10; // This won't trigger re-render
 ```
 
 ### 4. Type Safety
+
 ```typescript
 // ✅ CORRECT: Use defined types
 import { Course, Assignment } from '../types';
@@ -492,13 +519,14 @@ const course: any = { ... };
 ```
 
 ### 5. Error Handling
+
 ```typescript
 // ✅ CORRECT: Try-catch with user feedback
 try {
   await addCourse(newCourse);
 } catch (error) {
-  console.error("Failed to add course:", error);
-  alert("Failed to add course. Please try again.");
+  console.error('Failed to add course:', error);
+  alert('Failed to add course. Please try again.');
 }
 
 // ❌ WRONG: Unhandled promises
@@ -510,6 +538,7 @@ addCourse(newCourse); // Silent failures
 ## Environment Variables
 
 ### Required
+
 ```bash
 # Supabase (REQUIRED)
 VITE_SUPABASE_URL=https://xxx.supabase.co
@@ -520,6 +549,7 @@ GEMINI_API_KEY=AIza...
 ```
 
 ### Optional
+
 ```bash
 # Firebase (DEPRECATED - not used)
 # VITE_FIREBASE_API_KEY=...
@@ -530,16 +560,19 @@ GEMINI_API_KEY=AIza...
 ## Security Considerations
 
 ### 1. Row Level Security (RLS)
+
 - All Supabase queries automatically filtered by `user_id`
 - Users cannot access other users' data
 - Enforced at database level (cannot be bypassed from client)
 
 ### 2. API Keys
+
 - Supabase ANON key is safe to expose (RLS protects data)
 - Gemini API key stored in backend only (never in client)
 - Use environment variables, never hardcode
 
 ### 3. Input Validation
+
 - Backend validates all AI requests (rate limiting, size limits)
 - Client validates forms before submission
 - Sanitize user input before displaying
@@ -549,11 +582,13 @@ GEMINI_API_KEY=AIza...
 ## Performance Optimization
 
 ### Current Optimizations
+
 - Component-level code splitting (React.lazy) - NOT YET IMPLEMENTED
 - Debounced search inputs - NOT YET IMPLEMENTED
 - Memoized calculations in StatsContext
 
 ### Future Optimizations (Recommended)
+
 - [ ] Implement React.lazy for code splitting
 - [ ] Add Supabase Realtime instead of polling
 - [ ] Implement pagination for large datasets
@@ -565,16 +600,19 @@ GEMINI_API_KEY=AIza...
 ## Testing Strategy (Not Yet Implemented)
 
 ### Unit Tests
+
 - Test individual functions in `utils/`
 - Test context state updates
 - Test type conversions (snake_case ↔ camelCase)
 
 ### Integration Tests
+
 - Test authentication flow
 - Test CRUD operations with Supabase
 - Test AI API endpoints
 
 ### E2E Tests
+
 - Test user journeys (login → create course → add session)
 - Test timer functionality
 - Test chat interactions
@@ -601,6 +639,7 @@ GEMINI_API_KEY=AIza...
 ```
 
 ### Deployment Checklist
+
 See `docs/DEPLOYMENT.md` for full guide
 
 ---
@@ -608,18 +647,22 @@ See `docs/DEPLOYMENT.md` for full guide
 ## Common Issues & Solutions
 
 ### Issue: "RLS policy violation"
+
 **Cause**: User not authenticated or accessing wrong user's data
 **Solution**: Check `auth.uid()` matches `user_id` in query
 
 ### Issue: "CORS error from backend"
+
 **Cause**: Frontend URL not in CORS whitelist
 **Solution**: Update `server/index.js` CORS config
 
 ### Issue: "Supabase connection failed"
+
 **Cause**: Wrong credentials or network issue
 **Solution**: Verify `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 
 ### Issue: "Type mismatch" errors
+
 **Cause**: Database returns snake_case, app uses camelCase
 **Solution**: Use conversion helpers in `supabaseDB.ts`
 

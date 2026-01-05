@@ -10,6 +10,7 @@
 ### TypeScript Standards
 
 #### 1. **NEVER use `any` type**
+
 ```typescript
 // ❌ WRONG
 const data: any = await fetch();
@@ -19,22 +20,27 @@ const data: Course[] = await fetch();
 ```
 
 #### 2. **Always import types from types.ts**
+
 ```typescript
 // ❌ WRONG
-interface Course { id: string; name: string; }
+interface Course {
+  id: string;
+  name: string;
+}
 
 // ✅ CORRECT
 import { Course } from '../types';
 ```
 
 #### 3. **Use TypeScript enums for constants**
+
 ```typescript
 // ✅ CORRECT
 import { AssignmentStatus } from '../types';
 const status = AssignmentStatus.IN_PROGRESS;
 
 // ❌ WRONG
-const status = "IN_PROGRESS"; // Magic string
+const status = 'IN_PROGRESS'; // Magic string
 ```
 
 ---
@@ -42,6 +48,7 @@ const status = "IN_PROGRESS"; // Magic string
 ### React Component Standards
 
 #### 1. **Function Components Only**
+
 ```typescript
 // ✅ CORRECT
 export const MyComponent: React.FC<Props> = ({ prop1 }) => {
@@ -53,6 +60,7 @@ export class MyComponent extends React.Component { ... }
 ```
 
 #### 2. **Use Custom Hooks for Data Access**
+
 ```typescript
 // ✅ CORRECT
 import { useCourses } from '../hooks/useCourses';
@@ -65,6 +73,7 @@ const { data } = await supabase.from('courses').select();
 ```
 
 #### 3. **Props Interface Pattern**
+
 ```typescript
 // ✅ CORRECT
 interface MyComponentProps {
@@ -76,13 +85,14 @@ interface MyComponentProps {
 export const MyComponent: React.FC<MyComponentProps> = ({
   title,
   onSave,
-  isLoading = false // Default value
+  isLoading = false, // Default value
 }) => {
   // Component logic
 };
 ```
 
 #### 4. **Component File Structure**
+
 ```typescript
 // 1. Imports
 import React, { useState, useEffect } from 'react';
@@ -127,6 +137,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({ ... }) => {
 ### State Management Rules
 
 #### 1. **Use Context for Global State**
+
 ```typescript
 // ✅ CORRECT - Global data in Context
 const { courses } = useCourses();
@@ -140,6 +151,7 @@ const { courses } = useCourses();
 ```
 
 #### 2. **Use useState for Local UI State**
+
 ```typescript
 // ✅ CORRECT - UI state in component
 const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,12 +161,13 @@ const [selectedTab, setSelectedTab] = useState('courses');
 ```
 
 #### 3. **NEVER Mutate State Directly**
+
 ```typescript
 // ❌ WRONG
-course.name = "New Name";
+course.name = 'New Name';
 
 // ✅ CORRECT
-const updatedCourse = { ...course, name: "New Name" };
+const updatedCourse = { ...course, name: 'New Name' };
 updateCourse(updatedCourse);
 ```
 
@@ -163,6 +176,7 @@ updateCourse(updatedCourse);
 ### Database Access Patterns
 
 #### 1. **Always Use Services Layer**
+
 ```typescript
 // ✅ CORRECT - Use service functions
 import { addCourseToDB } from '../services/supabaseDB';
@@ -180,6 +194,7 @@ const { data } = await supabase.from('courses').insert(newCourse);
 ```
 
 #### 2. **Always Include Error Handling**
+
 ```typescript
 // ✅ CORRECT
 try {
@@ -195,6 +210,7 @@ addCourse(course); // Silent failures
 ```
 
 #### 3. **Row Level Security Awareness**
+
 ```typescript
 // ✅ CORRECT - RLS automatically filters by user_id
 const courses = await fetchCourses(user.uid);
@@ -209,6 +225,7 @@ const courses = await fetchCourses(user.uid);
 ### Styling Guidelines
 
 #### 1. **Use Tailwind-Like Custom Classes**
+
 ```typescript
 // ✅ CORRECT - Use predefined classes
 <div className="retro-card p-6">
@@ -220,7 +237,9 @@ const courses = await fetchCourses(user.uid);
 ```
 
 #### 2. **Neo-Brutalist Design System**
+
 All components should follow:
+
 - **Bold 2px borders** (border-2)
 - **Strong shadows** (shadow-[4px_4px_0px_0px_#000])
 - **High contrast** (black borders, white text on dark bg)
@@ -240,7 +259,9 @@ All components should follow:
 ```
 
 #### 3. **Color Classes**
+
 Course colors are predefined in `constants.ts`:
+
 ```typescript
 // ✅ CORRECT - Use constants
 const COURSE_COLORS = {
@@ -259,6 +280,7 @@ const COURSE_COLORS = {
 ### Naming Conventions
 
 #### 1. **Components: PascalCase**
+
 ```
 StudyTimer.tsx
 CoursesView.tsx
@@ -266,6 +288,7 @@ ProcrastinationWidget.tsx
 ```
 
 #### 2. **Functions: camelCase**
+
 ```typescript
 const handleAddCourse = () => {};
 const fetchUserStats = () => {};
@@ -273,6 +296,7 @@ const calculateStreak = () => {};
 ```
 
 #### 3. **Constants: UPPER_SNAKE_CASE**
+
 ```typescript
 const INITIAL_USER_STATS = { ... };
 const MAX_SESSION_DURATION = 14400;
@@ -280,6 +304,7 @@ const API_BASE_URL = 'http://localhost:3000';
 ```
 
 #### 4. **Types/Interfaces: PascalCase**
+
 ```typescript
 interface Course { ... }
 type ViewState = 'DASHBOARD' | 'TIMER';
@@ -287,6 +312,7 @@ enum AssignmentStatus { ... }
 ```
 
 #### 5. **Files: Match exported component**
+
 ```
 StudyTimer.tsx → exports StudyTimer
 useCourses.ts → exports useCourses()
@@ -314,6 +340,7 @@ chore: Update dependencies
 ### Error Handling Patterns
 
 #### 1. **User-Facing Errors**
+
 ```typescript
 try {
   await deleteCourse(courseId);
@@ -324,6 +351,7 @@ try {
 ```
 
 #### 2. **Silent Failures for Non-Critical**
+
 ```typescript
 // OK for analytics tracking
 try {
@@ -335,6 +363,7 @@ try {
 ```
 
 #### 3. **Validation Errors**
+
 ```typescript
 if (!courseName.trim()) {
   alert('Course name is required');
@@ -352,6 +381,7 @@ if (targetHours < 1 || targetHours > 1000) {
 ### Performance Best Practices
 
 #### 1. **Memoize Expensive Calculations**
+
 ```typescript
 // ✅ CORRECT
 import { useMemo } from 'react';
@@ -365,6 +395,7 @@ const sortedCourses = courses.sort((a, b) => a.name.localeCompare(b.name));
 ```
 
 #### 2. **Avoid Unnecessary Re-renders**
+
 ```typescript
 // ✅ CORRECT - Specific dependencies
 useEffect(() => {
@@ -378,6 +409,7 @@ useEffect(() => {
 ```
 
 #### 3. **Lazy Load Heavy Components** (Future)
+
 ```typescript
 // ✅ FUTURE - Code splitting
 const Analytics = React.lazy(() => import('./Analytics'));
@@ -393,6 +425,7 @@ const Analytics = React.lazy(() => import('./Analytics'));
 ### Security Best Practices
 
 #### 1. **NEVER Expose API Keys in Client**
+
 ```typescript
 // ❌ WRONG
 const GEMINI_API_KEY = "AIzaSyC..."; // Exposed to browser
@@ -402,6 +435,7 @@ const response = await fetch('/api/chat', { ... });
 ```
 
 #### 2. **Sanitize User Input**
+
 ```typescript
 // ✅ CORRECT
 const safeName = courseName.trim().slice(0, 100);
@@ -411,6 +445,7 @@ const courseName = userInput; // Could be 1MB of text
 ```
 
 #### 3. **Trust RLS, Not Client Checks**
+
 ```typescript
 // ✅ CORRECT - RLS enforces security
 const courses = await fetchCourses(user.uid);
@@ -418,7 +453,7 @@ const courses = await fetchCourses(user.uid);
 
 // ⚠️ DON'T rely on client-side filtering for security
 const allCourses = await fetchAll();
-const myCourses = allCourses.filter(c => c.userId === user.uid); // Bad
+const myCourses = allCourses.filter((c) => c.userId === user.uid); // Bad
 ```
 
 ---
@@ -426,6 +461,7 @@ const myCourses = allCourses.filter(c => c.userId === user.uid); // Bad
 ### Testing Guidelines (Future)
 
 #### 1. **Unit Tests**
+
 ```typescript
 // Test utilities
 describe('calculateStreak', () => {
@@ -434,17 +470,14 @@ describe('calculateStreak', () => {
   });
 
   it('should count consecutive days', () => {
-    const sessions = [
-      { date: '2025-12-01' },
-      { date: '2025-12-02' },
-      { date: '2025-12-03' }
-    ];
+    const sessions = [{ date: '2025-12-01' }, { date: '2025-12-02' }, { date: '2025-12-03' }];
     expect(calculateStreak(sessions)).toBe(3);
   });
 });
 ```
 
 #### 2. **Integration Tests**
+
 ```typescript
 // Test CRUD operations
 it('should add course to database', async () => {
@@ -461,6 +494,7 @@ it('should add course to database', async () => {
 ### Documentation Requirements
 
 #### 1. **Component Documentation**
+
 Add JSDoc comments for complex components:
 
 ```typescript
@@ -480,6 +514,7 @@ export const ProcrastinationWidget: React.FC<Props> = ({ onBreakPattern }) => {
 ```
 
 #### 2. **Function Documentation**
+
 ```typescript
 /**
  * Calculates user's study streak (consecutive days with sessions).
@@ -493,7 +528,9 @@ export const calculateStreak = (sessions: StudySession[]): number => {
 ```
 
 #### 3. **Update Documentation When Changing Architecture**
+
 If you add:
+
 - New database table → Update `ARCHITECTURE.md` and `supabase_schema.sql`
 - New API endpoint → Update `API_REFERENCE.md`
 - New feature → Update `projectroadmap.md`
@@ -504,6 +541,7 @@ If you add:
 ### File Organization
 
 #### 1. **One Component Per File**
+
 ```
 ✅ CORRECT
 components/StudyTimer.tsx
@@ -514,6 +552,7 @@ components/AllComponents.tsx // Multiple components in one file
 ```
 
 #### 2. **Group Related Files**
+
 ```
 contexts/
   CoursesContext.tsx
@@ -527,6 +566,7 @@ hooks/
 ```
 
 #### 3. **Index Files for Barrel Exports** (Future)
+
 ```typescript
 // contexts/index.ts
 export { AuthProvider, useAuth } from './AuthContext';
@@ -541,6 +581,7 @@ import { useAuth, useCourses } from '../contexts';
 ### Common Mistakes to Avoid
 
 #### 1. **❌ Forgetting to check authentication**
+
 ```typescript
 // ❌ WRONG
 const Component = () => {
@@ -559,6 +600,7 @@ const Component = () => {
 ```
 
 #### 2. **❌ Not cleaning up effects**
+
 ```typescript
 // ❌ WRONG
 useEffect(() => {
@@ -574,6 +616,7 @@ useEffect(() => {
 ```
 
 #### 3. **❌ Using indexes as keys**
+
 ```typescript
 // ❌ WRONG
 {courses.map((course, index) => (
@@ -587,6 +630,7 @@ useEffect(() => {
 ```
 
 #### 4. **❌ Mutating props**
+
 ```typescript
 // ❌ WRONG
 const Component = ({ course }) => {
@@ -642,6 +686,7 @@ When generating code:
 ---
 
 **Questions?**
+
 - Architecture: `docs/ARCHITECTURE.md`
 - API Docs: `docs/API_REFERENCE.md`
 - Deployment: `docs/DEPLOYMENT.md`

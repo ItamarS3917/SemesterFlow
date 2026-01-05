@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { BrainCircuit, Calendar, Clock, CheckCircle, ArrowRight, Loader2, Settings, Sparkles, AlertCircle, Check, Trash2 } from 'lucide-react';
+import {
+  BrainCircuit,
+  Calendar,
+  Clock,
+  CheckCircle,
+  ArrowRight,
+  Loader2,
+  Settings,
+  Sparkles,
+  AlertCircle,
+  Check,
+  Trash2,
+} from 'lucide-react';
 import { Course, Assignment, DailyPlan, PlannedSession, AssignmentStatus } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useAssignments } from '../hooks/useAssignments';
@@ -25,29 +37,29 @@ export const PlannerView = () => {
         currentDate: new Date().toLocaleDateString(),
         availableHours: availableHours,
         userFocusRequest: focusArea,
-        courses: courses.map(c => ({
+        courses: courses.map((c) => ({
           id: c.id,
           name: c.name,
           progressPercentage: Math.round((c.hoursCompleted / c.totalHoursTarget) * 100),
           targetHours: c.totalHoursTarget,
           completedHours: c.hoursCompleted,
           nextExamDate: c.nextExamDate,
-          knowledgeBase: c.knowledge || "No specific notes provided."
+          knowledgeBase: c.knowledge || 'No specific notes provided.',
         })),
         assignments: assignments
-          .filter(a => a.status !== AssignmentStatus.COMPLETED)
-          .map(a => ({
+          .filter((a) => a.status !== AssignmentStatus.COMPLETED)
+          .map((a) => ({
             courseId: a.courseId,
             name: a.name,
             due: a.dueDate,
-            estHours: a.estimatedHours
-          }))
+            estHours: a.estimatedHours,
+          })),
       };
 
       const response = await fetch(API_ENDPOINTS.PLAN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contextData })
+        body: JSON.stringify({ contextData }),
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -55,13 +67,15 @@ export const PlannerView = () => {
       const data = await response.json();
       // Ensure session IDs are unique for React keys
       if (data.sessions) {
-        data.sessions = data.sessions.map((s: any, idx: number) => ({ ...s, id: `plan - ${idx} ` }));
+        data.sessions = data.sessions.map((s: any, idx: number) => ({
+          ...s,
+          id: `plan - ${idx} `,
+        }));
       }
       setGeneratedPlan(data);
-
     } catch (error) {
-      console.error("Planning failed:", error);
-      alert("Failed to generate plan. Please ensure the backend is running.");
+      console.error('Planning failed:', error);
+      alert('Failed to generate plan. Please ensure the backend is running.');
     } finally {
       setIsGenerating(false);
     }
@@ -71,7 +85,7 @@ export const PlannerView = () => {
     if (generatedPlan) {
       setGeneratedPlan({
         ...generatedPlan,
-        sessions: generatedPlan.sessions.filter(s => s.id !== sessionId)
+        sessions: generatedPlan.sessions.filter((s) => s.id !== sessionId),
       });
     }
   };
@@ -84,7 +98,9 @@ export const PlannerView = () => {
             <BrainCircuit className="w-8 h-8 text-indigo-500" />
             AI Architect
           </h2>
-          <p className="text-gray-500 text-xs font-bold font-mono uppercase mt-1 tracking-widest">Strategic Schedule Generation Protocol</p>
+          <p className="text-gray-500 text-xs font-bold font-mono uppercase mt-1 tracking-widest">
+            Strategic Schedule Generation Protocol
+          </p>
         </div>
       </div>
 
@@ -99,10 +115,14 @@ export const PlannerView = () => {
 
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-2 font-mono uppercase">Available Time</label>
+                <label className="block text-xs font-bold text-gray-400 mb-2 font-mono uppercase">
+                  Available Time
+                </label>
                 <div className="bg-gray-800 p-4 border-2 border-black shadow-[2px_2px_0px_0px_#000]">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-2xl font-black text-indigo-400 font-mono">{availableHours}H</span>
+                    <span className="text-2xl font-black text-indigo-400 font-mono">
+                      {availableHours}H
+                    </span>
                     <span className="text-xs text-gray-500 font-mono uppercase">Today</span>
                   </div>
                   <input
@@ -118,7 +138,9 @@ export const PlannerView = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-2 font-mono uppercase">Primary Directive (Focus)</label>
+                <label className="block text-xs font-bold text-gray-400 mb-2 font-mono uppercase">
+                  Primary Directive (Focus)
+                </label>
                 <textarea
                   placeholder="e.g. CALCULUS REVIEW..."
                   value={focusArea}
@@ -154,7 +176,8 @@ export const PlannerView = () => {
               System Info
             </h4>
             <p className="text-xs text-gray-400 font-mono leading-relaxed">
-              The AI scans uploaded course data to optimize task prioritization based on exam proximity and complexity.
+              The AI scans uploaded course data to optimize task prioritization based on exam
+              proximity and complexity.
             </p>
           </div>
         </div>
@@ -165,7 +188,9 @@ export const PlannerView = () => {
             <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-gray-600 border-2 border-dashed border-gray-800 bg-gray-900/30">
               <Calendar className="w-16 h-16 mb-6 opacity-20" />
               <p className="font-bold font-mono uppercase text-xl">Awaiting Input</p>
-              <p className="text-xs font-mono mt-2 text-gray-700">Configure parameters to initialize planning.</p>
+              <p className="text-xs font-mono mt-2 text-gray-700">
+                Configure parameters to initialize planning.
+              </p>
             </div>
           )}
 
@@ -173,34 +198,51 @@ export const PlannerView = () => {
             <div className="space-y-8">
               {/* Summary Card */}
               <div className="retro-card p-6 border-indigo-500 shadow-[6px_6px_0px_0px_#6366f1]">
-                <h3 className="text-xl font-black text-white mb-3 font-mono uppercase">Mission Brief</h3>
+                <h3 className="text-xl font-black text-white mb-3 font-mono uppercase">
+                  Mission Brief
+                </h3>
                 <p className="text-indigo-200 font-mono text-sm leading-relaxed border-l-4 border-indigo-500 pl-4 italic">
                   "{generatedPlan.summary}"
                 </p>
                 <div className="mt-6 flex items-center gap-4 text-xs font-bold font-mono uppercase text-gray-400 bg-gray-900 p-3 border border-black">
-                  <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-white" /> Total: {Math.round(generatedPlan.totalMinutes / 60 * 10) / 10} HRS</span>
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-white" /> Total:{' '}
+                    {Math.round((generatedPlan.totalMinutes / 60) * 10) / 10} HRS
+                  </span>
                   <span className="text-gray-600">|</span>
-                  <span className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> {generatedPlan.sessions.length} BLOCKS</span>
+                  <span className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-white" /> {generatedPlan.sessions.length} BLOCKS
+                  </span>
                 </div>
               </div>
 
               {/* Session List */}
               <div className="space-y-4">
                 {generatedPlan.sessions.map((session) => {
-                  const course = courses.find(c => c.id === session.courseId);
+                  const course = courses.find((c) => c.id === session.courseId);
                   const now = new Date();
                   const end = new Date(now.getTime() + session.durationMinutes * 60000);
 
                   return (
-                    <div key={session.id} className="retro-card p-0 hover:border-indigo-400 transition-all flex flex-col sm:flex-row animate-fade-in-up overflow-hidden">
-
+                    <div
+                      key={session.id}
+                      className="retro-card p-0 hover:border-indigo-400 transition-all flex flex-col sm:flex-row animate-fade-in-up overflow-hidden"
+                    >
                       {/* Time & Priority */}
                       <div className="bg-gray-800 min-w-[120px] flex flex-row sm:flex-col justify-between sm:justify-center items-center p-4 border-b-2 sm:border-b-0 sm:border-r-2 border-black">
-                        <div className="text-3xl font-black text-white font-mono">{session.durationMinutes}<span className="text-xs text-gray-500 block font-bold">MIN</span></div>
-                        <span className={`text - [10px] font - bold px - 2 py - 1 border border - black shadow - [1px_1px_0px_0px_#000] uppercase tracking - wider ${session.priority === 'HIGH' ? 'bg-red-500 text-black' :
-                            session.priority === 'MEDIUM' ? 'bg-yellow-400 text-black' :
-                              'bg-green-400 text-black'
-                          } `}>
+                        <div className="text-3xl font-black text-white font-mono">
+                          {session.durationMinutes}
+                          <span className="text-xs text-gray-500 block font-bold">MIN</span>
+                        </div>
+                        <span
+                          className={`text - [10px] font - bold px - 2 py - 1 border border - black shadow - [1px_1px_0px_0px_#000] uppercase tracking - wider ${
+                            session.priority === 'HIGH'
+                              ? 'bg-red-500 text-black'
+                              : session.priority === 'MEDIUM'
+                                ? 'bg-yellow-400 text-black'
+                                : 'bg-green-400 text-black'
+                          } `}
+                        >
                           {session.priority}
                         </span>
                       </div>
@@ -208,10 +250,16 @@ export const PlannerView = () => {
                       {/* Content */}
                       <div className="flex-1 p-5">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`w - 3 h - 3 border border - black ${course?.color} `}></div>
-                          <span className="text-xs font-black text-gray-400 uppercase tracking-widest font-mono">{course?.name || session.courseId}</span>
+                          <div
+                            className={`w - 3 h - 3 border border - black ${course?.color} `}
+                          ></div>
+                          <span className="text-xs font-black text-gray-400 uppercase tracking-widest font-mono">
+                            {course?.name || session.courseId}
+                          </span>
                         </div>
-                        <h4 className="font-bold text-white text-lg mb-2 font-mono">{session.activity}</h4>
+                        <h4 className="font-bold text-white text-lg mb-2 font-mono">
+                          {session.activity}
+                        </h4>
                         <p className="text-xs text-indigo-300 font-mono flex items-start gap-2 bg-indigo-900/20 p-2 border border-indigo-900/50">
                           <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
                           {session.reasoning}
@@ -239,7 +287,6 @@ export const PlannerView = () => {
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
-
                     </div>
                   );
                 })}

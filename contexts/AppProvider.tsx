@@ -5,15 +5,13 @@ import { AssignmentsProvider } from './AssignmentsContext';
 import { SessionsProvider } from './SessionsContext';
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    return (
-        <CoursesProvider>
-            <StatsProvider>
-                <AssignmentsProvider>
-                    <SessionsProvider>
-                        {children}
-                    </SessionsProvider>
-                </AssignmentsProvider>
-            </StatsProvider>
-        </CoursesProvider>
-    );
+  return (
+    <CoursesProvider>
+      <StatsProvider>
+        <AssignmentsProvider>
+          <SessionsProvider>{children}</SessionsProvider>
+        </AssignmentsProvider>
+      </StatsProvider>
+    </CoursesProvider>
+  );
 };

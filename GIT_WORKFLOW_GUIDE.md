@@ -54,6 +54,7 @@ git push -u origin add-dark-mode
 ```
 
 **When to run cleanup:**
+
 - Weekly maintenance
 - Before starting new work
 - When you notice many old worktrees (>5)
@@ -110,6 +111,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation changes
@@ -119,6 +121,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` - Maintenance tasks
 
 **Examples:**
+
 ```
 feat: add user authentication
 fix: resolve calendar sync issue
@@ -252,6 +255,7 @@ git gc
 **Problem:** Claude Code creates worktrees that accumulate over time.
 
 **Solution:**
+
 ```bash
 ./git-workflow.sh auto-cleanup
 ```
@@ -261,6 +265,7 @@ git gc
 **Problem:** Your branch conflicts with main.
 
 **Solution:**
+
 ```bash
 # Update main
 git checkout main
@@ -283,6 +288,7 @@ git commit -m "merge: resolve conflicts with main"
 **Problem:** Made changes directly on main branch.
 
 **Solution:**
+
 ```bash
 # Create branch from current state
 git checkout -b feature/save-my-work
@@ -297,6 +303,7 @@ git reset --hard origin/main
 **Problem:** Committed something wrong.
 
 **Solution:**
+
 ```bash
 # Undo last commit, keep changes
 git reset --soft HEAD~1
@@ -312,15 +319,18 @@ git reset --hard HEAD~1
 ```
 
 **Green signals:** ✅
+
 - "All commits pushed" - You're in sync
 - Working tree clean - No uncommitted changes
 - Few worktrees (1-3) - Good cleanup
 
 **Yellow signals:** ⚠️
+
 - Unpushed commits - Need to push
 - Several worktrees (4-10) - Consider cleanup soon
 
 **Red signals:** 🚨
+
 - Many worktrees (>10) - Cleanup needed NOW
 - Uncommitted changes - Commit or stash
 - Behind origin - Pull updates

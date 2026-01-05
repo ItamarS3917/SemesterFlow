@@ -12,7 +12,7 @@ interface AttachmentLinksProps {
 export const AttachmentLinks: React.FC<AttachmentLinksProps> = ({
   attachments,
   onAttachmentsChange,
-  maxAttachments = 10
+  maxAttachments = 10,
 }) => {
   const [inputUrl, setInputUrl] = useState('');
   const [inputName, setInputName] = useState('');
@@ -48,7 +48,7 @@ export const AttachmentLinks: React.FC<AttachmentLinksProps> = ({
       url: validation.url!,
       name: displayName,
       service,
-      addedAt: new Date().toISOString()
+      addedAt: new Date().toISOString(),
     };
 
     // Add to list
@@ -91,7 +91,10 @@ export const AttachmentLinks: React.FC<AttachmentLinksProps> = ({
     if (lowerService.includes('dropbox')) {
       return (
         <svg className="w-4 h-4" viewBox="0 0 24 24">
-          <path fill="#0061FF" d="M7.06 1L0 5.61l7.06 4.61L12 6.58 16.94 1 24 5.61l-7.06 4.61L12 14.25l-4.94-4.03L0 14.83l7.06 4.61L12 14.83l4.94 4.61L24 14.83l-7.06-4.61L12 14.25z" />
+          <path
+            fill="#0061FF"
+            d="M7.06 1L0 5.61l7.06 4.61L12 6.58 16.94 1 24 5.61l-7.06 4.61L12 14.25l-4.94-4.03L0 14.83l7.06 4.61L12 14.83l4.94 4.61L24 14.83l-7.06-4.61L12 14.25z"
+          />
         </svg>
       );
     }
@@ -153,9 +156,7 @@ export const AttachmentLinks: React.FC<AttachmentLinksProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 font-mono mb-1">
-              Link URL *
-            </label>
+            <label className="block text-xs text-gray-400 font-mono mb-1">Link URL *</label>
             <input
               type="url"
               value={inputUrl}

@@ -21,33 +21,37 @@ SemesterFlow has successfully migrated from Firebase to Supabase PostgreSQL. Thi
 ## What Changed
 
 ### Authentication
-| Feature | Before (Firebase) | After (Supabase) |
-|---------|-------------------|------------------|
-| Provider | Firebase Auth | Supabase Auth |
-| Google OAuth | ✅ | ✅ |
-| JWT Tokens | ✅ | ✅ |
-| RLS | Manual | Built-in |
+
+| Feature      | Before (Firebase) | After (Supabase) |
+| ------------ | ----------------- | ---------------- |
+| Provider     | Firebase Auth     | Supabase Auth    |
+| Google OAuth | ✅                | ✅               |
+| JWT Tokens   | ✅                | ✅               |
+| RLS          | Manual            | Built-in         |
 
 ### Database
-| Feature | Before (Firebase) | After (Supabase) |
-|---------|-------------------|------------------|
-| Type | NoSQL (Firestore) | PostgreSQL |
-| Structure | Document-based | Relational tables |
-| Real-time | ✅ | ✅ (available, not yet used) |
-| Queries | Limited | Full SQL |
-| Vector Search | ❌ | ✅ (pgvector) |
+
+| Feature       | Before (Firebase) | After (Supabase)             |
+| ------------- | ----------------- | ---------------------------- |
+| Type          | NoSQL (Firestore) | PostgreSQL                   |
+| Structure     | Document-based    | Relational tables            |
+| Real-time     | ✅                | ✅ (available, not yet used) |
+| Queries       | Limited           | Full SQL                     |
+| Vector Search | ❌                | ✅ (pgvector)                |
 
 ### Storage
-| Feature | Before (Firebase) | After (Supabase) |
-|---------|-------------------|------------------|
-| File Storage | Firebase Storage | Supabase Storage |
-| Status | Not implemented | Schema ready |
+
+| Feature      | Before (Firebase) | After (Supabase) |
+| ------------ | ----------------- | ---------------- |
+| File Storage | Firebase Storage  | Supabase Storage |
+| Status       | Not implemented   | Schema ready     |
 
 ---
 
 ## Database Schema
 
 ### Tables Created
+
 1. **courses** - Course information with knowledge base
 2. **assignments** - Assignment tracking with file support
 3. **sessions** - Study session logs
@@ -55,7 +59,9 @@ SemesterFlow has successfully migrated from Firebase to Supabase PostgreSQL. Thi
 5. **course_knowledge** - Vector embeddings for RAG (ready, not yet used)
 
 ### Security Policies (RLS)
+
 All tables have Row Level Security policies:
+
 - Users can only SELECT/INSERT/UPDATE/DELETE their own data
 - Automatic filtering by `user_id`
 - CASCADE deletes for referential integrity
@@ -65,6 +71,7 @@ All tables have Row Level Security policies:
 ## File Changes
 
 ### New Files Created
+
 ```
 services/
 ├── supabase.ts          ← Supabase client initialization
@@ -74,6 +81,7 @@ supabase_schema.sql       ← Database schema (run this on production!)
 ```
 
 ### Modified Files
+
 ```
 contexts/
 ├── AuthContext.tsx       ← Now uses Supabase Auth
@@ -86,6 +94,7 @@ contexts/
 ```
 
 ### Deprecated Files (Not Used - Can Be Removed)
+
 ```
 services/
 ├── firebase.ts          ← OLD Firebase client (not used)
@@ -97,6 +106,7 @@ services/
 ## Environment Variables
 
 ### Required (.env)
+
 ```bash
 # Supabase Configuration (REQUIRED)
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -107,6 +117,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 ### How to Get Supabase Credentials
+
 1. Go to https://supabase.com/dashboard
 2. Select your project
 3. Go to **Settings > API**
@@ -119,6 +130,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ## Production Deployment Checklist
 
 ### Supabase Setup
+
 - [ ] Create production Supabase project
 - [ ] Run `supabase_schema.sql` in SQL Editor
 - [ ] Configure Google OAuth:
@@ -129,6 +141,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 - [ ] Enable pgvector extension (already in schema)
 
 ### Application Deployment
+
 - [ ] Set environment variables in Vercel/Render
 - [ ] Deploy backend server with Gemini API key
 - [ ] Test authentication flow
@@ -136,6 +149,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 - [ ] Test CRUD operations
 
 ### Security
+
 - [ ] Verify RLS policies are active
 - [ ] Test user data isolation
 - [ ] Review Google OAuth settings
@@ -146,11 +160,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ## Future Enhancements (Enabled by Supabase)
 
 ### Phase 2 (Q1 2026)
+
 - **Real-time Collaboration**: Use Supabase Realtime for live updates
 - **File Uploads**: Implement Supabase Storage for PDFs/images
 - **Vector Search**: Use pgvector for semantic knowledge search (RAG)
 
 ### Phase 3 (Q2-Q3 2026)
+
 - **Collaboration**: Real-time group study features
 - **Advanced Search**: Full-text search with PostgreSQL
 - **Analytics**: SQL-powered complex queries
@@ -160,16 +176,18 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ## Performance Considerations
 
 ### Supabase Free Tier Limits
-| Resource | Limit | Current Usage |
-|----------|-------|---------------|
-| Database | 500 MB | ~1 MB |
-| Storage | 1 GB | 0 MB |
-| Bandwidth | 2 GB/month | Minimal |
-| Monthly Active Users | 50,000 | 0 |
+
+| Resource             | Limit      | Current Usage |
+| -------------------- | ---------- | ------------- |
+| Database             | 500 MB     | ~1 MB         |
+| Storage              | 1 GB       | 0 MB          |
+| Bandwidth            | 2 GB/month | Minimal       |
+| Monthly Active Users | 50,000     | 0             |
 
 **Upgrade Trigger**: When DB exceeds 500MB or bandwidth > 2GB/month
 
 ### Query Optimization
+
 - Indexes created on foreign keys (`user_id`, `course_id`)
 - RLS policies use indexed columns for fast filtering
 - Vector search uses HNSW index for similarity search
@@ -192,12 +210,14 @@ If you need to rollback to Firebase:
 ## Support & Resources
 
 ### Supabase Documentation
+
 - https://supabase.com/docs
 - https://supabase.com/docs/guides/auth
 - https://supabase.com/docs/guides/database
 - https://supabase.com/docs/guides/ai/vector-embeddings
 
 ### Project-Specific
+
 - **Schema**: `supabase_schema.sql`
 - **Master Plan**: `docs/masterplan.md`
 - **Roadmap**: `docs/projectroadmap.md`

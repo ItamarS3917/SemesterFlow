@@ -1,5 +1,5 @@
-import { supabase } from "./supabase";
-import { FileAttachment } from "../types";
+import { supabase } from './supabase';
+import { FileAttachment } from '../types';
 
 // Max file size: 10MB
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -20,13 +20,25 @@ export const ALLOWED_FILE_TYPES = [
   'text/plain',
   'text/markdown',
   'application/zip',
-  'application/x-zip-compressed'
+  'application/x-zip-compressed',
 ];
 
 export const ALLOWED_EXTENSIONS = [
-  '.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp',
-  '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
-  '.txt', '.md', '.zip'
+  '.pdf',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.txt',
+  '.md',
+  '.zip',
 ];
 
 interface UploadResult {
@@ -47,18 +59,18 @@ interface UploadProgress {
 export const validateFile = (file: File): { valid: boolean; error?: string } => {
   // Check file size
   if (file.size > MAX_FILE_SIZE) {
-    return { 
-      valid: false, 
-      error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB` 
+    return {
+      valid: false,
+      error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB`,
     };
   }
 
   // Check file type
   const extension = '.' + file.name.split('.').pop()?.toLowerCase();
   if (!ALLOWED_EXTENSIONS.includes(extension)) {
-    return { 
-      valid: false, 
-      error: `File type not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}` 
+    return {
+      valid: false,
+      error: `File type not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
     };
   }
 
@@ -91,19 +103,17 @@ export const uploadFile = async (
 
   try {
     const filePath = generateFilePath(uid, assignmentId, file.name);
-    
+
     // Simulate progress start
     if (onProgress) {
       onProgress({ progress: 10, bytesTransferred: 0, totalBytes: file.size });
     }
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('assignments')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+    const { data, error } = await supabase.storage.from('assignments').upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
 
     if (error) {
       console.error('Supabase upload error:', error);
@@ -116,9 +126,7 @@ export const uploadFile = async (
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('assignments')
-      .getPublicUrl(filePath);
+    const { data: urlData } = supabase.storage.from('assignments').getPublicUrl(filePath);
 
     if (onProgress) {
       onProgress({ progress: 100, bytesTransferred: file.size, totalBytes: file.size });
@@ -131,7 +139,7 @@ export const uploadFile = async (
       storagePath: filePath,
       size: file.size,
       type: file.type,
-      uploadedAt: new Date().toISOString()
+      uploadedAt: new Date().toISOString(),
     };
 
     return { success: true, attachment };
@@ -144,11 +152,11 @@ export const uploadFile = async (
 /**
  * Delete a file from Supabase Storage
  */
-export const deleteFile = async (storagePath: string): Promise<{ success: boolean; error?: string }> => {
+export const deleteFile = async (
+  storagePath: string
+): Promise<{ success: boolean; error?: string }> => {
   try {
-    const { error } = await supabase.storage
-      .from('assignments')
-      .remove([storagePath]);
+    const { error } = await supabase.storage.from('assignments').remove([storagePath]);
 
     if (error) {
       console.error('Delete error:', error);

@@ -11,12 +11,14 @@ The application is structured around a main `App` component that handles routing
 ## Component Hierarchy
 
 ### Root
+
 - **`App.tsx`**: The main entry point.
   - Wraps the app in `AppProvider` (and `AuthProvider`).
   - Handles conditional rendering of views based on `activeView` state.
   - Manages the global layout (Sidebar, Header, Mobile Menu).
 
 ### Main Views (Pages)
+
 These components are rendered in the main content area based on the user's navigation.
 
 1.  **`Dashboard`** (Internal to `App.tsx`)
@@ -27,9 +29,9 @@ These components are rendered in the main content area based on the user's navig
 2.  **`AssignmentsView.tsx`**
     - **Purpose**: Manage assignments (CRUD), view details, and AI grading.
     - **Dependencies**:
-        - `CalendarMenu`: For adding due dates to calendars.
-        - `AttachmentLinks`: For managing external links.
-        - `FileUpload`: For uploading files to Supabase.
+      - `CalendarMenu`: For adding due dates to calendars.
+      - `AttachmentLinks`: For managing external links.
+      - `FileUpload`: For uploading files to Supabase.
     - **Data**: `useAssignments`, `useCourses`, `useAuth`.
 
 3.  **`CoursesView.tsx`**
@@ -66,26 +68,26 @@ These components are rendered in the main content area based on the user's navig
 
 ### Global/Shared Components
 
--   **`ChatBot.tsx`**
-    -   **Purpose**: Persistent global AI assistant available across the app.
-    -   **Location**: Rendered in `App.tsx` (floating).
-    -   **Data**: `useCourses`, `useAssignments`, `useStats`.
+- **`ChatBot.tsx`**
+  - **Purpose**: Persistent global AI assistant available across the app.
+  - **Location**: Rendered in `App.tsx` (floating).
+  - **Data**: `useCourses`, `useAssignments`, `useStats`.
 
--   **`ProcrastinationWidget.tsx`**
-    -   **Purpose**: Detects procrastination patterns and offers AI advice.
-    -   **Location**: Used in `Dashboard`.
-    -   **Data**: `useAssignments`.
+- **`ProcrastinationWidget.tsx`**
+  - **Purpose**: Detects procrastination patterns and offers AI advice.
+  - **Location**: Used in `Dashboard`.
+  - **Data**: `useAssignments`.
 
--   **`LoginPage.tsx`**
-    -   **Purpose**: Authentication screen.
-    -   **Data**: `useAuth`.
+- **`LoginPage.tsx`**
+  - **Purpose**: Authentication screen.
+  - **Data**: `useAuth`.
 
 ### Utility Components
 
--   **`FileUpload.tsx`**: Handles file selection, validation, and upload to Supabase Storage.
--   **`AttachmentLinks.tsx`**: UI for adding/removing external URL links.
--   **`CalendarMenu.tsx`**: Dropdown to export events to Google/Outlook/Yahoo/ICS.
--   **`DarkModeToggle.tsx`**: Simple toggle for theme preference (persisted in localStorage).
+- **`FileUpload.tsx`**: Handles file selection, validation, and upload to Supabase Storage.
+- **`AttachmentLinks.tsx`**: UI for adding/removing external URL links.
+- **`CalendarMenu.tsx`**: Dropdown to export events to Google/Outlook/Yahoo/ICS.
+- **`DarkModeToggle.tsx`**: Simple toggle for theme preference (persisted in localStorage).
 
 ## State Management (Contexts & Hooks)
 
@@ -99,12 +101,12 @@ The application uses a centralized `AppProvider` which composes the following co
 
 ## External Services
 
--   **Supabase**:
-    -   **Auth**: User management.
-    -   **Database**: Stores `courses`, `assignments`, `sessions`, `user_stats`.
-    -   **Storage**: Stores uploaded files for assignments/knowledge base.
--   **Google Gemini AI**:
-    -   Used in `StudyPartner`, `ProcrastinationWidget`, `ChatBot`, and `PlannerView` (via backend API) for content generation and analysis.
+- **Supabase**:
+  - **Auth**: User management.
+  - **Database**: Stores `courses`, `assignments`, `sessions`, `user_stats`.
+  - **Storage**: Stores uploaded files for assignments/knowledge base.
+- **Google Gemini AI**:
+  - Used in `StudyPartner`, `ProcrastinationWidget`, `ChatBot`, and `PlannerView` (via backend API) for content generation and analysis.
 
 ## Directory Structure
 

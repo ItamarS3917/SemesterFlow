@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../services/supabase';
 
-// Extend Supabase User type with uid for compatibility if needed, 
+// Extend Supabase User type with uid for compatibility if needed,
 // but for now we'll just use the Supabase User type directly.
 // If other components expect 'uid', we might need to map 'id' to 'uid'.
 // Let's check if we need to add a compatibility layer.
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!sbUser) return null;
     return {
       ...sbUser,
-      uid: sbUser.id
+      uid: sbUser.id,
     } as AuthUser;
   };
 
@@ -71,13 +71,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
-        }
+          redirectTo: window.location.origin,
+        },
       });
       if (error) throw error;
     } catch (error) {
-      console.error("Google Sign In Error:", error);
-      alert("Failed to sign in with Google.");
+      console.error('Google Sign In Error:', error);
+      alert('Failed to sign in with Google.');
     }
   };
 
@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
-      console.error("Logout Error:", error);
+      console.error('Logout Error:', error);
     }
   };
 

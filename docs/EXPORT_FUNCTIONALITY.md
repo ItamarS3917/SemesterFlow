@@ -1,14 +1,17 @@
 # Export Data Functionality
 
 ## Overview
+
 The export data functionality allows users to download their study data in CSV or JSON formats for backup, external analysis, or portfolio building purposes.
 
 ## Features
 
 ### 1. Export Courses (CSV)
+
 **Location**: Settings > Export Your Data > Export Courses
 
 **Fields Exported**:
+
 - `id`: Unique course identifier
 - `name`: Course name
 - `color`: Color theme for the course
@@ -23,9 +26,11 @@ The export data functionality allows users to download their study data in CSV o
 **Filename**: `semesterflow-courses.csv`
 
 ### 2. Export Assignments (CSV)
+
 **Location**: Settings > Export Your Data > Export Assignments
 
 **Fields Exported**:
+
 - `id`: Unique assignment identifier
 - `courseId`: Associated course ID
 - `name`: Assignment name
@@ -40,11 +45,14 @@ The export data functionality allows users to download their study data in CSV o
 **Filename**: `semesterflow-assignments.csv`
 
 ### 3. Export Study Sessions (CSV)
-**Location**: 
+
+**Location**:
+
 - Settings > Export Your Data > Export Study Sessions
 - Analytics > Export CSV button (top right)
 
 **Fields Exported**:
+
 - `id`: Unique session identifier
 - `courseId`: Associated course ID
 - `courseName`: Course name (resolved from courseId)
@@ -60,9 +68,11 @@ The export data functionality allows users to download their study data in CSV o
 **Filename**: `semesterflow-sessions.csv`
 
 ### 4. Complete Backup (JSON)
+
 **Location**: Settings > Export Your Data > Complete Backup
 
 **Structure**:
+
 ```json
 {
   "exportDate": "2025-12-17T21:30:00.000Z",
@@ -84,9 +94,11 @@ The export data functionality allows users to download their study data in CSV o
 ## Technical Implementation
 
 ### Dependencies
+
 - **papaparse**: CSV parsing and generation library (already included)
 
 ### Files Created/Modified
+
 1. **`utils/exportData.ts`** (NEW)
    - `exportCoursesToCSV()`: Export courses to CSV
    - `exportAssignmentsToCSV()`: Export assignments to CSV
@@ -109,11 +121,11 @@ The export data functionality allows users to download their study data in CSV o
 ### Usage Example
 
 ```typescript
-import { 
-  exportCoursesToCSV, 
-  exportAssignmentsToCSV, 
-  exportSessionsToCSV, 
-  exportAllDataAsJSON 
+import {
+  exportCoursesToCSV,
+  exportAssignmentsToCSV,
+  exportSessionsToCSV,
+  exportAllDataAsJSON,
 } from '../utils/exportData';
 
 // Export courses
@@ -132,6 +144,7 @@ exportAllDataAsJSON(courses, assignments, sessions);
 ## User Experience
 
 ### Settings View
+
 - **Section**: "Export Your Data" with Database icon
 - **Layout**: 2x2 grid of export buttons
 - **Styling**: Neo-brutalist design with colored shadows on hover
@@ -145,24 +158,28 @@ exportAllDataAsJSON(courses, assignments, sessions);
 - **Tip Box**: Explains use cases for CSV vs JSON exports
 
 ### Analytics View
+
 - **Location**: Top right of the page
 - **Button**: "Export CSV" with Download icon
 - **Functionality**: Exports all study sessions
 - **Feedback**: Toast notification on success/error
 
 ## Error Handling
+
 - Try-catch blocks around all export operations
 - Toast notifications for success/error states
 - Console logging for debugging
 - Graceful handling of empty data sets
 
 ## Browser Compatibility
+
 - Uses standard Blob API (supported in all modern browsers)
 - Uses URL.createObjectURL() for download links
 - Properly cleans up object URLs after download
 - Works in Chrome, Firefox, Safari, Edge
 
 ## Future Enhancements
+
 - [ ] Add date range filters for exports
 - [ ] Support for importing data from CSV/JSON
 - [ ] Export to PDF format
@@ -175,7 +192,9 @@ exportAllDataAsJSON(courses, assignments, sessions);
 - [ ] Compression for large exports
 
 ## Testing
+
 To test the export functionality:
+
 1. Navigate to Settings
 2. Scroll to "Export Your Data" section
 3. Click any export button (requires data in the system)
@@ -184,6 +203,7 @@ To test the export functionality:
 6. Open JSON backup in a text editor or JSON viewer
 
 ## Related Files
+
 - `types.ts`: Type definitions for Course, Assignment, StudySession
 - `hooks/useCourses.ts`: Course data management
 - `hooks/useAssignments.ts`: Assignment data management

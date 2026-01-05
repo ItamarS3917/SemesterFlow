@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { Course, Assignment, UserStats } from '../types';
@@ -27,7 +26,7 @@ export const ChatBot = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -38,7 +37,7 @@ export const ChatBot = () => {
           const parsed = JSON.parse(saved);
           setMessages(parsed);
         } catch (e) {
-          console.error("Failed to parse chat history", e);
+          console.error('Failed to parse chat history', e);
           localStorage.removeItem(STORAGE_KEY);
         }
       }
@@ -72,7 +71,12 @@ export const ChatBot = () => {
     // We'll just set a flag that we are ready
     setChatSession({} as any);
     if (messages.length === 0) {
-      setMessages([{ role: 'model', text: "Hi! I'm here to help you crush your semester. Ask me about your schedule or specific course topics if you've added notes!" }]);
+      setMessages([
+        {
+          role: 'model',
+          text: "Hi! I'm here to help you crush your semester. Ask me about your schedule or specific course topics if you've added notes!",
+        },
+      ]);
     }
   };
 
@@ -87,7 +91,7 @@ export const ChatBot = () => {
 
     const userText = input;
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userText }]);
+    setMessages((prev) => [...prev, { role: 'user', text: userText }]);
     setIsLoading(true);
 
     try {
@@ -95,31 +99,33 @@ export const ChatBot = () => {
       const contextData = {
         currentDate: new Date().toLocaleDateString(),
         stats: userStats,
-        courses: courses.map(c => ({
+        courses: courses.map((c) => ({
           name: c.name,
           progress: `${c.hoursCompleted}/${c.totalHoursTarget}h`,
           nextExam: c.nextExamDate,
           completedAssignments: c.completedAssignments,
-          knowledgeBase: c.knowledge || "No notes provided."
+          knowledgeBase: c.knowledge || 'No notes provided.',
         })),
         upcomingAssignments: assignments
-          .filter(a => a.status !== 'COMPLETED')
-          .map(a => ({
+          .filter((a) => a.status !== 'COMPLETED')
+          .map((a) => ({
             name: a.name,
-            course: courses.find(c => c.id === a.courseId)?.name || 'Unknown',
+            course: courses.find((c) => c.id === a.courseId)?.name || 'Unknown',
             due: a.dueDate,
             hoursEstimated: a.estimatedHours,
-            attachedFiles: a.files?.map(f => ({
-              name: f.name,
-              type: f.type,
-              url: f.url
-            })) || [],
-            attachedLinks: a.attachments?.map(att => ({
-              name: att.name,
-              service: att.service,
-              url: att.url
-            })) || []
-          }))
+            attachedFiles:
+              a.files?.map((f) => ({
+                name: f.name,
+                type: f.type,
+                url: f.url,
+              })) || [],
+            attachedLinks:
+              a.attachments?.map((att) => ({
+                name: att.name,
+                service: att.service,
+                url: att.url,
+              })) || [],
+          })),
       };
 
       const systemInstruction = `You are the AI Study Assistant for SemesterFlow.
@@ -136,9 +142,9 @@ Guidelines:
 6. Each assignment may have "attachedFiles" (uploaded to storage) and "attachedLinks" (cloud links). You can tell the user what files are attached to their assignments.
 7. If the user asks about files for an assignment, list the file names and mention they can access them from the Assignments page.`;
 
-      const history = messages.map(msg => ({
+      const history = messages.map((msg) => ({
         role: msg.role,
-        parts: [{ text: msg.text }]
+        parts: [{ text: msg.text }],
       }));
 
       const response = await fetch(API_ENDPOINTS.CHAT, {
@@ -147,8 +153,8 @@ Guidelines:
         body: JSON.stringify({
           message: userText,
           history: history,
-          systemInstruction: systemInstruction
-        })
+          systemInstruction: systemInstruction,
+        }),
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -158,7 +164,7 @@ Guidelines:
       const decoder = new TextDecoder();
       let fullText = '';
 
-      setMessages(prev => [...prev, { role: 'model', text: '' }]);
+      setMessages((prev) => [...prev, { role: 'model', text: '' }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -176,11 +182,11 @@ Guidelines:
               const data = JSON.parse(dataStr);
               if (data.text) {
                 fullText += data.text;
-                setMessages(prev => {
+                setMessages((prev) => {
                   const newHistory = [...prev];
                   newHistory[newHistory.length - 1] = {
                     role: 'model',
-                    text: fullText
+                    text: fullText,
                   };
                   return newHistory;
                 });
@@ -191,10 +197,15 @@ Guidelines:
           }
         }
       }
-
     } catch (error) {
-      console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: 'model', text: "Sorry, I'm having trouble connecting to the server. Please ensure the backend is running." }]);
+      console.error('Chat error:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'model',
+          text: "Sorry, I'm having trouble connecting to the server. Please ensure the backend is running.",
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -212,14 +223,11 @@ Guidelines:
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300 transform hover:scale-105 border-2 border-black ${isOpen ? 'bg-red-600 rotate-90 text-white' : 'bg-indigo-600 text-white'
-          }`}
+        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300 transform hover:scale-105 border-2 border-black ${
+          isOpen ? 'bg-red-600 rotate-90 text-white' : 'bg-indigo-600 text-white'
+        }`}
       >
-        {isOpen ? (
-          <X className="w-6 h-6" />
-        ) : (
-          <MessageCircle className="w-6 h-6" />
-        )}
+        {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
 
       {/* Chat Window */}
@@ -258,10 +266,11 @@ Guidelines:
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${msg.role === 'user'
-                    ? 'bg-indigo-600 text-white rounded-tr-none shadow-[0_4px_6px_rgba(0,0,0,0.3)]'
-                    : 'bg-gray-800 text-gray-100 border border-gray-700 rounded-tl-none shadow-sm'
-                    }`}
+                  className={`max-w-[85%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
+                    msg.role === 'user'
+                      ? 'bg-indigo-600 text-white rounded-tr-none shadow-[0_4px_6px_rgba(0,0,0,0.3)]'
+                      : 'bg-gray-800 text-gray-100 border border-gray-700 rounded-tl-none shadow-sm'
+                  }`}
                 >
                   {msg.text}
                 </div>

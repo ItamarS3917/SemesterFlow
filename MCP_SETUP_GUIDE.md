@@ -5,6 +5,7 @@ This guide helps you set up automated code review, error tracking, and project m
 ## 🎯 Overview
 
 Your project now has THREE layers of protection:
+
 1. **CodeRabbit** - Automated PR reviews (catches logic errors, security flaws, missing tests)
 2. **Sentry MCP** - Error tracking & monitoring (catches runtime errors)
 3. **GitHub MCP** - CI/CD monitoring & workflow automation
@@ -18,6 +19,7 @@ Your project now has THREE layers of protection:
 CodeRabbit is a GitHub app that reviews every PR automatically.
 
 **Installation:**
+
 1. Go to: https://coderabbit.ai/
 2. Click "Add to GitHub" or "Get Started"
 3. Authorize the app
@@ -25,12 +27,14 @@ CodeRabbit is a GitHub app that reviews every PR automatically.
 5. Grant permissions
 
 **What it does:**
+
 - Reviews every PR automatically
 - Spots logic errors, security flaws, missing tests
 - Comments directly on your PRs with suggestions
 - Acts as a "senior dev" reviewer
 
 **Usage:**
+
 - Open any PR and CodeRabbit will review it automatically
 - Comment `@coderabbitai review` to trigger manual review
 - Comment `@coderabbitai help` for available commands
@@ -59,12 +63,14 @@ CodeRabbit is a GitHub app that reviews every PR automatically.
    - Your org slug is in the URL: `sentry.io/settings/YOUR-ORG-SLUG/`
 
 4. **Update your MCP config:**
+
    ```bash
    # Edit the config file
    open ~/Library/Application\ Support/Claude/claude_desktop_config.json
    ```
 
    Replace these empty values:
+
    ```json
    "SENTRY_AUTH_TOKEN": "YOUR_SENTRY_AUTH_TOKEN_HERE",
    "SENTRY_ORG": "YOUR_ORG_SLUG_HERE"
@@ -73,6 +79,7 @@ CodeRabbit is a GitHub app that reviews every PR automatically.
 5. **Restart Claude Desktop** for changes to take effect
 
 **What it does:**
+
 - Tracks runtime errors in production
 - Monitors performance issues
 - Identifies breaking inputs
@@ -97,12 +104,14 @@ CodeRabbit is a GitHub app that reviews every PR automatically.
    - **Copy the token immediately** (you won't see it again!)
 
 2. **Update your MCP config:**
+
    ```bash
    # Edit the config file
    open ~/Library/Application\ Support/Claude/claude_desktop_config.json
    ```
 
    Replace the empty value:
+
    ```json
    "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_YOUR_TOKEN_HERE"
    ```
@@ -110,6 +119,7 @@ CodeRabbit is a GitHub app that reviews every PR automatically.
 3. **Restart Claude Desktop** for changes to take effect
 
 **What it does:**
+
 - Monitors GitHub Actions workflows
 - Analyzes PR diffs
 - Creates and manages issues
@@ -123,11 +133,13 @@ CodeRabbit is a GitHub app that reviews every PR automatically.
 If you don't want to manage tokens locally, Sentry offers a **remote hosted MCP** that's easier:
 
 **Using Claude Code CLI:**
+
 ```bash
 claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
 ```
 
 Then authenticate with:
+
 ```bash
 /mcp
 ```
@@ -141,12 +153,15 @@ This uses OAuth and is more convenient than the local setup.
 After completing the setup, test each integration:
 
 ### Test Sentry:
+
 Ask Claude: "What are the most common errors in my Sentry project?"
 
 ### Test GitHub:
+
 Ask Claude: "Show me the status of recent GitHub Actions runs for SemesterFlow"
 
 ### Test CodeRabbit:
+
 1. Create a test branch
 2. Make a small change
 3. Open a PR
@@ -161,6 +176,7 @@ Ask Claude: "Show me the status of recent GitHub Actions runs for SemesterFlow"
 ### Alternative 1: Use GitHub Actions with Code Quality Tools
 
 Add these to `.github/workflows/code-quality.yml`:
+
 - **ESLint** - Linting
 - **SonarCloud** - Code quality & technical debt
 - **CodeQL** - Security analysis
@@ -168,12 +184,14 @@ Add these to `.github/workflows/code-quality.yml`:
 ### Alternative 2: Use Semgrep (Has an MCP!)
 
 Semgrep provides static analysis similar to CodeScene:
+
 ```bash
 # Install Semgrep MCP
 npx @semgrep/mcp-server
 ```
 
 Add to your MCP config:
+
 ```json
 "semgrep": {
   "command": "npx",
@@ -206,16 +224,19 @@ Add to your MCP config:
 ## 🆘 Troubleshooting
 
 **MCP servers not showing up:**
+
 - Make sure you restarted Claude Desktop after editing the config
 - Check the JSON syntax is valid (use a JSON validator)
 - Check Claude Desktop logs for errors
 
 **Authentication errors:**
+
 - Verify your tokens are correct and haven't expired
 - Make sure tokens have the right scopes/permissions
 - For Sentry, check your org slug is correct
 
 **CodeRabbit not reviewing:**
+
 - Make sure you installed it on the correct repository
 - Check the app has proper permissions
 - Try commenting `@coderabbitai review` to trigger manually
@@ -225,6 +246,7 @@ Add to your MCP config:
 ## 🎉 You're Done!
 
 Once set up, you'll have:
+
 - ✅ Automated PR reviews catching errors before merge
 - ✅ Real-time error tracking in production
 - ✅ GitHub workflow monitoring

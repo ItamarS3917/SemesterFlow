@@ -1,9 +1,8 @@
-
 export const CourseId = {
   ALGEBRA: 'ALGEBRA',
   ALGORITHMS: 'ALGORITHMS',
   COMPLEXITY: 'COMPLEXITY',
-  CPP: 'CPP'
+  CPP: 'CPP',
 } as const;
 
 export type CourseId = string;
@@ -11,7 +10,7 @@ export type CourseId = string;
 export enum AssignmentStatus {
   NOT_STARTED = 'NOT_STARTED',
   IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED'
+  COMPLETED = 'COMPLETED',
 }
 
 export interface Course {
@@ -99,7 +98,15 @@ export interface UserStats {
   phaseProgress: number;
 }
 
-export type ViewState = 'DASHBOARD' | 'ASSIGNMENTS' | 'COURSES' | 'ANALYTICS' | 'TIMER' | 'SETTINGS' | 'PLANNER' | 'STUDY_PARTNER';
+export type ViewState =
+  | 'DASHBOARD'
+  | 'ASSIGNMENTS'
+  | 'COURSES'
+  | 'ANALYTICS'
+  | 'TIMER'
+  | 'SETTINGS'
+  | 'PLANNER'
+  | 'STUDY_PARTNER';
 
 export type TeacherPersonality = 'STRICT' | 'ENCOURAGING' | 'HUMOROUS' | 'SOCRATIC';
 export type StudyMode = 'GUIDED_LEARNING' | 'QUIZ_ME';

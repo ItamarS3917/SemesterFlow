@@ -8,13 +8,13 @@
 
 ## Quick Status Overview
 
-| Phase | Status | Completion | Target Date |
-|-------|--------|------------|-------------|
-| **Phase 0: Planning & Setup** | ✅ Complete | 100% | Completed |
-| **Phase 1: Core Foundation** | 🟡 In Progress | 87% | Dec 2025 |
-| **Phase 2: Enhancement** | ⚪ Not Started | 0% | Q1 2026 |
-| **Phase 3: Expansion** | ⚪ Not Started | 0% | Q2-Q3 2026 |
-| **Phase 4: Scale** | ⚪ Not Started | 0% | Q4 2026+ |
+| Phase                         | Status         | Completion | Target Date |
+| ----------------------------- | -------------- | ---------- | ----------- |
+| **Phase 0: Planning & Setup** | ✅ Complete    | 100%       | Completed   |
+| **Phase 1: Core Foundation**  | 🟡 In Progress | 87%        | Dec 2025    |
+| **Phase 2: Enhancement**      | ⚪ Not Started | 0%         | Q1 2026     |
+| **Phase 3: Expansion**        | ⚪ Not Started | 0%         | Q2-Q3 2026  |
+| **Phase 4: Scale**            | ⚪ Not Started | 0%         | Q4 2026+    |
 
 **Legend**: ✅ Complete | 🟡 In Progress | ⚪ Not Started | 🔴 Blocked | 🔵 Optional
 
@@ -23,6 +23,7 @@
 ## Phase 0: Planning & Setup ✅ COMPLETE
 
 ### Project Initialization
+
 - [x] Project structure setup
 - [x] Git repository initialization
 - [x] Package.json configuration
@@ -31,6 +32,7 @@
 - [x] Development environment setup
 
 ### Design System
+
 - [x] Neo-brutalist UI design language
 - [x] Color palette definition
 - [x] Typography system (monospace fonts)
@@ -39,6 +41,7 @@
 - [x] Responsive layout system
 
 ### Documentation
+
 - [x] README.md with setup instructions
 - [x] Master plan document
 - [x] Project roadmap (this file)
@@ -51,6 +54,7 @@
 ## Phase 1: Core Foundation 🟡 IN PROGRESS (87%)
 
 ### 1.1 Authentication & User Management ✅ COMPLETE
+
 - [x] Supabase project setup
 - [x] Supabase Authentication integration
 - [x] Google OAuth Sign-In implementation
@@ -64,6 +68,7 @@
 - [ ] Password reset flow (optional)
 
 ### 1.2 Data Architecture ✅ COMPLETE
+
 - [x] TypeScript types definition (types.ts)
 - [x] Supabase PostgreSQL database structure
 - [x] Database schema with RLS policies (supabase_schema.sql)
@@ -78,6 +83,7 @@
 - [x] Vector search schema (pgvector) - ready for AI features
 
 ### 1.3 Dashboard ✅ COMPLETE
+
 - [x] Main dashboard layout
 - [x] Phase progress card
 - [x] Weekly goal tracker
@@ -90,6 +96,7 @@
 - [x] Responsive grid layout
 
 ### 1.4 Study Timer ✅ COMPLETE
+
 - [x] Timer component UI
 - [x] Course selection dropdown
 - [x] Start/stop functionality
@@ -107,6 +114,7 @@
 - [ ] Browser notification on timer complete (optional)
 
 ### 1.5 Course Management ✅ COMPLETE
+
 - [x] Courses view layout
 - [x] Course cards with color coding
 - [x] Progress bars (hours completed)
@@ -120,6 +128,7 @@
 - [x] PostgreSQL sync with RLS
 
 ### 1.6 Assignment Tracker ✅ COMPLETE
+
 - [x] Assignments view layout
 - [x] Assignment cards with status badges
 - [x] Due date display with warnings
@@ -133,6 +142,7 @@
 - [x] PostgreSQL sync with RLS
 
 ### 1.7 Analytics Dashboard ✅ COMPLETE
+
 - [x] Analytics view layout
 - [x] Recharts integration
 - [x] Study hours by course (bar chart)
@@ -146,6 +156,7 @@
 - [ ] Date range filters (pending)
 
 ### 1.8 AI Features - Backend ✅ COMPLETE
+
 - [x] Express.js server setup
 - [x] Gemini API integration
 - [x] /api/chat endpoint
@@ -158,6 +169,7 @@
 - [x] Error handling
 
 ### 1.9 AI Features - Frontend ✅ COMPLETE
+
 - [x] ChatBot component
 - [x] Floating chat button
 - [x] Chat window UI
@@ -172,6 +184,7 @@
 - [x] Study modes (Guided Learning, Quiz Me)
 
 ### 1.10 Navigation & Layout ✅ COMPLETE
+
 - [x] Sidebar navigation (desktop)
 - [x] Mobile hamburger menu
 - [x] View state management
@@ -183,6 +196,7 @@
 - [x] Responsive breakpoints
 
 ### 1.11 Settings ✅ COMPLETE
+
 - [x] Settings view layout
 - [x] Weekly target customization
 - [x] Profile management
@@ -193,6 +207,7 @@
 - [ ] Privacy settings - pending
 
 ### 1.12 Deployment Preparation ⚪ NOT STARTED
+
 - [x] Environment variable setup (.env.example documented)
 - [ ] Production Supabase configuration
 - [x] Vercel deployment configuration
@@ -206,6 +221,7 @@
 - [x] Error tracking setup (Sentry)
 
 ### 1.13 Polish & UX 🟡 IN PROGRESS (70%)
+
 - [x] Loading states for all async operations
 - [x] Skeleton screens
 - [x] Error boundaries
@@ -222,6 +238,7 @@
 ## Phase 2: Enhancement ⚪ NOT STARTED (Q1 2026)
 
 ### 2.1 Progressive Web App (PWA)
+
 - [ ] Service worker implementation
 - [ ] Offline functionality
 - [ ] App manifest configuration
@@ -233,6 +250,7 @@
 - [ ] Update notification system
 
 ### 2.2 Push Notifications
+
 - [ ] Web Push Notifications setup
 - [ ] Notification permission flow
 - [ ] Deadline reminder notifications
@@ -243,6 +261,7 @@
 - [ ] Quiet hours configuration
 
 ### 2.3 Advanced Analytics
+
 - [ ] Heat map visualization (study hours by day/time)
 - [ ] Productivity hour identification
 - [ ] Trend analysis (week-over-week)
@@ -254,6 +273,7 @@
 - [ ] Export analytics to PDF
 
 ### 2.4 Enhanced Knowledge Base
+
 - [ ] PDF upload functionality (Supabase Storage)
 - [ ] Document parsing (extract text from PDFs)
 - [ ] Image upload support (Supabase Storage)
@@ -269,6 +289,7 @@
 - [ ] RAG implementation for AI responses
 
 ### 2.5 Quiz Generation
+
 - [ ] Auto-generate quizzes from notes
 - [ ] Multiple choice questions
 - [ ] True/false questions
@@ -280,6 +301,7 @@
 - [ ] Quiz sharing
 
 ### 2.6 Gamification System
+
 - [ ] Achievement system design
 - [ ] Badge collection UI
 - [ ] XP points calculation
@@ -291,6 +313,7 @@
 - [ ] Daily/weekly challenges
 
 ### 2.7 Reports & Exports
+
 - [ ] Weekly summary email
 - [ ] Monthly PDF reports
 - [ ] CSV export of sessions
@@ -300,6 +323,7 @@
 - [ ] Shareable report links
 
 ### 2.8 UI Enhancements
+
 - [ ] Dark mode implementation
 - [ ] Light mode refinement
 - [ ] Theme customization (color presets)
@@ -314,6 +338,7 @@
 ## Phase 3: Expansion ⚪ NOT STARTED (Q2-Q3 2026)
 
 ### 3.1 Mobile Native App
+
 - [ ] React Native project setup
 - [ ] iOS build configuration
 - [ ] Android build configuration
@@ -326,6 +351,7 @@
 - [ ] Biometric authentication
 
 ### 3.2 Collaboration Features
+
 - [ ] Study group creation
 - [ ] Invite system
 - [ ] Shared courses
@@ -337,6 +363,7 @@
 - [ ] Group leaderboards
 
 ### 3.3 Social Features
+
 - [ ] Friend system
 - [ ] Study hour challenges
 - [ ] Public profiles (optional)
@@ -347,6 +374,7 @@
 - [ ] Community forums
 
 ### 3.4 Calendar Integration
+
 - [ ] Google Calendar sync
 - [ ] Outlook calendar sync
 - [ ] Apple Calendar sync
@@ -357,6 +385,7 @@
 - [ ] Study session blocking
 
 ### 3.5 LMS Integration
+
 - [ ] Canvas LMS connector
 - [ ] Blackboard connector
 - [ ] Moodle connector
@@ -367,6 +396,7 @@
 - [ ] OAuth authentication with LMS
 
 ### 3.6 Third-Party Integrations
+
 - [ ] Notion API integration
 - [ ] Todoist integration
 - [ ] Things 3 integration
@@ -377,6 +407,7 @@
 - [ ] IFTTT support
 
 ### 3.7 Voice Features
+
 - [ ] Voice command system
 - [ ] Timer control via voice
 - [ ] Speech-to-text notes
@@ -385,6 +416,7 @@
 - [ ] Podcast-style lesson playback
 
 ### 3.8 Advanced AI
+
 - [ ] Personalized learning path generation
 - [ ] ML-based difficulty adjustment
 - [ ] Weakness identification algorithms
@@ -399,6 +431,7 @@
 ## Phase 4: Scale ⚪ NOT STARTED (Q4 2026+)
 
 ### 4.1 Institutional Dashboard
+
 - [ ] Admin panel for professors
 - [ ] Class-wide analytics
 - [ ] Student progress monitoring
@@ -409,6 +442,7 @@
 - [ ] Bulk user management
 
 ### 4.2 White-Label Solution
+
 - [ ] Multi-tenant architecture
 - [ ] Custom branding system
 - [ ] Logo upload
@@ -419,6 +453,7 @@
 - [ ] Billing system
 
 ### 4.3 Enterprise Features
+
 - [ ] SSO (Single Sign-On)
 - [ ] SAML authentication
 - [ ] Role-based access control (RBAC)
@@ -429,6 +464,7 @@
 - [ ] Custom integrations
 
 ### 4.4 Compliance & Security
+
 - [ ] GDPR compliance audit
 - [ ] FERPA compliance
 - [ ] COPPA compliance
@@ -439,6 +475,7 @@
 - [ ] Security penetration testing
 
 ### 4.5 Internationalization (i18n)
+
 - [ ] Translation framework setup
 - [ ] English (primary)
 - [ ] Spanish
@@ -453,6 +490,7 @@
 - [ ] RTL language support
 
 ### 4.6 Research Platform
+
 - [ ] Anonymous data aggregation
 - [ ] Public dataset API
 - [ ] Research partnership program
@@ -462,6 +500,7 @@
 - [ ] Open-source dataset release
 
 ### 4.7 Business Operations
+
 - [ ] Stripe payment integration
 - [ ] Subscription management
 - [ ] Freemium tier definition
@@ -478,6 +517,7 @@
 ## Continuous Improvements (Ongoing)
 
 ### Performance Optimization
+
 - [ ] Code splitting
 - [ ] Lazy loading components
 - [ ] Image optimization
@@ -488,6 +528,7 @@
 - [ ] CDN implementation
 
 ### Testing
+
 - [ ] Unit tests (Jest)
 - [ ] Integration tests
 - [ ] E2E tests (Playwright/Cypress)
@@ -498,6 +539,7 @@
 - [ ] Accessibility testing (axe-core)
 
 ### DevOps
+
 - [ ] CI/CD pipeline (GitHub Actions)
 - [ ] Automated testing in CI
 - [ ] Automated deployments
@@ -508,6 +550,7 @@
 - [ ] Uptime monitoring
 
 ### Documentation
+
 - [ ] API documentation (OpenAPI/Swagger)
 - [ ] Component storybook
 - [ ] Architecture diagrams
@@ -521,6 +564,7 @@
 ## Completed Milestones 🎉
 
 ### December 2025
+
 - ✅ **Project Initialization**: Vite + React + TypeScript setup
 - ✅ **Firebase Integration**: Authentication and PostgreSQL database
 - ✅ **Core UI**: Neo-brutalist design system implemented
@@ -538,6 +582,7 @@
 ## Current Sprint (Week of Dec 1, 2025)
 
 ### High Priority
+
 - [ ] **Deploy to Production**: Vercel frontend + Render backend
 - [ ] **Environment Setup**: Production Supabase project
 - [x] **Error Boundaries**: Catch React errors gracefully
@@ -545,12 +590,14 @@
 - [x] **Toast Notifications**: User feedback system
 
 ### Medium Priority
+
 - [ ] **Onboarding Tutorial**: First-time user guide
 - [x] **Empty States**: Friendly messages when no data
 - [x] **Form Validation**: Better error messages
 - [ ] **Mobile Polish**: Touch interaction improvements
 
 ### Low Priority
+
 - [ ] **API Documentation**: Document backend endpoints
 - [ ] **Component Docs**: Storybook setup
 - [ ] **Performance Audit**: Lighthouse check
@@ -560,14 +607,17 @@
 ## Blockers & Dependencies
 
 ### Current Blockers
+
 - None at the moment ✅
 
 ### External Dependencies
+
 - **Firebase**: Reliant on Google Cloud uptime
 - **Gemini API**: Subject to rate limits and pricing changes
 - **Vercel/Render**: Deployment platform availability
 
 ### Internal Dependencies
+
 - **Backend must be deployed** before frontend can use AI features in production
 - **Firebase project** must be configured before authentication works
 - **Domain name** needed for production SSL
@@ -577,40 +627,45 @@
 ## Success Metrics Tracking
 
 ### Phase 1 Goals
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| Core features implemented | 10 | 10 | ✅ |
-| TypeScript coverage | 100% | 100% | ✅ |
-| Mobile responsive | Yes | Yes | ✅ |
-| Production deployment | Yes | No | ⚪ |
-| User testing | 5 users | 0 | ⚪ |
+
+| Metric                    | Target  | Current | Status |
+| ------------------------- | ------- | ------- | ------ |
+| Core features implemented | 10      | 10      | ✅     |
+| TypeScript coverage       | 100%    | 100%    | ✅     |
+| Mobile responsive         | Yes     | Yes     | ✅     |
+| Production deployment     | Yes     | No      | ⚪     |
+| User testing              | 5 users | 0       | ⚪     |
 
 ### Phase 2 Goals (Future)
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| PWA installable | Yes | No | ⚪ |
-| Push notifications | Yes | No | ⚪ |
-| Offline mode | Yes | No | ⚪ |
-| Quiz generation | Yes | No | ⚪ |
-| Gamification | Yes | No | ⚪ |
+
+| Metric             | Target | Current | Status |
+| ------------------ | ------ | ------- | ------ |
+| PWA installable    | Yes    | No      | ⚪     |
+| Push notifications | Yes    | No      | ⚪     |
+| Offline mode       | Yes    | No      | ⚪     |
+| Quiz generation    | Yes    | No      | ⚪     |
+| Gamification       | Yes    | No      | ⚪     |
 
 ---
 
 ## Notes & Decisions
 
 ### Technical Decisions
+
 - **Database**: Firebase Firestore chosen for real-time sync and ease of setup
 - **AI Provider**: Gemini API for competitive pricing and quality
 - **Design**: Neo-brutalist style for bold, memorable UX
 - **State Management**: Context API (sufficient for current scale)
 
 ### Future Considerations
+
 - **Migrate to Redux** if state management becomes complex
 - **GraphQL** for more efficient data fetching with multiple entities
 - **Microservices** if backend logic grows significantly
 - **React Native Web** for code sharing between web and mobile
 
 ### Open Questions
+
 - [ ] Should we support email/password auth or Google-only?
 - [ ] What premium features justify subscription pricing?
 - [ ] How to handle AI cost scaling with user growth?
@@ -624,11 +679,11 @@
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | Dec 1, 2025 | Initial roadmap created with all phases |
-| 1.1 | Dec 1, 2025 | Updated to reflect Supabase migration from Firebase |
-| 1.2 | Dec 17, 2025 | Marked form validation and Sentry integration as complete |
+| Version | Date         | Changes                                                   |
+| ------- | ------------ | --------------------------------------------------------- |
+| 1.0     | Dec 1, 2025  | Initial roadmap created with all phases                   |
+| 1.1     | Dec 1, 2025  | Updated to reflect Supabase migration from Firebase       |
+| 1.2     | Dec 17, 2025 | Marked form validation and Sentry integration as complete |
 
 ---
 

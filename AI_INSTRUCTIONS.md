@@ -69,13 +69,13 @@ export const MyComponent: React.FC<MyComponentProps> = ({ title, onSave }) => {
 
 ## 🔧 Key Files Reference
 
-| File | Purpose |
-|------|---------|
-| `types.ts` | All TypeScript interfaces (Course, Assignment, etc.) |
-| `services/supabaseDB.ts` | CRUD operations for database |
-| `contexts/*Context.tsx` | Global state management (Auth, Courses, etc.) |
-| `hooks/use*.ts` | Data access hooks |
-| `supabase_schema.sql` | Database schema with RLS policies |
+| File                     | Purpose                                              |
+| ------------------------ | ---------------------------------------------------- |
+| `types.ts`               | All TypeScript interfaces (Course, Assignment, etc.) |
+| `services/supabaseDB.ts` | CRUD operations for database                         |
+| `contexts/*Context.tsx`  | Global state management (Auth, Courses, etc.)        |
+| `hooks/use*.ts`          | Data access hooks                                    |
+| `supabase_schema.sql`    | Database schema with RLS policies                    |
 
 ---
 
@@ -117,12 +117,12 @@ try {
 
 ## 🎯 Common Tasks
 
-| Task | Action |
-|------|--------|
-| Add feature | Read `docs/CONTRIBUTING.md` component standards |
-| Database query | Use `supabaseDB.ts` functions, never raw Supabase |
-| Styling | Use classes: `retro-card`, `retro-btn`, `neo-border` |
-| Fix error | Check `docs/ARCHITECTURE.md` Common Issues section |
+| Task           | Action                                               |
+| -------------- | ---------------------------------------------------- |
+| Add feature    | Read `docs/CONTRIBUTING.md` component standards      |
+| Database query | Use `supabaseDB.ts` functions, never raw Supabase    |
+| Styling        | Use classes: `retro-card`, `retro-btn`, `neo-border` |
+| Fix error      | Check `docs/ARCHITECTURE.md` Common Issues section   |
 
 ---
 
@@ -136,6 +136,7 @@ try {
 - **DEPLOYMENT.md** - Production deployment guide
 
 **When to read full docs**:
+
 - Implementing new architecture
 - Adding database tables
 - Deploying to production

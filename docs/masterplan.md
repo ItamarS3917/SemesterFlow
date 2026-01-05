@@ -5,6 +5,7 @@
 **SemesterFlow** is an AI-powered study management platform designed to help students track their progress, manage assignments, optimize study sessions, and stay motivated throughout the semester. The app combines gamification, real-time analytics, and AI-powered study assistance to create a comprehensive academic companion.
 
 ### Core Philosophy
+
 - **Data-Driven Learning**: Track every study session to identify patterns and optimize learning
 - **AI-Powered Guidance**: Personalized study plans and intelligent assistance based on student progress
 - **Gamification**: Streaks, progress bars, and visual feedback to maintain motivation
@@ -17,6 +18,7 @@
 ### Technology Stack
 
 #### Frontend
+
 - **React 19.2.0** - UI framework with latest features
 - **TypeScript 5.8.2** - Type safety and developer experience
 - **Vite 6.2.0** - Fast build tool and dev server
@@ -24,12 +26,14 @@
 - **Recharts 2.12.7** - Data visualization and analytics charts
 
 #### Backend & Services
+
 - **Supabase 2.47.0** - PostgreSQL database, authentication, and storage
 - **Express.js** (server) - REST API for AI features
 - **Google Generative AI** - Gemini integration for chatbot and study partner
 - **pgvector** - Vector embeddings for AI-powered knowledge search
 
 #### Design System
+
 - **Neo-Brutalism UI** - Bold borders, strong shadows, high contrast
 - **Retro-Gaming Aesthetic** - Monospace fonts, pixelated elements, arcade vibes
 - **Custom CSS** - Tailwind-inspired utility classes with custom animations
@@ -39,6 +43,7 @@
 ### Current Features
 
 #### 1. Authentication & User Management
+
 - **Supabase Authentication** (contexts/AuthContext.tsx, services/supabase.ts)
 - Google OAuth Sign-In integration
 - Secure session management with JWT tokens
@@ -46,6 +51,7 @@
 - Row Level Security (RLS) for data isolation
 
 #### 2. Dashboard (DASHBOARD View)
+
 - **Real-time Stats**:
   - Phase Progress tracking
   - Weekly goal monitoring (hours studied vs target)
@@ -56,6 +62,7 @@
 - **Course Load Summary**: Quick progress bars for all active courses
 
 #### 3. Study Timer (TIMER View)
+
 - **Pomodoro-Style Focus Sessions**
   - Visual timer with retro CRT display effect
   - Course selection with color coding
@@ -69,6 +76,7 @@
 - Minimum 60-second sessions to prevent data corruption
 
 #### 4. Course Management (COURSES View)
+
 - **Course Tracking**:
   - Total hours target vs completed
   - Assignment completion rates
@@ -78,6 +86,7 @@
 - **Knowledge Base**: Per-course notes/syllabus storage for AI context
 
 #### 5. Assignment Tracker (ASSIGNMENTS View)
+
 - **Status Management**:
   - NOT_STARTED, IN_PROGRESS, COMPLETED
   - Due date tracking with visual warnings
@@ -88,6 +97,7 @@
 - **Quick Actions**: Start timer directly from assignment view
 
 #### 6. AI Planner (PLANNER View)
+
 - **Daily Study Plans**:
   - Personalized session recommendations
   - Priority-based task scheduling
@@ -95,6 +105,7 @@
   - Integration with course knowledge base
 
 #### 7. Study Partner (STUDY_PARTNER View)
+
 - **AI Tutor Modes**:
   - Guided Learning (explanations)
   - Quiz Me (active recall)
@@ -106,6 +117,7 @@
 - Uses course-specific knowledge base for context-aware tutoring
 
 #### 8. ChatBot Assistant
+
 - **Floating AI Assistant**:
   - Context-aware responses based on current data
   - Deadline reminders and progress tracking
@@ -115,6 +127,7 @@
 - **Persistent History**: LocalStorage-based chat memory
 
 #### 9. Analytics (ANALYTICS View)
+
 - **Visual Data Insights**:
   - Study hours by course (bar charts)
   - Weekly progress trends
@@ -123,6 +136,7 @@
 - Powered by Recharts for interactive visualizations
 
 #### 10. Settings (SETTINGS View)
+
 - Course CRUD operations
 - Weekly target customization
 - Profile management
@@ -160,6 +174,7 @@ UserStats {
 ```
 
 #### State Management (Context-Based)
+
 - **AuthContext**: User authentication and profile (Supabase Auth)
 - **CoursesContext**: Course CRUD and Supabase sync
 - **AssignmentsContext**: Assignment management and PostgreSQL storage
@@ -168,6 +183,7 @@ UserStats {
 - **AppProvider**: Unified context wrapper
 
 #### Data Persistence
+
 - **Supabase PostgreSQL Tables**:
   - `courses` - Course data with knowledge base text
   - `assignments` - Assignments with file attachments support
@@ -186,16 +202,19 @@ UserStats {
 ### Server Architecture (server/)
 
 #### Endpoints
+
 - **POST /api/chat**: AI chatbot with streaming responses
 - **POST /api/plan**: Generate daily study plans
 - **POST /api/grade**: (Future) Assignment auto-grading
 
 #### Middleware
+
 - **Rate Limiting**: Prevent API abuse
 - **Request Validation**: Input sanitization
 - **CORS**: Configured for localhost:5173
 
 #### Security
+
 - `.gitignore` includes `.env` for API key protection
 - Server-side Gemini API calls (no client exposure)
 - Supabase Row Level Security (RLS) policies enforced
@@ -209,6 +228,7 @@ UserStats {
 ### Short-Term Goals (Next Phase)
 
 #### 1. Enhanced AI Features
+
 - **Smart Reminders**:
   - Push notifications for upcoming deadlines
   - Adaptive study session suggestions
@@ -223,6 +243,7 @@ UserStats {
   - Context-aware responses from uploaded documents
 
 #### 2. Gamification Expansion
+
 - **Achievement System**:
   - Badges for milestones (50 hours, 30-day streak, etc.)
   - XP system tied to study hours
@@ -233,6 +254,7 @@ UserStats {
   - Retro pixel art rewards
 
 #### 3. Mobile Responsiveness
+
 - **PWA Conversion**:
   - Service workers for offline access
   - App-like experience on mobile
@@ -242,6 +264,7 @@ UserStats {
   - Mobile-first navigation improvements
 
 #### 4. Data Export & Insights
+
 - **Report Generation**:
   - Weekly/monthly PDF summaries
   - CSV export of study sessions
@@ -256,6 +279,7 @@ UserStats {
 ### Mid-Term Goals (Future Versions)
 
 #### 1. Collaboration Features
+
 - **Study Groups**:
   - Shared courses and deadlines
   - Group study session tracking
@@ -266,6 +290,7 @@ UserStats {
   - Peer tutoring marketplace
 
 #### 2. Integration Ecosystem
+
 - **Calendar Sync**:
   - Google Calendar integration
   - iCal export/import
@@ -280,6 +305,7 @@ UserStats {
   - Spotify for study playlists
 
 #### 3. Advanced AI Capabilities
+
 - **Personalized Learning Paths**:
   - ML-based difficulty adjustment
   - Spaced repetition scheduling
@@ -294,6 +320,7 @@ UserStats {
   - Diagram explanations
 
 #### 4. Institutional Version
+
 - **University Dashboard**:
   - Professor analytics (class-wide trends)
   - Early warning system for struggling students
@@ -308,6 +335,7 @@ UserStats {
 ### Long-Term Vision (1-2 Years)
 
 #### 1. Holistic Student Wellness
+
 - **Burnout Prevention**:
   - Stress level monitoring via study patterns
   - Mandatory break enforcement
@@ -322,6 +350,7 @@ UserStats {
   - Lifestyle coaching
 
 #### 2. Career Readiness
+
 - **Skills Tracking**:
   - Map courses to job skills
   - Portfolio generation from projects
@@ -332,6 +361,7 @@ UserStats {
   - Resume generation from achievements
 
 #### 3. Research Platform
+
 - **Academic Data Insights**:
   - Anonymized data for education research
   - Learning effectiveness studies
@@ -342,6 +372,7 @@ UserStats {
   - Success story database
 
 #### 4. Global Expansion
+
 - **Multi-Language Support**:
   - i18n implementation
   - Localized AI models
@@ -360,9 +391,11 @@ UserStats {
 ## MCP Integration Strategy
 
 ### Overview
+
 The Model Context Protocol (MCP) will be integrated to transform SemesterFlow into an AI-native application. This strategy has three pillars:
 
 #### 1. SemesterFlow as an MCP Server (External Access)
+
 - **Goal**: Expose Supabase data as "Tools" and "Resources" to external agents (e.g., Claude Desktop).
 - **Implementation**: A standalone Node.js server (`mcp-server/`) using the MCP SDK.
 - **Capabilities**:
@@ -370,6 +403,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
   - **Tools**: Actions like `add_assignment`, `log_study_session`, `update_task_status`.
 
 #### 2. ChatBot as an MCP Client (Internal Capabilities)
+
 - **Goal**: Empower the internal "Study Partner" to interact with the outside world.
 - **Implementation**: Update `server/routes/chat.js` to act as an MCP Client.
 - **Capabilities**:
@@ -378,6 +412,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
   - **Calendar**: Sync study plans with Google Calendar.
 
 #### 3. Standardized RAG (Knowledge Base)
+
 - **Goal**: Decouple AI logic from database implementation.
 - **Implementation**: Expose the "Knowledge Base" (pgvector) as an MCP Resource.
 - **Benefit**: Allows switching vector stores without rewriting AI logic.
@@ -387,6 +422,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 ## Technical Roadmap
 
 ### Phase 1: Foundation Completion (Current)
+
 - [x] Core UI/UX with neo-brutalist design
 - [x] Supabase authentication (Google OAuth)
 - [x] PostgreSQL database with RLS policies
@@ -401,6 +437,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 - [ ] File upload functionality (Supabase Storage)
 
 ### Phase 2: Enhancement (Next 3 Months)
+
 - [ ] PWA conversion with service workers
 - [ ] Push notification system
 - [ ] Advanced analytics (heat maps, trends)
@@ -414,6 +451,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 - [ ] Real-time collaboration using Supabase Realtime
 
 ### Phase 3: Expansion (3-6 Months)
+
 - [ ] Mobile app (React Native)
 - [ ] Collaboration features (study groups)
 - [ ] Calendar integrations (Google, Outlook)
@@ -423,6 +461,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 - [ ] Premium tier features
 
 ### Phase 4: Scale (6-12 Months)
+
 - [ ] Institutional licensing
 - [ ] White-label solution
 - [ ] API for third-party developers
@@ -436,24 +475,28 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 ## Success Metrics
 
 ### User Engagement
+
 - **Daily Active Users (DAU)**: Target 70% of weekly users
 - **Study Streak Average**: Target 14+ days
 - **Session Completion Rate**: >80% of started timers saved
 - **AI Interaction Rate**: >50% of users chat weekly
 
 ### Academic Impact
+
 - **Self-Reported Grade Improvement**: Survey-based metric
 - **Study Hours Increase**: Track semester-over-semester growth
 - **Procrastination Reduction**: Measure assignment start delay decrease
 - **Exam Preparedness**: Confidence survey correlation
 
 ### Technical Performance
+
 - **Page Load Time**: <2 seconds on 3G
 - **Uptime**: 99.9% availability
 - **API Response Time**: <500ms for AI queries
 - **Crash Rate**: <0.1% sessions
 
 ### Business Goals
+
 - **User Retention**: 60% 30-day retention
 - **Conversion Rate**: 10% free-to-premium (when launched)
 - **NPS Score**: 50+ (strong promoter base)
@@ -464,6 +507,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 ## Known Challenges & Mitigation
 
 ### Challenge 1: AI Cost Scaling
+
 - **Risk**: Gemini API costs grow with user base
 - **Mitigation**:
   - Implement aggressive caching in Supabase
@@ -473,6 +517,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
   - Use vector search to reduce API calls (fetch relevant context only)
 
 ### Challenge 2: Data Privacy
+
 - **Risk**: Student academic data is highly sensitive
 - **Mitigation**:
   - Supabase Row Level Security (RLS) enforced at database level
@@ -482,6 +527,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
   - User data export/deletion tools (Supabase Auth built-in)
 
 ### Challenge 3: University Adoption
+
 - **Risk**: Institutions hesitant to endorse third-party tools
 - **Mitigation**:
   - Partner with student organizations first
@@ -490,6 +536,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
   - Pursue EdTech accelerators
 
 ### Challenge 4: Behavioral Change
+
 - **Risk**: Students may not adopt tracking habits
 - **Mitigation**:
   - Onboarding gamification (tutorials as quests)
@@ -502,10 +549,12 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 ## Team & Resources
 
 ### Current Status
+
 - **Solo Developer Project**: Full-stack development by single founder
 - **Open Source Potential**: Consider community contributions
 
 ### Needed Expertise (Future Hiring)
+
 - **Mobile Developer**: React Native for iOS/Android
 - **ML Engineer**: Personalization algorithms
 - **UI/UX Designer**: Professional design system
@@ -513,12 +562,14 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 - **Content Creator**: Educational materials and tutorials
 
 ### Budget Considerations
+
 - **Current**: Zero-cost (Supabase free tier: 500MB DB + 1GB storage, self-hosted Express server)
 - **Near-term**: ~$50/month (Vercel/Render hosting, domain, possible Supabase Pro $25/month)
 - **Growth**: $500-1000/month (Gemini API costs, Supabase scaling, infrastructure)
 - **Scale**: Revenue-funded through premium tiers
 
 ### Supabase Free Tier Limits:
+
 - 500 MB database space
 - 1 GB file storage
 - 2 GB bandwidth
@@ -533,6 +584,7 @@ The Model Context Protocol (MCP) will be integrated to transform SemesterFlow in
 SemesterFlow aims to revolutionize how students manage their academic workload by combining intelligent tracking, AI-powered assistance, and motivational design. The current foundation provides a robust platform for iteration, with a clear roadmap toward becoming an indispensable tool for student success.
 
 **Next Steps**:
+
 1. Deploy production version with Firebase and Render
 2. Gather initial user feedback from beta testers
 3. Implement top-requested features (notifications, mobile)

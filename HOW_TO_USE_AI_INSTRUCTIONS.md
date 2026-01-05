@@ -27,11 +27,13 @@ This project has pre-configured instruction files for **all major AI coding assi
 **Status**: ✅ Already configured, automatic
 
 **How it works**:
+
 - File `.claude/settings.json` auto-loads `.claude/llm-instructions.md`
 - Every conversation automatically has project context
 - Zero setup needed
 
 **Test it**:
+
 ```bash
 # Start a new conversation and ask:
 "What hooks should I use to access courses?"
@@ -48,6 +50,7 @@ This project has pre-configured instruction files for **all major AI coding assi
 **Setup**: None! Cursor automatically reads `.cursorrules`
 
 **How to use**:
+
 1. Open project in Cursor:
    ```bash
    cursor /Users/itamarmacbook/Desktop/SemesterFlow
@@ -56,6 +59,7 @@ This project has pre-configured instruction files for **all major AI coding assi
 3. Autocomplete will suggest hooks, correct patterns, neo-brutalist classes
 
 **Test it**:
+
 ```typescript
 // Start typing:
 const { courses
@@ -71,6 +75,7 @@ const { courses, addCourse } = useCourses();
 **Status**: ⚠️ Semi-automatic (requires one-time setup)
 
 **Setup** (one time only):
+
 1. Open VS Code
 2. Press `Cmd + ,` (Settings)
 3. Search for "copilot"
@@ -78,14 +83,16 @@ const { courses, addCourse } = useCourses();
 5. Restart VS Code
 
 **How it works**:
+
 - Copilot reads `.github/copilot-instructions.md`
 - Suggests code following project patterns
 - Autocomplete respects your architecture
 
 **Test it**:
+
 ```typescript
 // Start typing a new component:
-export const MyComponent
+export const MyComponent;
 
 // Copilot should suggest the full pattern with hooks and auth check
 ```
@@ -101,6 +108,7 @@ export const MyComponent
 **How to use**:
 
 **Option 1 - Reference file**:
+
 ```bash
 # In Antigravity chat, ask:
 "Read .antigravity/instructions.md and help me create a new component
@@ -108,12 +116,14 @@ for displaying study analytics"
 ```
 
 **Option 2 - Direct context**:
+
 1. Open `.antigravity/instructions.md`
 2. Copy relevant sections
 3. Paste into Antigravity chat
 4. Proceed with your request
 
 **Example prompt**:
+
 ```
 I need to add a feature to track user study streaks.
 
@@ -135,6 +145,7 @@ Please create:
 **How to use**:
 
 **Method 1 - Ask Gemini to read the file**:
+
 ```
 Read the file .gemini/code-assist-instructions.md in this project.
 
@@ -143,12 +154,14 @@ study analytics to PDF. What's the best approach?
 ```
 
 **Method 2 - Copy/paste context**:
+
 1. Open `.gemini/code-assist-instructions.md`
 2. Copy the entire content
 3. Paste into Gemini chat as first message
 4. Then ask your coding question
 
 **Example session**:
+
 ```
 User: [Paste content of .gemini/code-assist-instructions.md]
 
@@ -171,12 +184,14 @@ Gemini: I'll create this following the SemesterFlow patterns...
 **How to use**:
 
 **Best approach**:
+
 1. Open `AI_INSTRUCTIONS.md` (root level)
 2. Copy the entire file
 3. Paste at start of conversation
 4. ChatGPT/Claude will follow these rules for entire session
 
 **Example**:
+
 ```
 User: [Paste AI_INSTRUCTIONS.md content]
 
@@ -193,14 +208,14 @@ we'll use the useStats() hook and update user_stats table...
 
 ## 📊 Comparison Table
 
-| Tool | Setup Time | Auto-Load | Token Savings | Best For |
-|------|------------|-----------|---------------|----------|
-| **Claude Code** | 0 min | ✅ Yes | ~35K tokens | Active development |
-| **Cursor** | 0 min | ✅ Yes | Auto | Autocomplete coding |
-| **Copilot** | 2 min | ⚠️ Semi | Auto | VS Code users |
-| **Antigravity** | 0 min | ❌ No | Manual | Google ecosystem |
-| **Gemini** | 0 min | ❌ No | Manual | Quick questions |
-| **ChatGPT** | 0 min | ❌ No | Manual | Planning & design |
+| Tool            | Setup Time | Auto-Load | Token Savings | Best For            |
+| --------------- | ---------- | --------- | ------------- | ------------------- |
+| **Claude Code** | 0 min      | ✅ Yes    | ~35K tokens   | Active development  |
+| **Cursor**      | 0 min      | ✅ Yes    | Auto          | Autocomplete coding |
+| **Copilot**     | 2 min      | ⚠️ Semi   | Auto          | VS Code users       |
+| **Antigravity** | 0 min      | ❌ No     | Manual        | Google ecosystem    |
+| **Gemini**      | 0 min      | ❌ No     | Manual        | Quick questions     |
+| **ChatGPT**     | 0 min      | ❌ No     | Manual        | Planning & design   |
 
 ---
 
@@ -209,6 +224,7 @@ we'll use the useStats() hook and update user_stats table...
 When using these instructions, AI assistants automatically understand:
 
 ### **Critical Rules**
+
 1. ✅ Use `useCourses()`, `useAssignments()`, `useSessions()`, `useStats()`, `useAuth()`
 2. ✅ Never call Supabase directly → use `services/supabaseDB.ts`
 3. ✅ Import types from `types.ts`
@@ -218,12 +234,14 @@ When using these instructions, AI assistants automatically understand:
 7. ✅ Check auth: `if (!user) return <LoginPage />;`
 
 ### **Database Architecture**
+
 - Tables: `courses`, `assignments`, `sessions`, `user_stats`, `course_knowledge`
 - RLS enabled (Row Level Security)
 - snake_case in DB ↔ camelCase in TypeScript
 - Conversion helpers in `supabaseDB.ts`
 
 ### **Component Pattern**
+
 ```typescript
 import { Course } from '../types';
 import { useCourses } from '../hooks/useCourses';
@@ -275,6 +293,7 @@ git push
 ### **Custom Prompts**
 
 **For complex features**:
+
 ```
 Read [your-tool-instruction-file] for context.
 
@@ -292,6 +311,7 @@ Please:
 ```
 
 **For bug fixes**:
+
 ```
 Following the project standards in [instruction-file]:
 
@@ -342,15 +362,18 @@ SemesterFlow/
 ### **"AI isn't following the patterns"**
 
 **Claude Code / Cursor**:
+
 - Should work automatically
 - Try restarting the editor
 
 **Copilot**:
+
 - Check "Include workspace context" is enabled
 - Restart VS Code
 - Clear Copilot cache: `Cmd+Shift+P` → "Reload Window"
 
 **Gemini / ChatGPT**:
+
 - Make sure you pasted the instructions file at start of conversation
 - Re-paste if conversation is long (context may fade)
 
@@ -367,6 +390,7 @@ git checkout .claude/ .cursorrules .github/ .antigravity/ .gemini/
 ### **"AI suggests wrong patterns"**
 
 **Double-check the instruction file is up to date**:
+
 ```bash
 # View current instructions:
 cat .claude/llm-instructions.md
@@ -380,24 +404,28 @@ cat .claude/llm-instructions.md
 ## 💡 Pro Tips
 
 ### **1. Start Prompts with Context**
+
 ```
 "Following the SemesterFlow patterns in [instruction-file],
 help me add [feature]"
 ```
 
 ### **2. Reference Specific Rules**
+
 ```
 "As specified in the AI instructions, use useCourses() hook
 to fetch course data, not direct Supabase calls"
 ```
 
 ### **3. Ask AI to Self-Review**
+
 ```
 "Review the code you just wrote and check if it follows
 all 7 critical rules from the instructions"
 ```
 
 ### **4. Use for Code Review**
+
 ```
 "Review this code against the SemesterFlow standards.
 Does it follow the component pattern? Are errors handled?"
@@ -437,6 +465,7 @@ After using AI instructions, your code should:
 ### **Example 1: Creating a New Component**
 
 **Prompt** (any AI tool):
+
 ```
 Following the instructions in [your-tool-file]:
 
@@ -455,6 +484,7 @@ Create a new component called StudyGoalsWidget that:
 ### **Example 2: Adding a Database Feature**
 
 **Prompt**:
+
 ```
 Using the patterns from [instruction-file]:
 
@@ -474,6 +504,7 @@ Follow all project standards.
 ### **Example 3: Debugging**
 
 **Prompt**:
+
 ```
 Following project standards from [instruction-file]:
 

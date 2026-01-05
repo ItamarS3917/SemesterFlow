@@ -2,7 +2,7 @@
 
 # 🎓 SemesterFlow
 
-## *Your AI-Powered Academic Command Center*
+## _Your AI-Powered Academic Command Center_
 
 [![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -21,53 +21,62 @@
 ## 🚀 Features
 
 ### 📊 **Smart Dashboard**
+
 - Real-time overview of all courses, assignments, and study stats
 - Streak tracking with gamified study goals
 - Weekly progress visualization
 - Upcoming deadline alerts
 
 ### ⏱️ **Study Timer with AI Integration**
+
 - Pomodoro-style focus sessions
 - Automatic session logging to Supabase
 - Difficulty ratings and session notes
 - AI-powered study insights via Gemini
 
 ### 📚 **Assignment Management**
+
 - Track assignments with due dates and status
 - CSV import for bulk assignment creation
 - Automatic procrastination detection
 - Priority-based sorting
 
 ### 🗓️ **Smart Planner**
+
 - Calendar view with assignment deadlines
 - Course-based filtering
 - Visual timeline of upcoming work
 - Exam date tracking
 
 ### 🧠 **AI Study Partner**
+
 - Powered by Google's Gemini AI
 - Context-aware tutoring based on your courses
 - Understands your weak concepts and study history
 - Real-time chat assistance
 
 ### 🤖 **Procrastination Breaker**
+
 - Detects when you're procrastinating
 - Suggests micro-sprints (5-15 minute sessions)
 - Motivational nudges
 - Smart timer quick-start
 
 ### 📈 **Analytics Dashboard**
+
 - Study time breakdown by course
 - Performance trends over time
 - Difficulty analysis
 - Progress toward semester goals
 
 ### 📎 **Attachment Management**
+
 - Link course materials (Google Drive, Notion, etc.)
 - Quick access to resources
 - Organized by course
 
 ### ⚙️ **Settings & Customization**
+
 - Dark/Light mode toggle
 - Semester configuration
 - Study goal settings
@@ -80,28 +89,29 @@
 ### Dashboard View
 
 ![Dashboard](docs/images/dashboard.jpg)
-*Real-time overview with phase progress, weekly goals, study streak, and procrastination alerts*
+_Real-time overview with phase progress, weekly goals, study streak, and procrastination alerts_
 
 ### Study Timer in Action
 
 ![Study Timer](docs/images/timer.jpg)
-*Pomodoro-style focus sessions with course selection and session tracking*
+_Pomodoro-style focus sessions with course selection and session tracking_
 
 ### AI Study Partner
 
 ![AI Study Partner](docs/images/study-partner.jpg)
-*Intelligent tutoring with customizable personality and study modes*
+_Intelligent tutoring with customizable personality and study modes_
 
 ### AI Chat Assistant
 
 ![AI Chat](docs/images/ai-chat.jpg)
-*Context-aware study assistance powered by Google Gemini*
+_Context-aware study assistance powered by Google Gemini_
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### **Frontend**
+
 - **React 19.2** - UI framework
 - **TypeScript 5.8** - Type safety
 - **Vite 6.2** - Build tool & dev server
@@ -110,12 +120,14 @@
 - **Recharts** - Data visualization
 
 ### **Backend & Services**
+
 - **Supabase** - Authentication & PostgreSQL database
 - **Google Gemini AI** - AI-powered study assistance
 - **Sentry** - Error tracking & performance monitoring
 - **Express.js** - API server for Gemini integration
 
 ### **State Management**
+
 - React Context API
 - Custom hooks for data fetching
 - Real-time Supabase subscriptions
@@ -125,18 +137,21 @@
 ## ⚡ Quick Start
 
 ### Prerequisites
+
 - **Node.js 18+** (recommended: 20+)
 - **npm** or **yarn**
 - **Supabase account** (free tier)
 - **Gemini API key** (free from Google AI Studio)
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/ItamarS3917/SemesterFlow.git
 cd SemesterFlow
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
@@ -249,8 +264,9 @@ SemesterFlow/
 SemesterFlow implements multiple security layers to protect your data and API keys:
 
 ### Backend Security Architecture
+
 - **API Key Protection**: All AI API keys (GEMINI_API_KEY) are stored server-side only and never exposed to the frontend
-- **Rate Limiting**: 
+- **Rate Limiting**:
   - Global: 100 requests per 15 minutes per IP
   - API endpoints: 20 requests per minute per IP
 - **Security Headers**: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy
@@ -258,11 +274,13 @@ SemesterFlow implements multiple security layers to protect your data and API ke
 - **CORS Configuration**: Configurable allowed origins to prevent unauthorized access
 
 ### Database Security (Supabase)
+
 - **Row Level Security (RLS)**: All tables enforce user-based access control
 - **Authentication**: Supabase Auth with email verification
 - **Secure Storage**: Files stored in Supabase Storage with access controls
 
 ### Best Practices
+
 1. ✅ Never commit `.env` files - Use `.env.example` as a template
 2. ✅ Keep dependencies updated - Run `npm audit` regularly
 3. ✅ Use HTTPS in production
@@ -299,6 +317,7 @@ For detailed security documentation, see [server/README.md](server/README.md).
 ## 🎨 Design Philosophy
 
 **Retro Neobrutalism**
+
 - Bold, chunky borders
 - High contrast colors
 - Pixel-perfect shadows
@@ -306,6 +325,7 @@ For detailed security documentation, see [server/README.md](server/README.md).
 - Gamified UI elements
 
 **Dark Mode Support**
+
 - Toggle between light and dark themes
 - Persistent user preference
 - Consistent color palette
@@ -315,6 +335,7 @@ For detailed security documentation, see [server/README.md](server/README.md).
 ## 📊 Database Schema
 
 ### Tables
+
 - **`courses`** - Course information and progress
 - **`assignments`** - Assignment tracking with procrastination detection
 - **`study_sessions`** - Timed study session logs
@@ -322,6 +343,7 @@ For detailed security documentation, see [server/README.md](server/README.md).
 - **`attachment_links`** - Course material links
 
 ### Row Level Security (RLS)
+
 All tables have RLS policies to ensure users can only access their own data.
 
 ---
@@ -348,7 +370,9 @@ We love contributions! Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) for
 5. **Open a Pull Request**
 
 ### Commit Convention
+
 We use [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` - New features
 - `fix:` - Bug fixes
 - `docs:` - Documentation changes
@@ -364,6 +388,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 Found a bug? Have an idea? [Open an issue](https://github.com/ItamarS3917/SemesterFlow/issues/new)!
 
 **Bug Report Template:**
+
 ```markdown
 **Describe the bug**
 A clear description of what the bug is.
@@ -378,6 +403,7 @@ What you expected to happen.
 If applicable, add screenshots.
 
 **Environment:**
+
 - OS: [e.g. macOS, Windows]
 - Browser: [e.g. Chrome, Firefox]
 - Version: [e.g. 1.0.0]

@@ -122,6 +122,7 @@ Before deploying, ensure you have:
 ### Step 2.1: Prepare Backend Code
 
 Ensure `server/` has these files:
+
 - `index.js` - Main server
 - `package.json` - Dependencies
 - `.env.example` - Template (not `.env` itself!)
@@ -144,11 +145,11 @@ Ensure `server/` has these files:
 
 In Render dashboard, go to **Environment**:
 
-| Key | Value |
-|-----|-------|
+| Key              | Value                                         |
+| ---------------- | --------------------------------------------- |
 | `GEMINI_API_KEY` | (from https://aistudio.google.com/app/apikey) |
-| `NODE_ENV` | `production` |
-| `PORT` | `3000` |
+| `NODE_ENV`       | `production`                                  |
+| `PORT`           | `3000`                                        |
 
 Click **Save Changes**
 
@@ -160,14 +161,14 @@ Before deploying, update `server/index.js`:
 // OLD
 const corsOptions = {
   origin: 'http://localhost:5173',
-  credentials: true
+  credentials: true,
 };
 
 // NEW
 const allowedOrigins = [
   'https://your-domain.com',
   'https://your-app.vercel.app',
-  'http://localhost:5173' // Keep for local dev
+  'http://localhost:5173', // Keep for local dev
 ];
 
 const corsOptions = {
@@ -178,7 +179,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -208,11 +209,10 @@ curl https://semesterflow-api.onrender.com/
 Update environment variable references in code to use Vercel's format.
 
 Create `vercel.json` (optional, for custom routing):
+
 ```json
 {
-  "routes": [
-    { "src": "/[^.]+", "dest": "/", "status": 200 }
-  ]
+  "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }]
 }
 ```
 
@@ -227,6 +227,7 @@ vercel
 ```
 
 Follow prompts:
+
 - Link to existing project? **No**
 - Project name? `semesterflow`
 - Directory? `./` (root)
@@ -245,9 +246,9 @@ Follow prompts:
 
 In Vercel Dashboard > Settings > Environment Variables:
 
-| Name | Value |
-|------|-------|
-| `VITE_SUPABASE_URL` | (from Supabase Settings > API) |
+| Name                     | Value                          |
+| ------------------------ | ------------------------------ |
+| `VITE_SUPABASE_URL`      | (from Supabase Settings > API) |
 | `VITE_SUPABASE_ANON_KEY` | (from Supabase Settings > API) |
 
 Click **Save**
@@ -323,14 +324,15 @@ In Supabase Dashboard:
 
 Add these records:
 
-| Type | Name | Value |
-|------|------|-------|
-| A | @ | `76.76.21.21` (Vercel IP) |
-| CNAME | www | `cname.vercel-dns.com` |
+| Type  | Name | Value                     |
+| ----- | ---- | ------------------------- |
+| A     | @    | `76.76.21.21` (Vercel IP) |
+| CNAME | www  | `cname.vercel-dns.com`    |
 
 ### Step 5.3: Update All URLs
 
 Update in:
+
 - [ ] Supabase Redirect URLs
 - [ ] Google OAuth Authorized URIs
 - [ ] Render CORS config
@@ -383,14 +385,17 @@ Update in:
 ### Set Up Monitoring
 
 #### Vercel Analytics
+
 1. Vercel Dashboard > Analytics (Pro feature, $20/month)
 2. Track page views, performance, etc.
 
 #### Render Metrics
+
 1. Render Dashboard > Metrics
 2. Monitor CPU, memory, response times
 
 #### Supabase Dashboard
+
 1. Database > Usage
 2. Watch for approaching free tier limits:
    - 500 MB database
@@ -407,10 +412,10 @@ npm install @sentry/react
 
 ```typescript
 // index.tsx
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react';
 
 Sentry.init({
-  dsn: "your-sentry-dsn",
+  dsn: 'your-sentry-dsn',
   environment: import.meta.env.PROD ? 'production' : 'development',
 });
 ```
@@ -434,6 +439,7 @@ Sentry.init({
 #### Supabase Free Tier Limits
 
 Upgrade when you hit:
+
 - **Database**: 500 MB (Pro: $25/mo for 8 GB)
 - **Storage**: 1 GB (Pro: unlimited)
 - **Bandwidth**: 2 GB/month (Pro: 50 GB)
@@ -468,25 +474,31 @@ Upgrade when you hit:
 ## Troubleshooting
 
 ### Issue: "OAuth redirect mismatch"
+
 **Cause**: Google OAuth redirect URL doesn't match Supabase callback
 **Fix**: Verify exact URL in Google Console matches Supabase
 
 ### Issue: "CORS error in production"
+
 **Cause**: Frontend URL not in Render backend's CORS allowlist
 **Fix**: Update `server/index.js` CORS config, redeploy
 
 ### Issue: "Supabase RLS blocking queries"
+
 **Cause**: User not authenticated or wrong user_id
 **Fix**: Check auth state, verify RLS policies in Supabase SQL Editor
 
 ### Issue: "Render backend sleeping (500 error)"
+
 **Cause**: Free tier sleeps after 15 min
 **Fix**: Upgrade to Starter plan, or use a cron job to keep alive:
+
 ```bash
 # Use cron-job.org to ping https://your-api.onrender.com every 10 min
 ```
 
 ### Issue: "Environment variables not loading"
+
 **Cause**: Vercel needs redeploy after adding env vars
 **Fix**: Trigger redeploy in Vercel Dashboard
 
@@ -497,10 +509,12 @@ Upgrade when you hit:
 If deployment fails:
 
 1. **Revert Git Commit**:
+
    ```bash
    git revert HEAD
    git push
    ```
+
    Vercel and Render auto-redeploy previous version
 
 2. **Rollback in Vercel**:
@@ -518,23 +532,24 @@ If deployment fails:
 
 ### Free Tier (Current)
 
-| Service | Cost | Limits |
-|---------|------|--------|
-| Vercel | $0 | 100 GB bandwidth |
-| Render | $0 | Sleeps after 15 min |
-| Supabase | $0 | 500 MB DB, 50k users |
-| **Total** | **$0/month** | Good for <1k users |
+| Service   | Cost         | Limits               |
+| --------- | ------------ | -------------------- |
+| Vercel    | $0           | 100 GB bandwidth     |
+| Render    | $0           | Sleeps after 15 min  |
+| Supabase  | $0           | 500 MB DB, 50k users |
+| **Total** | **$0/month** | Good for <1k users   |
 
 ### Recommended Upgrade ($32/month)
 
-| Service | Plan | Cost |
-|---------|------|------|
-| Vercel | Free | $0 |
-| Render | Starter | $7 |
-| Supabase | Pro | $25 |
-| **Total** | | **$32/month** |
+| Service   | Plan    | Cost          |
+| --------- | ------- | ------------- |
+| Vercel    | Free    | $0            |
+| Render    | Starter | $7            |
+| Supabase  | Pro     | $25           |
+| **Total** |         | **$32/month** |
 
 Benefits:
+
 - 24/7 uptime (Render)
 - 8 GB database (Supabase)
 - Auto-backups (Supabase)
@@ -568,6 +583,7 @@ Benefits:
 ---
 
 **Need Help?**
+
 - Vercel Docs: https://vercel.com/docs
 - Render Docs: https://render.com/docs
 - Supabase Docs: https://supabase.com/docs
