@@ -11,6 +11,7 @@
 The SemesterFlow backend is an Express.js server that provides AI-powered features via the Gemini API. It acts as a secure proxy to keep API keys server-side and handle rate limiting.
 
 **Tech Stack**:
+
 - Express.js 4.x
 - Google Generative AI SDK
 - CORS enabled for frontend
@@ -33,11 +34,13 @@ The SemesterFlow backend is an Express.js server that provides AI-powered featur
 **Purpose**: AI chatbot conversation with context awareness
 
 **Headers**:
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body**:
+
 ```json
 {
   "message": "What's my next exam?",
@@ -57,11 +60,11 @@ Content-Type: application/json
 
 **Request Parameters**:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `message` | string | Yes | User's current message |
-| `history` | array | No | Previous chat messages for context |
-| `systemInstruction` | string | Yes | System prompt with user data context |
+| Field               | Type   | Required | Description                          |
+| ------------------- | ------ | -------- | ------------------------------------ |
+| `message`           | string | Yes      | User's current message               |
+| `history`           | array  | No       | Previous chat messages for context   |
+| `systemInstruction` | string | Yes      | System prompt with user data context |
 
 **Response**: Server-Sent Events (SSE) stream
 
@@ -82,12 +85,14 @@ data: [DONE]
 ```
 
 **Response Format**:
+
 - **Content-Type**: `text/event-stream`
 - Each chunk is prefixed with `data: `
 - Streaming continues until `[DONE]` marker
 - Frontend concatenates chunks to build full response
 
 **Example Usage** (Frontend):
+
 ```typescript
 const response = await fetch('http://localhost:3000/api/chat', {
   method: 'POST',
@@ -95,8 +100,8 @@ const response = await fetch('http://localhost:3000/api/chat', {
   body: JSON.stringify({
     message: userText,
     history: chatHistory,
-    systemInstruction: systemPrompt
-  })
+    systemInstruction: systemPrompt,
+  }),
 });
 
 const reader = response.body.getReader();
@@ -126,6 +131,7 @@ while (true) {
 ```
 
 **Error Responses**:
+
 ```json
 {
   "error": "Message is required"
@@ -133,6 +139,7 @@ while (true) {
 ```
 
 **Status Codes**:
+
 - `200 OK` - Streaming started successfully
 - `400 Bad Request` - Missing or invalid parameters
 - `500 Internal Server Error` - Gemini API error
@@ -144,11 +151,13 @@ while (true) {
 **Purpose**: Generate personalized daily study plan using AI
 
 **Headers**:
+
 ```
 Content-Type: application/json
 ```
 
 **Request Body**:
+
 ```json
 {
   "contextData": {
@@ -180,15 +189,16 @@ Content-Type: application/json
 
 **Request Parameters**:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `contextData.currentDate` | string | Yes | Today's date |
-| `contextData.availableHours` | number | Yes | Hours available to study today |
-| `contextData.userFocusRequest` | string | No | Specific topic to focus on |
-| `contextData.courses` | array | Yes | User's courses with progress |
-| `contextData.assignments` | array | Yes | Upcoming assignments |
+| Field                          | Type   | Required | Description                    |
+| ------------------------------ | ------ | -------- | ------------------------------ |
+| `contextData.currentDate`      | string | Yes      | Today's date                   |
+| `contextData.availableHours`   | number | Yes      | Hours available to study today |
+| `contextData.userFocusRequest` | string | No       | Specific topic to focus on     |
+| `contextData.courses`          | array  | Yes      | User's courses with progress   |
+| `contextData.assignments`      | array  | Yes      | Upcoming assignments           |
 
 **Response** (JSON):
+
 ```json
 {
   "date": "12/1/2025",
@@ -225,20 +235,21 @@ Content-Type: application/json
 
 **Response Fields**:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `date` | string | Date this plan is for |
-| `summary` | string | Overall strategy for the day |
-| `sessions` | array | List of planned study sessions |
-| `sessions[].id` | string | Unique session ID |
-| `sessions[].courseId` | string | Related course |
-| `sessions[].activity` | string | What to study |
-| `sessions[].durationMinutes` | number | Suggested duration |
-| `sessions[].priority` | string | HIGH \| MEDIUM \| LOW |
-| `sessions[].reasoning` | string | Why AI suggests this |
-| `totalMinutes` | number | Sum of all session durations |
+| Field                        | Type   | Description                    |
+| ---------------------------- | ------ | ------------------------------ |
+| `date`                       | string | Date this plan is for          |
+| `summary`                    | string | Overall strategy for the day   |
+| `sessions`                   | array  | List of planned study sessions |
+| `sessions[].id`              | string | Unique session ID              |
+| `sessions[].courseId`        | string | Related course                 |
+| `sessions[].activity`        | string | What to study                  |
+| `sessions[].durationMinutes` | number | Suggested duration             |
+| `sessions[].priority`        | string | HIGH \| MEDIUM \| LOW          |
+| `sessions[].reasoning`       | string | Why AI suggests this           |
+| `totalMinutes`               | number | Sum of all session durations   |
 
 **Error Responses**:
+
 ```json
 {
   "error": "contextData is required"
@@ -246,6 +257,7 @@ Content-Type: application/json
 ```
 
 **Status Codes**:
+
 - `200 OK` - Plan generated successfully
 - `400 Bad Request` - Missing contextData
 - `500 Internal Server Error` - Gemini API error
@@ -259,6 +271,7 @@ Content-Type: application/json
 **Status**: ⚠️ Schema defined, endpoint exists, but **not yet implemented**
 
 **Planned Request**:
+
 ```json
 {
   "assignmentId": "uuid",
@@ -271,6 +284,7 @@ Content-Type: application/json
 ```
 
 **Planned Response**:
+
 ```json
 {
   "score": 85,
@@ -295,20 +309,23 @@ Content-Type: application/json
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
 });
 ```
 
 **Limits**:
+
 - 100 requests per 15 minutes per IP address
 - Applies to all endpoints
 
 **Exceeding Limit**:
+
 ```json
 {
   "error": "Too many requests from this IP, please try again later."
 }
 ```
+
 **Status Code**: `429 Too Many Requests`
 
 ---
@@ -316,19 +333,21 @@ const limiter = rateLimit({
 ## CORS Configuration
 
 **Allowed Origins** (Development):
+
 ```javascript
 const corsOptions = {
   origin: 'http://localhost:5173', // Vite dev server
-  credentials: true
+  credentials: true,
 };
 ```
 
 **Allowed Origins** (Production):
 Update `server/index.js` to include production frontend URL:
+
 ```javascript
 const corsOptions = {
   origin: ['https://your-domain.com', 'http://localhost:5173'],
-  credentials: true
+  credentials: true,
 };
 ```
 
@@ -339,6 +358,7 @@ const corsOptions = {
 ### Standard Error Response
 
 All errors return this format:
+
 ```json
 {
   "error": "Human-readable error message"
@@ -347,13 +367,13 @@ All errors return this format:
 
 ### Common Errors
 
-| Status | Error | Cause |
-|--------|-------|-------|
-| 400 | "Message is required" | Missing `message` in /api/chat |
-| 400 | "contextData is required" | Missing `contextData` in /api/plan |
-| 429 | "Too many requests..." | Rate limit exceeded |
-| 500 | "Internal server error" | Gemini API failure |
-| 501 | "Not implemented" | Endpoint not ready (e.g., /api/grade) |
+| Status | Error                     | Cause                                 |
+| ------ | ------------------------- | ------------------------------------- |
+| 400    | "Message is required"     | Missing `message` in /api/chat        |
+| 400    | "contextData is required" | Missing `contextData` in /api/plan    |
+| 429    | "Too many requests..."    | Rate limit exceeded                   |
+| 500    | "Internal server error"   | Gemini API failure                    |
+| 501    | "Not implemented"         | Endpoint not ready (e.g., /api/grade) |
 
 ---
 
@@ -386,6 +406,7 @@ npm start
 ```
 
 **Output**:
+
 ```
 Server running on http://localhost:3000
 Rate limiting enabled: 100 requests per 15 minutes
@@ -394,6 +415,7 @@ Rate limiting enabled: 100 requests per 15 minutes
 ### Testing Endpoints
 
 #### Using curl
+
 ```bash
 # Test chat endpoint
 curl -X POST http://localhost:3000/api/chat \
@@ -417,6 +439,7 @@ curl -X POST http://localhost:3000/api/plan \
 ```
 
 #### Using Postman
+
 1. Set method to POST
 2. URL: `http://localhost:3000/api/chat`
 3. Headers: `Content-Type: application/json`
@@ -439,10 +462,12 @@ NODE_ENV=production
 ### CORS Update
 
 Update `server/index.js`:
+
 ```javascript
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://your-frontend-domain.com']
-  : ['http://localhost:5173'];
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? ['https://your-frontend-domain.com']
+    : ['http://localhost:5173'];
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 ```
@@ -452,6 +477,7 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 **GET /**
 
 Returns server status:
+
 ```json
 {
   "status": "ok",
@@ -494,18 +520,22 @@ Use this for monitoring and health checks.
 ## Troubleshooting
 
 ### "CORS error"
+
 **Cause**: Frontend URL not in allowed origins
 **Fix**: Update CORS config in `server/index.js`
 
 ### "Gemini API error"
+
 **Cause**: Invalid API key or quota exceeded
 **Fix**: Check `.env` file, verify key at https://aistudio.google.com
 
 ### "Too many requests"
+
 **Cause**: Rate limit exceeded
 **Fix**: Wait 15 minutes or increase limit in `server/middleware/rateLimiter.js`
 
 ### "Connection refused"
+
 **Cause**: Server not running
 **Fix**: Run `npm start` in `server/` directory
 

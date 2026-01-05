@@ -25,16 +25,16 @@ const TRUSTED_DOMAINS = [
 
 // Suspicious patterns that might indicate malicious links
 const SUSPICIOUS_PATTERNS = [
-  /bit\.ly/i,           // URL shorteners (can hide destination)
+  /bit\.ly/i, // URL shorteners (can hide destination)
   /tinyurl/i,
   /goo\.gl/i,
   /ow\.ly/i,
   /t\.co/i,
-  /<script/i,           // Script injection attempts
-  /javascript:/i,       // JavaScript protocol
-  /data:/i,             // Data URLs
-  /file:/i,             // Local file protocol
-  /\.exe$/i,            // Executable files
+  /<script/i, // Script injection attempts
+  /javascript:/i, // JavaScript protocol
+  /data:/i, // Data URLs
+  /file:/i, // Local file protocol
+  /\.exe$/i, // Executable files
   /\.bat$/i,
   /\.cmd$/i,
   /\.scr$/i,
@@ -82,28 +82,29 @@ export const validateAttachmentUrl = (input: string): ValidationResult => {
     if (pattern.test(trimmed)) {
       return {
         isValid: false,
-        error: 'This URL contains suspicious patterns. Please use direct links from trusted services.'
+        error:
+          'This URL contains suspicious patterns. Please use direct links from trusted services.',
       };
     }
   }
 
   // Check if domain is trusted
   const hostname = url.hostname.toLowerCase();
-  const isTrusted = TRUSTED_DOMAINS.some(domain => {
+  const isTrusted = TRUSTED_DOMAINS.some((domain) => {
     return hostname === domain || hostname.endsWith('.' + domain);
   });
 
   if (!isTrusted) {
     return {
       isValid: false,
-      error: `Domain "${hostname}" is not in the trusted list. Please use Dropbox, OneDrive, or other supported services.`
+      error: `Domain "${hostname}" is not in the trusted list. Please use Dropbox, OneDrive, or other supported services.`,
     };
   }
 
   // All checks passed!
   return {
     isValid: true,
-    url: trimmed
+    url: trimmed,
   };
 };
 

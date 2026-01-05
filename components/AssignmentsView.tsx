@@ -1,5 +1,20 @@
 import React, { useState, useRef } from 'react';
-import { CalendarCheck, Plus, Trash2, CheckCircle, Circle, AlertCircle, Clock, X, BrainCircuit, Upload, Loader2, FileText, ExternalLink, Download } from 'lucide-react';
+import {
+  CalendarCheck,
+  Plus,
+  Trash2,
+  CheckCircle,
+  Circle,
+  AlertCircle,
+  Clock,
+  X,
+  BrainCircuit,
+  Upload,
+  Loader2,
+  FileText,
+  ExternalLink,
+  Download,
+} from 'lucide-react';
 import { Assignment, AssignmentStatus, Course, AttachmentLink, FileAttachment } from '../types';
 import { useAssignments } from '../hooks/useAssignments';
 import { useCourses } from '../hooks/useCourses';
@@ -30,7 +45,14 @@ const formatDateTimeLocal = (dateString: string | undefined): string => {
 };
 
 export const AssignmentsView = () => {
-  const { assignments, addAssignment, updateAssignment, deleteAssignment, toggleAssignmentStatus, loading } = useAssignments();
+  const {
+    assignments,
+    addAssignment,
+    updateAssignment,
+    deleteAssignment,
+    toggleAssignmentStatus,
+    loading,
+  } = useAssignments();
   const { courses } = useCourses();
   const { user } = useAuth();
   const { addToast } = useToast();
@@ -41,7 +63,7 @@ export const AssignmentsView = () => {
     estimatedHours: 5,
     status: AssignmentStatus.NOT_STARTED,
     attachments: [],
-    files: []
+    files: [],
   });
 
   // AI Grader State
@@ -62,7 +84,9 @@ export const AssignmentsView = () => {
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">Assignment Manager</h2>
+          <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">
+            Assignment Manager
+          </h2>
         </div>
         <SkeletonList count={5} />
       </div>
@@ -98,7 +122,7 @@ export const AssignmentsView = () => {
         notes: '',
         attachments: newAssignment.attachments || [],
         files: [], // Start empty - will add after upload
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       // Create assignment and get the DB-generated ID
@@ -111,17 +135,23 @@ export const AssignmentsView = () => {
         const assignmentWithFiles: Assignment = {
           ...assignment,
           id: dbId,
-          files: newAssignment.files
+          files: newAssignment.files,
         };
         await updateAssignment(assignmentWithFiles);
       }
 
       setIsModalOpen(false);
-      setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED, attachments: [], files: [] });
+      setNewAssignment({
+        name: '',
+        estimatedHours: 5,
+        status: AssignmentStatus.NOT_STARTED,
+        attachments: [],
+        files: [],
+      });
       setPendingAssignmentId('');
       addToast({ type: 'success', message: 'Assignment created successfully!' });
     } catch (error) {
-      console.error("Failed to create assignment:", error);
+      console.error('Failed to create assignment:', error);
       addToast({ type: 'error', message: 'Failed to create assignment. Please try again.' });
     } finally {
       setIsSubmitting(false);
@@ -136,11 +166,20 @@ export const AssignmentsView = () => {
 
   const closeCreateModal = () => {
     setIsModalOpen(false);
-    setNewAssignment({ name: '', estimatedHours: 5, status: AssignmentStatus.NOT_STARTED, attachments: [], files: [] });
+    setNewAssignment({
+      name: '',
+      estimatedHours: 5,
+      status: AssignmentStatus.NOT_STARTED,
+      attachments: [],
+      files: [],
+    });
     setPendingAssignmentId('');
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'question' | 'answer') => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    target: 'question' | 'answer'
+  ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -150,10 +189,13 @@ export const AssignmentsView = () => {
     try {
       let extractedText = '';
       if (file.type === 'application/pdf') {
-        // @ts-ignore 
+        // @ts-ignore
         const pdfjsLib = window.pdfjsLib;
         if (!pdfjsLib) {
-          addToast({ type: 'error', message: 'PDF processing library not loaded. Please refresh.' });
+          addToast({
+            type: 'error',
+            message: 'PDF processing library not loaded. Please refresh.',
+          });
           setIsProcessingFile(false);
           return;
         }
@@ -173,9 +215,9 @@ export const AssignmentsView = () => {
       }
 
       if (target === 'question') {
-        setQuestionContext(prev => prev + extractedText);
+        setQuestionContext((prev) => prev + extractedText);
       } else {
-        setStudentAnswer(prev => prev + extractedText);
+        setStudentAnswer((prev) => prev + extractedText);
       }
     } catch (error) {
       console.error('Error processing file:', error);
@@ -188,7 +230,10 @@ export const AssignmentsView = () => {
 
   const handleAnalyzeAssignment = async () => {
     if (!questionContext.trim() || !studentAnswer.trim()) {
-      addToast({ type: 'info', message: 'Please provide both the assignment question and your answer.' });
+      addToast({
+        type: 'info',
+        message: 'Please provide both the assignment question and your answer.',
+      });
       return;
     }
     setIsAnalyzing(true);
@@ -199,8 +244,8 @@ export const AssignmentsView = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           questionContext,
-          studentAnswer
-        })
+          studentAnswer,
+        }),
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -208,8 +253,10 @@ export const AssignmentsView = () => {
       const data = await response.json();
       setFeedback(data.feedback || 'No feedback received.');
     } catch (error) {
-      console.error("Grading error:", error);
-      setFeedback("Sorry, I encountered an error while grading. Please try again and ensure the backend is running.");
+      console.error('Grading error:', error);
+      setFeedback(
+        'Sorry, I encountered an error while grading. Please try again and ensure the backend is running.'
+      );
     } finally {
       setIsAnalyzing(false);
     }
@@ -225,7 +272,9 @@ export const AssignmentsView = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">Assignment Manager</h2>
+        <h2 className="text-3xl font-black text-white font-mono uppercase tracking-tight">
+          Assignment Manager
+        </h2>
         <button
           onClick={openCreateModal}
           className="retro-btn bg-indigo-600 text-white px-4 py-2 rounded-none text-sm font-bold hover:bg-indigo-500 flex items-center gap-2 transition-colors"
@@ -267,52 +316,73 @@ export const AssignmentsView = () => {
                     if (!b.dueDate) return -1;
                     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
                   })
-                  .map(assignment => {
-                    const course = courses.find(c => c.id === assignment.courseId);
+                  .map((assignment) => {
+                    const course = courses.find((c) => c.id === assignment.courseId);
                     const isCompleted = assignment.status === AssignmentStatus.COMPLETED;
-                    const dueDateObj = assignment.dueDate ? new Date(assignment.dueDate) : undefined;
+                    const dueDateObj = assignment.dueDate
+                      ? new Date(assignment.dueDate)
+                      : undefined;
                     const startDateObj = dueDateObj ? new Date(dueDateObj) : undefined;
                     if (startDateObj) startDateObj.setHours(startDateObj.getHours() - 1);
 
                     return (
-                      <tr key={assignment.id} className={`border-b-2 border-black hover:bg-gray-800 transition-colors group ${isCompleted ? 'bg-gray-800/50' : 'bg-gray-900'}`}>
+                      <tr
+                        key={assignment.id}
+                        className={`border-b-2 border-black hover:bg-gray-800 transition-colors group ${isCompleted ? 'bg-gray-800/50' : 'bg-gray-900'}`}
+                      >
                         <td className="p-4 border-r-2 border-black">
                           <button
                             onClick={() => toggleAssignmentStatus(assignment.id)}
-                            className={`flex items-center gap-2 px-3 py-1 text-[10px] font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${isCompleted
-                              ? 'bg-green-500 text-black'
-                              : assignment.status === AssignmentStatus.IN_PROGRESS
-                                ? 'bg-yellow-400 text-black'
-                                : 'bg-gray-700 text-white'
-                              }`}
+                            className={`flex items-center gap-2 px-3 py-1 text-[10px] font-bold border-2 border-black shadow-[2px_2px_0px_0px_#000] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${
+                              isCompleted
+                                ? 'bg-green-500 text-black'
+                                : assignment.status === AssignmentStatus.IN_PROGRESS
+                                  ? 'bg-yellow-400 text-black'
+                                  : 'bg-gray-700 text-white'
+                            }`}
                           >
-                            {isCompleted ? <CheckCircle className="w-3 h-3" /> : <div className="w-3 h-3 bg-black"></div>}
+                            {isCompleted ? (
+                              <CheckCircle className="w-3 h-3" />
+                            ) : (
+                              <div className="w-3 h-3 bg-black"></div>
+                            )}
                             {assignment.status.replace('_', ' ')}
                           </button>
                         </td>
                         <td className="p-4 border-r-2 border-black font-bold text-white">
                           <div className="flex items-center gap-2">
-                            <span className={isCompleted ? 'line-through text-gray-500' : ''}>{assignment.name}</span>
-                            {((assignment.attachments && assignment.attachments.length > 0) || (assignment.files && assignment.files.length > 0)) && (
+                            <span className={isCompleted ? 'line-through text-gray-500' : ''}>
+                              {assignment.name}
+                            </span>
+                            {((assignment.attachments && assignment.attachments.length > 0) ||
+                              (assignment.files && assignment.files.length > 0)) && (
                               <button
                                 onClick={() => setViewAttachmentsFor(assignment)}
                                 className="text-xs bg-indigo-600 text-white px-2 py-0.5 border border-black font-bold hover:bg-indigo-500 cursor-pointer"
                                 title="View attachments & files"
                               >
-                                {(assignment.attachments?.length || 0) + (assignment.files?.length || 0)} 📎
+                                {(assignment.attachments?.length || 0) +
+                                  (assignment.files?.length || 0)}{' '}
+                                📎
                               </button>
                             )}
                           </div>
                         </td>
                         <td className="p-4 border-r-2 border-black">
-                          <span className={`px-2 py-1 text-[10px] font-bold border border-black shadow-[2px_2px_0px_0px_#000] uppercase ${course?.bg} ${course?.text?.replace('700', '900') || 'text-black'}`}>
+                          <span
+                            className={`px-2 py-1 text-[10px] font-bold border border-black shadow-[2px_2px_0px_0px_#000] uppercase ${course?.bg} ${course?.text?.replace('700', '900') || 'text-black'}`}
+                          >
                             {course?.name || 'Unknown'}
                           </span>
                         </td>
                         <td className="p-4 border-r-2 border-black text-gray-400">
-                          {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : 'No Due Date'}
+                          {assignment.dueDate
+                            ? new Date(assignment.dueDate).toLocaleDateString()
+                            : 'No Due Date'}
                         </td>
-                        <td className="p-4 border-r-2 border-black text-gray-400">{assignment.estimatedHours}H</td>
+                        <td className="p-4 border-r-2 border-black text-gray-400">
+                          {assignment.estimatedHours}H
+                        </td>
                         <td className="p-4">
                           <div className="flex items-center gap-2">
                             <button
@@ -334,7 +404,10 @@ export const AssignmentsView = () => {
                                   iconClass="w-4 h-4"
                                 />
                               ) : (
-                                <div className="p-1.5 text-gray-400 w-full h-full flex items-center justify-center cursor-not-allowed" title="No due date">
+                                <div
+                                  className="p-1.5 text-gray-400 w-full h-full flex items-center justify-center cursor-not-allowed"
+                                  title="No due date"
+                                >
                                   <Clock className="w-4 h-4" />
                                 </div>
                               )}
@@ -364,63 +437,84 @@ export const AssignmentsView = () => {
           <div className="retro-card w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden animate-fade-in-up border-2 border-white shadow-[8px_8px_0px_0px_#fff]">
             <div className="p-4 border-b-2 border-black flex justify-between items-center bg-gray-800 flex-shrink-0">
               <h3 className="font-black text-white font-mono uppercase">Add New Assignment</h3>
-              <button onClick={closeCreateModal} className="text-gray-400 hover:text-white hover:rotate-90 transition-transform">
+              <button
+                onClick={closeCreateModal}
+                className="text-gray-400 hover:text-white hover:rotate-90 transition-transform"
+              >
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-gray-900 overflow-y-auto flex-1">
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-4 bg-gray-900 overflow-y-auto flex-1"
+            >
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Description / Name</label>
+                <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">
+                  Description / Name
+                </label>
                 <input
                   type="text"
                   required
                   className="retro-input w-full p-3 font-mono text-sm"
                   placeholder="e.g., Maman 14"
                   value={newAssignment.name}
-                  onChange={e => setNewAssignment({ ...newAssignment, name: e.target.value })}
+                  onChange={(e) => setNewAssignment({ ...newAssignment, name: e.target.value })}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Course</label>
+                <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">
+                  Course
+                </label>
                 <select
                   required
                   className="retro-input w-full p-3 font-mono text-sm"
                   value={newAssignment.courseId || ''}
-                  onChange={e => setNewAssignment({ ...newAssignment, courseId: e.target.value })}
+                  onChange={(e) => setNewAssignment({ ...newAssignment, courseId: e.target.value })}
                 >
                   <option value="">SELECT COURSE</option>
-                  {courses.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                  {courses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Due Date</label>
+                  <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">
+                    Due Date
+                  </label>
                   <input
                     type="datetime-local"
                     className="retro-input w-full p-3 font-mono text-sm"
                     value={formatDateTimeLocal(newAssignment.dueDate)}
-                    onInvalid={e => e.preventDefault()}
-                    onChange={e => {
+                    onInvalid={(e) => e.preventDefault()}
+                    onChange={(e) => {
                       const value = e.target.value;
                       setNewAssignment({
                         ...newAssignment,
-                        dueDate: value ? new Date(value).toISOString() : undefined
+                        dueDate: value ? new Date(value).toISOString() : undefined,
                       });
                     }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">Est. Hours</label>
+                  <label className="block text-xs font-bold text-gray-400 mb-1 font-mono uppercase">
+                    Est. Hours
+                  </label>
                   <input
                     type="number"
                     min="1"
                     className="retro-input w-full p-3 font-mono text-sm"
                     value={newAssignment.estimatedHours}
-                    onChange={e => setNewAssignment({ ...newAssignment, estimatedHours: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setNewAssignment({
+                        ...newAssignment,
+                        estimatedHours: parseInt(e.target.value),
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -429,7 +523,9 @@ export const AssignmentsView = () => {
               <div>
                 <AttachmentLinks
                   attachments={newAssignment.attachments || []}
-                  onAttachmentsChange={(attachments) => setNewAssignment({ ...newAssignment, attachments })}
+                  onAttachmentsChange={(attachments) =>
+                    setNewAssignment({ ...newAssignment, attachments })
+                  }
                   maxAttachments={10}
                 />
               </div>
@@ -481,7 +577,10 @@ export const AssignmentsView = () => {
                   <p className="text-xs text-gray-400 font-mono">TARGET: {reviewAssignment.name}</p>
                 </div>
               </div>
-              <button onClick={closeReviewModal} className="text-gray-400 hover:text-white hover:rotate-90 transition-transform">
+              <button
+                onClick={closeReviewModal}
+                className="text-gray-400 hover:text-white hover:rotate-90 transition-transform"
+              >
                 <X className="w-8 h-8" />
               </button>
             </div>
@@ -577,14 +676,22 @@ export const AssignmentsView = () => {
             {!feedback && (
               <div className="p-4 border-t-2 border-black bg-gray-800 flex justify-between items-center">
                 <div className="text-xs text-gray-500 font-mono">
-                  {isProcessingFile && <span className="flex items-center gap-1 text-indigo-400"><Loader2 className="w-3 h-3 animate-spin" /> PROCESSING DATA...</span>}
+                  {isProcessingFile && (
+                    <span className="flex items-center gap-1 text-indigo-400">
+                      <Loader2 className="w-3 h-3 animate-spin" /> PROCESSING DATA...
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={handleAnalyzeAssignment}
                   disabled={isAnalyzing || isProcessingFile}
                   className="retro-btn px-6 py-3 bg-white text-black border-2 border-black font-black uppercase hover:bg-gray-200 disabled:opacity-50 disabled:shadow-none disabled:translate-x-[2px] disabled:translate-y-[2px] flex items-center gap-2"
                 >
-                  {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <BrainCircuit className="w-5 h-5" />}
+                  {isAnalyzing ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <BrainCircuit className="w-5 h-5" />
+                  )}
                   {isAnalyzing ? 'ANALYZING...' : 'RUN ANALYSIS'}
                 </button>
               </div>
@@ -631,7 +738,8 @@ export const AssignmentsView = () => {
                                 {file.name}
                               </p>
                               <p className="text-gray-500 text-xs font-mono">
-                                {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
+                                {formatFileSize(file.size)} •{' '}
+                                {new Date(file.uploadedAt).toLocaleDateString()}
                               </p>
                             </div>
                           </div>

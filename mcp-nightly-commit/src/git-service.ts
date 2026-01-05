@@ -86,7 +86,6 @@ export class GitCommitService {
         commitHash: commitResult.commit,
         message: `Successfully committed: ${commitMessage}`,
       };
-
     } catch (error) {
       return {
         success: false,
@@ -100,7 +99,7 @@ export class GitCommitService {
     try {
       // Check if package.json exists and has scripts
       const packageJsonPath = path.join(process.cwd(), 'package.json');
-      
+
       try {
         const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
         const scripts = packageJson.scripts || {};
@@ -145,13 +144,11 @@ export class GitCommitService {
         }
 
         return true;
-
       } catch (error) {
         // No package.json or invalid JSON, assume validation passed
         console.warn('Could not read package.json, skipping script-based validation');
         return true;
       }
-
     } catch (error) {
       console.error('Validation error:', error);
       return false;
@@ -161,20 +158,20 @@ export class GitCommitService {
   private generateCommitMessage(status: any): string {
     const now = new Date();
     const timestamp = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-    
+
     const fileCount = status.files.length;
     const modifiedFiles = status.files.filter((f: any) => f.working_dir === 'M').length;
     const newFiles = status.files.filter((f: any) => f.working_dir === '?').length;
     const deletedFiles = status.files.filter((f: any) => f.working_dir === 'D').length;
 
     let summary = `Nightly commit ${timestamp}`;
-    
+
     if (fileCount > 0) {
       const changes = [];
       if (newFiles > 0) changes.push(`${newFiles} new`);
       if (modifiedFiles > 0) changes.push(`${modifiedFiles} modified`);
       if (deletedFiles > 0) changes.push(`${deletedFiles} deleted`);
-      
+
       summary += ` - ${changes.join(', ')} files`;
     }
 
@@ -191,21 +188,25 @@ export class GitCommitService {
 
       if (options.enabled) {
         const cronTime = options.cronTime || '0 22 * * *'; // 10 PM daily
-        
+
         // Validate cron expression
         if (!cron.validate(cronTime)) {
           throw new Error(`Invalid cron expression: ${cronTime}`);
         }
 
         // Create scheduled task
-        this.scheduledTask = cron.schedule(cronTime, async () => {
-          console.log('Running nightly commit...');
-          const result = await this.checkAndCommit({ validate: true });
-          console.log('Nightly commit result:', result);
-        }, {
-          scheduled: false, // Don't start immediately
-          timezone: 'America/New_York' // Adjust timezone as needed
-        });
+        this.scheduledTask = cron.schedule(
+          cronTime,
+          async () => {
+            console.log('Running nightly commit...');
+            const result = await this.checkAndCommit({ validate: true });
+            console.log('Nightly commit result:', result);
+          },
+          {
+            scheduled: false, // Don't start immediately
+            timezone: 'America/New_York', // Adjust timezone as needed
+          }
+        );
 
         this.scheduledTask.start();
 
@@ -250,7 +251,7 @@ export class GitCommitService {
     try {
       const configData = await fs.readFile(this.configPath, 'utf-8');
       const config = JSON.parse(configData);
-      
+
       if (config.enabled && config.cronTime) {
         await this.setSchedule({
           enabled: true,

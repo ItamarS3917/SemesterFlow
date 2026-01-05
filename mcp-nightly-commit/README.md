@@ -85,11 +85,11 @@ node dist/scheduler.js
 1. **Change Detection**: Uses `simple-git` to check for uncommitted changes
 2. **Validation Pipeline**:
    - Runs `npm run lint` if available
-   - Runs `npm run typecheck` if available  
+   - Runs `npm run typecheck` if available
    - Runs `npm run test` if available
    - Runs `npm run build` if available
    - Falls back to `npx tsc --noEmit` for TypeScript projects
-3. **Smart Commits**: 
+3. **Smart Commits**:
    - Only commits if validation passes
    - Generates descriptive commit messages
    - Stages all changes automatically
@@ -108,8 +108,9 @@ The service creates a `.nightly-commit.json` config file in your project root:
 ## Validation Scripts
 
 The service looks for these npm scripts in `package.json`:
+
 - `lint` - Code linting
-- `typecheck` - Type checking  
+- `typecheck` - Type checking
 - `test` - Running tests
 - `build` - Building the project
 
@@ -118,6 +119,7 @@ If none exist, it tries `npx tsc --noEmit` for TypeScript projects.
 ## Commit Message Format
 
 Auto-generated messages follow this pattern:
+
 ```
 Nightly commit 2025-12-03 - 2 modified, 1 new files
 ```

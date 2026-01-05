@@ -1,14 +1,23 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, FileText, Loader2, Download, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
+import {
+  Upload,
+  X,
+  FileText,
+  Loader2,
+  Download,
+  Trash2,
+  AlertCircle,
+  CheckCircle,
+} from 'lucide-react';
 import { FileAttachment } from '../types';
-import { 
-  uploadFile, 
-  deleteFile, 
-  validateFile, 
-  formatFileSize, 
+import {
+  uploadFile,
+  deleteFile,
+  validateFile,
+  formatFileSize,
   getFileTypeIcon,
   ALLOWED_EXTENSIONS,
-  MAX_FILE_SIZE 
+  MAX_FILE_SIZE,
 } from '../services/storageService';
 
 interface FileUploadProps {
@@ -32,7 +41,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   files,
   onFilesChange,
   maxFiles = 5,
-  disabled = false
+  disabled = false,
 }) => {
   const [uploading, setUploading] = useState<UploadingFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
@@ -51,9 +60,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
 
     // Add files to uploading state
-    const uploadingFiles: UploadingFile[] = filesToUpload.map(file => ({
+    const uploadingFiles: UploadingFile[] = filesToUpload.map((file) => ({
       file,
-      progress: 0
+      progress: 0,
     }));
     setUploading(uploadingFiles);
 
@@ -62,37 +71,30 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
     for (let i = 0; i < filesToUpload.length; i++) {
       const file = filesToUpload[i];
-      
+
       // Validate first
       const validation = validateFile(file);
       if (!validation.valid) {
-        setUploading(prev => prev.map((u, idx) => 
-          idx === i ? { ...u, error: validation.error } : u
-        ));
+        setUploading((prev) =>
+          prev.map((u, idx) => (idx === i ? { ...u, error: validation.error } : u))
+        );
         continue;
       }
 
       // Upload with progress tracking
-      const result = await uploadFile(
-        uid,
-        assignmentId,
-        file,
-        (progress) => {
-          setUploading(prev => prev.map((u, idx) => 
-            idx === i ? { ...u, progress: progress.progress } : u
-          ));
-        }
-      );
+      const result = await uploadFile(uid, assignmentId, file, (progress) => {
+        setUploading((prev) =>
+          prev.map((u, idx) => (idx === i ? { ...u, progress: progress.progress } : u))
+        );
+      });
 
       if (result.success && result.attachment) {
         newFiles.push(result.attachment);
-        setUploading(prev => prev.map((u, idx) => 
-          idx === i ? { ...u, progress: 100 } : u
-        ));
+        setUploading((prev) => prev.map((u, idx) => (idx === i ? { ...u, progress: 100 } : u)));
       } else {
-        setUploading(prev => prev.map((u, idx) => 
-          idx === i ? { ...u, error: result.error || 'Upload failed' } : u
-        ));
+        setUploading((prev) =>
+          prev.map((u, idx) => (idx === i ? { ...u, error: result.error || 'Upload failed' } : u))
+        );
       }
     }
 
@@ -114,13 +116,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleDelete = async (fileToDelete: FileAttachment) => {
     const result = await deleteFile(fileToDelete.storagePath);
-    
+
     if (result.success) {
-      onFilesChange(files.filter(f => f.id !== fileToDelete.id));
+      onFilesChange(files.filter((f) => f.id !== fileToDelete.id));
     } else {
       alert('Failed to delete file: ' + result.error);
     }
-    
+
     setDeleteConfirm(null);
   };
 
@@ -158,7 +160,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           <FileText className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
           <div className="text-xs text-gray-400 font-mono">
             <p className="text-green-400 font-bold mb-1">Supabase Storage (1GB Free)</p>
-            <p>Max {MAX_FILE_SIZE / 1024 / 1024}MB per file • {ALLOWED_EXTENSIONS.slice(0, 6).join(', ')}...</p>
+            <p>
+              Max {MAX_FILE_SIZE / 1024 / 1024}MB per file •{' '}
+              {ALLOWED_EXTENSIONS.slice(0, 6).join(', ')}...
+            </p>
           </div>
         </div>
       </div>
@@ -172,20 +177,23 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           onClick={() => fileInputRef.current?.click()}
           className={`
             retro-card p-6 text-center cursor-pointer transition-all
-            ${dragOver 
-              ? 'border-green-400 bg-green-900/20' 
-              : 'border-gray-600 hover:border-green-500 bg-gray-800/50'
+            ${
+              dragOver
+                ? 'border-green-400 bg-green-900/20'
+                : 'border-gray-600 hover:border-green-500 bg-gray-800/50'
             }
           `}
         >
-          <Upload className={`w-8 h-8 mx-auto mb-2 ${dragOver ? 'text-green-400' : 'text-gray-500'}`} />
+          <Upload
+            className={`w-8 h-8 mx-auto mb-2 ${dragOver ? 'text-green-400' : 'text-gray-500'}`}
+          />
           <p className="text-sm text-gray-300 font-mono">
             {dragOver ? 'Drop files here' : 'Drag & drop files or click to browse'}
           </p>
           <p className="text-xs text-gray-500 font-mono mt-1">
             PDF, Images, Documents, Spreadsheets, ZIP
           </p>
-          
+
           <input
             ref={fileInputRef}
             type="file"
@@ -210,7 +218,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 ) : (
                   <Loader2 className="w-5 h-5 text-yellow-400 animate-spin flex-shrink-0" />
                 )}
-                
+
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-sm font-mono truncate">{item.file.name}</p>
                   {item.error ? (
@@ -218,7 +226,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   ) : (
                     <div className="mt-1">
                       <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-green-500 transition-all duration-300"
                           style={{ width: `${item.progress}%` }}
                         />
@@ -245,11 +253,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <span className="text-2xl">{getFileTypeIcon(file.type)}</span>
-                
+
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-mono font-bold truncate">
-                    {file.name}
-                  </p>
+                  <p className="text-white text-sm font-mono font-bold truncate">{file.name}</p>
                   <p className="text-gray-500 text-xs font-mono">
                     {formatFileSize(file.size)} • {new Date(file.uploadedAt).toLocaleDateString()}
                   </p>

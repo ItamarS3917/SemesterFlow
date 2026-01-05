@@ -1,6 +1,6 @@
-import { supabase } from "./supabase";
-import { Course, Assignment, StudySession, UserStats } from "../types";
-import { INITIAL_USER_STATS } from "../constants";
+import { supabase } from './supabase';
+import { Course, Assignment, StudySession, UserStats } from '../types';
+import { INITIAL_USER_STATS } from '../constants';
 
 // Helper to convert snake_case to camelCase
 const toCamelCase = (obj: any): any => {
@@ -24,7 +24,7 @@ const toSnakeCase = (obj: any): any => {
   }
   if (obj !== null && typeof obj === 'object') {
     return Object.keys(obj).reduce((acc, key) => {
-      const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      const snakeKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
       acc[snakeKey] = toSnakeCase(obj[key]);
       return acc;
     }, {} as any);
@@ -35,17 +35,14 @@ const toSnakeCase = (obj: any): any => {
 // ============ COURSES ============
 
 export const fetchCourses = async (uid: string): Promise<Course[]> => {
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('user_id', uid);
+  const { data, error } = await supabase.from('courses').select('*').eq('user_id', uid);
 
   if (error) {
     console.error('Error fetching courses:', error);
     throw error;
   }
 
-  return (data || []).map(row => ({
+  return (data || []).map((row) => ({
     id: row.id,
     name: row.name,
     color: row.color,
@@ -58,29 +55,27 @@ export const fetchCourses = async (uid: string): Promise<Course[]> => {
     completedAssignments: row.completed_assignments,
     nextExamDate: row.next_exam_date,
     knowledge: row.knowledge,
-    weakConcepts: row.weak_concepts
+    weakConcepts: row.weak_concepts,
   }));
 };
 
 export const addCourseToDB = async (uid: string, course: Course): Promise<void> => {
   const { id, ...rest } = course;
-  const { error } = await supabase
-    .from('courses')
-    .insert({
-      user_id: uid,
-      name: rest.name,
-      color: rest.color,
-      bg: rest.bg,
-      text: rest.text,
-      border: rest.border,
-      total_hours_target: rest.totalHoursTarget,
-      hours_completed: rest.hoursCompleted || 0,
-      total_assignments: rest.totalAssignments || 0,
-      completed_assignments: rest.completedAssignments || 0,
-      next_exam_date: rest.nextExamDate || null,
-      knowledge: rest.knowledge || '',
-      weak_concepts: rest.weakConcepts || []
-    });
+  const { error } = await supabase.from('courses').insert({
+    user_id: uid,
+    name: rest.name,
+    color: rest.color,
+    bg: rest.bg,
+    text: rest.text,
+    border: rest.border,
+    total_hours_target: rest.totalHoursTarget,
+    hours_completed: rest.hoursCompleted || 0,
+    total_assignments: rest.totalAssignments || 0,
+    completed_assignments: rest.completedAssignments || 0,
+    next_exam_date: rest.nextExamDate || null,
+    knowledge: rest.knowledge || '',
+    weak_concepts: rest.weakConcepts || [],
+  });
 
   if (error) {
     console.error('Error adding course:', error);
@@ -103,7 +98,7 @@ export const updateCourseInDB = async (uid: string, course: Course): Promise<voi
       completed_assignments: course.completedAssignments,
       next_exam_date: course.nextExamDate || null,
       knowledge: course.knowledge || '',
-      weak_concepts: course.weakConcepts || []
+      weak_concepts: course.weakConcepts || [],
     })
     .eq('id', course.id)
     .eq('user_id', uid);
@@ -115,11 +110,7 @@ export const updateCourseInDB = async (uid: string, course: Course): Promise<voi
 };
 
 export const deleteCourseFromDB = async (uid: string, courseId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('courses')
-    .delete()
-    .eq('id', courseId)
-    .eq('user_id', uid);
+  const { error } = await supabase.from('courses').delete().eq('id', courseId).eq('user_id', uid);
 
   if (error) {
     console.error('Error deleting course:', error);
@@ -130,17 +121,14 @@ export const deleteCourseFromDB = async (uid: string, courseId: string): Promise
 // ============ ASSIGNMENTS ============
 
 export const fetchAssignments = async (uid: string): Promise<Assignment[]> => {
-  const { data, error } = await supabase
-    .from('assignments')
-    .select('*')
-    .eq('user_id', uid);
+  const { data, error } = await supabase.from('assignments').select('*').eq('user_id', uid);
 
   if (error) {
     console.error('Error fetching assignments:', error);
     throw error;
   }
 
-  return (data || []).map(row => ({
+  return (data || []).map((row) => ({
     id: row.id,
     courseId: row.course_id,
     name: row.name,
@@ -151,19 +139,19 @@ export const fetchAssignments = async (uid: string): Promise<Assignment[]> => {
     attachments: row.attachments || [],
     files: row.files || [],
     createdAt: row.created_at,
-    startedAt: row.started_at
+    startedAt: row.started_at,
   }));
 };
 
 export const addAssignmentToDB = async (uid: string, assignment: Assignment): Promise<string> => {
   const { id, ...rest } = assignment;
-  
+
   console.log('Adding assignment with data:', {
     user_id: uid,
     course_id: rest.courseId,
-    name: rest.name
+    name: rest.name,
   });
-  
+
   const { data, error } = await supabase
     .from('assignments')
     .insert({
@@ -177,7 +165,7 @@ export const addAssignmentToDB = async (uid: string, assignment: Assignment): Pr
       attachments: rest.attachments || [],
       files: rest.files || [],
       created_at: rest.createdAt,
-      started_at: rest.startedAt || null
+      started_at: rest.startedAt || null,
     })
     .select('id')
     .single();
@@ -188,7 +176,7 @@ export const addAssignmentToDB = async (uid: string, assignment: Assignment): Pr
       message: error.message,
       code: error.code,
       details: error.details,
-      hint: error.hint
+      hint: error.hint,
     });
     throw error;
   }
@@ -209,7 +197,7 @@ export const updateAssignmentInDB = async (uid: string, assignment: Assignment):
       notes: assignment.notes || '',
       attachments: assignment.attachments || [],
       files: assignment.files || [],
-      started_at: assignment.startedAt || null
+      started_at: assignment.startedAt || null,
     })
     .eq('id', assignment.id)
     .eq('user_id', uid);
@@ -236,17 +224,14 @@ export const deleteAssignmentFromDB = async (uid: string, assignmentId: string):
 // ============ SESSIONS ============
 
 export const fetchSessions = async (uid: string): Promise<StudySession[]> => {
-  const { data, error } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('user_id', uid);
+  const { data, error } = await supabase.from('sessions').select('*').eq('user_id', uid);
 
   if (error) {
     console.error('Error fetching sessions:', error);
     throw error;
   }
 
-  return (data || []).map(row => ({
+  return (data || []).map((row) => ({
     id: row.id,
     courseId: row.course_id,
     startTime: row.start_time,
@@ -254,24 +239,22 @@ export const fetchSessions = async (uid: string): Promise<StudySession[]> => {
     notes: row.notes,
     date: row.date,
     topic: row.topic,
-    difficulty: row.difficulty
+    difficulty: row.difficulty,
   }));
 };
 
 export const addSessionToDB = async (uid: string, session: StudySession): Promise<void> => {
   const { id, ...rest } = session;
-  const { error } = await supabase
-    .from('sessions')
-    .insert({
-      user_id: uid,
-      course_id: rest.courseId,
-      start_time: rest.startTime,
-      duration_seconds: rest.durationSeconds,
-      notes: rest.notes || '',
-      date: rest.date,
-      topic: rest.topic || '',
-      difficulty: rest.difficulty || null
-    });
+  const { error } = await supabase.from('sessions').insert({
+    user_id: uid,
+    course_id: rest.courseId,
+    start_time: rest.startTime,
+    duration_seconds: rest.durationSeconds,
+    notes: rest.notes || '',
+    date: rest.date,
+    topic: rest.topic || '',
+    difficulty: rest.difficulty || null,
+  });
 
   if (error) {
     console.error('Error adding session:', error);
@@ -282,13 +265,10 @@ export const addSessionToDB = async (uid: string, session: StudySession): Promis
 // ============ USER STATS ============
 
 export const fetchUserStats = async (uid: string): Promise<UserStats> => {
-  const { data, error } = await supabase
-    .from('user_stats')
-    .select('*')
-    .eq('user_id', uid)
-    .single();
+  const { data, error } = await supabase.from('user_stats').select('*').eq('user_id', uid).single();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+  if (error && error.code !== 'PGRST116') {
+    // PGRST116 = no rows returned
     console.error('Error fetching user stats:', error);
     throw error;
   }
@@ -306,44 +286,44 @@ export const fetchUserStats = async (uid: string): Promise<UserStats> => {
     weeklyTarget: data.weekly_target,
     currentPhase: data.current_phase,
     phaseName: data.phase_name,
-    phaseProgress: data.phase_progress
+    phaseProgress: data.phase_progress,
   };
 };
 
 export const createUserStats = async (uid: string): Promise<void> => {
-  const { error } = await supabase
-    .from('user_stats')
-    .insert({
-      user_id: uid,
-      streak_days: INITIAL_USER_STATS.streakDays,
-      total_semester_hours: INITIAL_USER_STATS.totalSemesterHours,
-      weekly_hours: INITIAL_USER_STATS.weeklyHours,
-      weekly_target: INITIAL_USER_STATS.weeklyTarget,
-      current_phase: INITIAL_USER_STATS.currentPhase,
-      phase_name: INITIAL_USER_STATS.phaseName,
-      phase_progress: INITIAL_USER_STATS.phaseProgress
-    });
+  const { error } = await supabase.from('user_stats').insert({
+    user_id: uid,
+    streak_days: INITIAL_USER_STATS.streakDays,
+    total_semester_hours: INITIAL_USER_STATS.totalSemesterHours,
+    weekly_hours: INITIAL_USER_STATS.weeklyHours,
+    weekly_target: INITIAL_USER_STATS.weeklyTarget,
+    current_phase: INITIAL_USER_STATS.currentPhase,
+    phase_name: INITIAL_USER_STATS.phaseName,
+    phase_progress: INITIAL_USER_STATS.phaseProgress,
+  });
 
-  if (error && error.code !== '23505') { // 23505 = unique violation (already exists)
+  if (error && error.code !== '23505') {
+    // 23505 = unique violation (already exists)
     console.error('Error creating user stats:', error);
     throw error;
   }
 };
 
-export const updateUserStatsInDB = async (uid: string, stats: Partial<UserStats>): Promise<void> => {
+export const updateUserStatsInDB = async (
+  uid: string,
+  stats: Partial<UserStats>
+): Promise<void> => {
   const updateData: any = {};
   if (stats.streakDays !== undefined) updateData.streak_days = stats.streakDays;
-  if (stats.totalSemesterHours !== undefined) updateData.total_semester_hours = stats.totalSemesterHours;
+  if (stats.totalSemesterHours !== undefined)
+    updateData.total_semester_hours = stats.totalSemesterHours;
   if (stats.weeklyHours !== undefined) updateData.weekly_hours = stats.weeklyHours;
   if (stats.weeklyTarget !== undefined) updateData.weekly_target = stats.weeklyTarget;
   if (stats.currentPhase !== undefined) updateData.current_phase = stats.currentPhase;
   if (stats.phaseName !== undefined) updateData.phase_name = stats.phaseName;
   if (stats.phaseProgress !== undefined) updateData.phase_progress = stats.phaseProgress;
 
-  const { error } = await supabase
-    .from('user_stats')
-    .update(updateData)
-    .eq('user_id', uid);
+  const { error } = await supabase.from('user_stats').update(updateData).eq('user_id', uid);
 
   if (error) {
     console.error('Error updating user stats:', error);
@@ -362,6 +342,6 @@ export const saveSessionTransaction = async (
   await Promise.all([
     addSessionToDB(uid, session),
     updateCourseInDB(uid, course),
-    updateUserStatsInDB(uid, newStats)
+    updateUserStatsInDB(uid, newStats),
   ]);
 };

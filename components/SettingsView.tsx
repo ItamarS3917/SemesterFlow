@@ -1,22 +1,86 @@
-
 import React, { useState, useRef } from 'react';
-import { Trash2, Plus, Settings, BookOpen, FileText, Save, X, UploadCloud, Loader2, Download, Database } from 'lucide-react';
+import {
+  Trash2,
+  Plus,
+  Settings,
+  BookOpen,
+  FileText,
+  Save,
+  X,
+  UploadCloud,
+  Loader2,
+  Download,
+  Database,
+} from 'lucide-react';
 import { Course } from '../types';
 import { useCourses } from '../hooks/useCourses';
 import { useAssignments } from '../hooks/useAssignments';
 import { useSessions } from '../hooks/useSessions';
 import { useToast } from '../contexts/ToastContext';
-import { exportCoursesToCSV, exportAssignmentsToCSV, exportSessionsToCSV, exportAllDataAsJSON } from '../utils/exportData';
+import {
+  exportCoursesToCSV,
+  exportAssignmentsToCSV,
+  exportSessionsToCSV,
+  exportAllDataAsJSON,
+} from '../utils/exportData';
 
 const PRESET_COLORS = [
-  { name: 'Blue', bg: 'bg-blue-900', text: 'text-blue-300', color: 'bg-blue-500', border: 'border-blue-700' },
-  { name: 'Green', bg: 'bg-green-900', text: 'text-green-300', color: 'bg-green-500', border: 'border-green-700' },
-  { name: 'Purple', bg: 'bg-purple-900', text: 'text-purple-300', color: 'bg-purple-500', border: 'border-purple-700' },
-  { name: 'Orange', bg: 'bg-orange-900', text: 'text-orange-300', color: 'bg-orange-500', border: 'border-orange-700' },
-  { name: 'Pink', bg: 'bg-pink-900', text: 'text-pink-300', color: 'bg-pink-500', border: 'border-pink-700' },
-  { name: 'Teal', bg: 'bg-teal-900', text: 'text-teal-300', color: 'bg-teal-500', border: 'border-teal-700' },
-  { name: 'Indigo', bg: 'bg-indigo-900', text: 'text-indigo-300', color: 'bg-indigo-500', border: 'border-indigo-700' },
-  { name: 'Red', bg: 'bg-red-900', text: 'text-red-300', color: 'bg-red-500', border: 'border-red-700' },
+  {
+    name: 'Blue',
+    bg: 'bg-blue-900',
+    text: 'text-blue-300',
+    color: 'bg-blue-500',
+    border: 'border-blue-700',
+  },
+  {
+    name: 'Green',
+    bg: 'bg-green-900',
+    text: 'text-green-300',
+    color: 'bg-green-500',
+    border: 'border-green-700',
+  },
+  {
+    name: 'Purple',
+    bg: 'bg-purple-900',
+    text: 'text-purple-300',
+    color: 'bg-purple-500',
+    border: 'border-purple-700',
+  },
+  {
+    name: 'Orange',
+    bg: 'bg-orange-900',
+    text: 'text-orange-300',
+    color: 'bg-orange-500',
+    border: 'border-orange-700',
+  },
+  {
+    name: 'Pink',
+    bg: 'bg-pink-900',
+    text: 'text-pink-300',
+    color: 'bg-pink-500',
+    border: 'border-pink-700',
+  },
+  {
+    name: 'Teal',
+    bg: 'bg-teal-900',
+    text: 'text-teal-300',
+    color: 'bg-teal-500',
+    border: 'border-teal-700',
+  },
+  {
+    name: 'Indigo',
+    bg: 'bg-indigo-900',
+    text: 'text-indigo-300',
+    color: 'bg-indigo-500',
+    border: 'border-indigo-700',
+  },
+  {
+    name: 'Red',
+    bg: 'bg-red-900',
+    text: 'text-red-300',
+    color: 'bg-red-500',
+    border: 'border-red-700',
+  },
 ];
 
 export const SettingsView = () => {
@@ -67,8 +131,11 @@ export const SettingsView = () => {
       setNewCourseTarget(100);
       addToast({ type: 'success', message: 'Course added successfully!' });
     } catch (error: any) {
-      console.error("Failed to add course:", error);
-      addToast({ type: 'error', message: `Failed the save course: ${error?.message || 'Unknown error'}` });
+      console.error('Failed to add course:', error);
+      addToast({
+        type: 'error',
+        message: `Failed the save course: ${error?.message || 'Unknown error'}`,
+      });
     }
   };
 
@@ -81,7 +148,7 @@ export const SettingsView = () => {
     if (editingCourse) {
       updateCourse({
         ...editingCourse,
-        knowledge: knowledgeInput
+        knowledge: knowledgeInput,
       });
       setEditingCourse(null);
     }
@@ -98,10 +165,13 @@ export const SettingsView = () => {
       let extractedText = '';
 
       if (file.type === 'application/pdf') {
-        // @ts-ignore 
+        // @ts-ignore
         const pdfjsLib = window.pdfjsLib;
         if (!pdfjsLib) {
-          addToast({ type: 'error', message: 'PDF processing library not loaded. Please refresh.' });
+          addToast({
+            type: 'error',
+            message: 'PDF processing library not loaded. Please refresh.',
+          });
           setIsProcessingFile(false);
           return;
         }
@@ -119,19 +189,24 @@ export const SettingsView = () => {
         }
 
         extractedText += `--- END OF FILE: ${file.name} ---\n`;
-
-      } else if (file.type === 'text/plain' || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+      } else if (
+        file.type === 'text/plain' ||
+        file.name.endsWith('.md') ||
+        file.name.endsWith('.txt')
+      ) {
         const text = await file.text();
         extractedText = `\n\n--- START OF UPLOADED FILE: ${file.name} ---\n${text}\n--- END OF FILE: ${file.name} ---\n`;
       } else {
-        addToast({ type: 'error', message: 'Unsupported file type. Please upload PDF or Text files.' });
+        addToast({
+          type: 'error',
+          message: 'Unsupported file type. Please upload PDF or Text files.',
+        });
         setIsProcessingFile(false);
         return;
       }
 
-      setKnowledgeInput(prev => prev + extractedText);
+      setKnowledgeInput((prev) => prev + extractedText);
       addToast({ type: 'success', message: 'File processed successfully!' });
-
     } catch (error) {
       console.error('Error processing file:', error);
       addToast({ type: 'error', message: 'Failed to read file. Please try again.' });
@@ -200,10 +275,15 @@ export const SettingsView = () => {
           </h3>
 
           <div className="space-y-3 mb-6">
-            {courses.map(course => (
-              <div key={course.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 group">
+            {courses.map((course) => (
+              <div
+                key={course.id}
+                className="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 group"
+              >
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${course.color} shadow-[0_0_5px_currentColor]`}></div>
+                  <div
+                    className={`w-3 h-3 rounded-full ${course.color} shadow-[0_0_5px_currentColor]`}
+                  ></div>
                   <div>
                     <div className="font-medium text-gray-200">{course.name}</div>
                     <div className="text-xs text-gray-500">Target: {course.totalHoursTarget}h</div>
@@ -231,7 +311,10 @@ export const SettingsView = () => {
           </div>
 
           {/* Add Course Form */}
-          <form onSubmit={handleAdd} className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+          <form
+            onSubmit={handleAdd}
+            className="bg-gray-800/50 p-4 rounded-xl border border-gray-700"
+          >
             <h4 className="text-sm font-bold text-gray-400 mb-3">Add New Course</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -292,7 +375,8 @@ export const SettingsView = () => {
 
         <div className="pt-6 border-t border-gray-700">
           <p className="text-sm text-gray-500">
-            Note: Deleting a course will also hide its associated assignments and history from the dashboard.
+            Note: Deleting a course will also hide its associated assignments and history from the
+            dashboard.
           </p>
         </div>
       </div>
@@ -304,7 +388,8 @@ export const SettingsView = () => {
           Export Your Data
         </h3>
         <p className="text-sm text-gray-500 mb-6">
-          Download your study data in CSV or JSON format. Perfect for backups, external analysis, or portfolio building.
+          Download your study data in CSV or JSON format. Perfect for backups, external analysis, or
+          portfolio building.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -363,16 +448,15 @@ export const SettingsView = () => {
               <Database className="w-5 h-5 text-white" />
               <span className="font-bold text-sm">Complete Backup</span>
             </div>
-            <span className="text-xs text-white/80 font-mono">
-              All data • JSON format
-            </span>
+            <span className="text-xs text-white/80 font-mono">All data • JSON format</span>
           </button>
         </div>
 
         <div className="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
           <p className="text-xs text-gray-400 font-mono leading-relaxed">
-            <span className="font-bold text-emerald-400">💡 TIP:</span> Use CSV exports for spreadsheet analysis (Excel, Google Sheets). 
-            Use the complete backup for full data preservation and potential data restoration.
+            <span className="font-bold text-emerald-400">💡 TIP:</span> Use CSV exports for
+            spreadsheet analysis (Excel, Google Sheets). Use the complete backup for full data
+            preservation and potential data restoration.
           </p>
         </div>
       </div>
@@ -383,10 +467,15 @@ export const SettingsView = () => {
           <div className="retro-card w-full max-w-2xl overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh] border-2 border-indigo-500">
             <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${editingCourse.color} shadow-[0_0_8px_currentColor]`}></div>
+                <div
+                  className={`w-3 h-3 rounded-full ${editingCourse.color} shadow-[0_0_8px_currentColor]`}
+                ></div>
                 <h3 className="font-bold text-white">Edit Knowledge Base: {editingCourse.name}</h3>
               </div>
-              <button onClick={() => setEditingCourse(null)} className="text-gray-400 hover:text-white">
+              <button
+                onClick={() => setEditingCourse(null)}
+                className="text-gray-400 hover:text-white"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -395,7 +484,9 @@ export const SettingsView = () => {
               {/* File Upload Section */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-300">Upload Materials</label>
+                  <label className="block text-sm font-medium text-gray-300">
+                    Upload Materials
+                  </label>
                   <span className="text-xs text-gray-500">PDF or Text files</span>
                 </div>
                 <div
@@ -412,15 +503,21 @@ export const SettingsView = () => {
                   {isProcessingFile ? (
                     <>
                       <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-2" />
-                      <span className="text-sm text-indigo-400 font-medium">Extracting text from file...</span>
+                      <span className="text-sm text-indigo-400 font-medium">
+                        Extracting text from file...
+                      </span>
                     </>
                   ) : (
                     <>
                       <div className="bg-indigo-900/30 p-3 rounded-full mb-3 border border-indigo-800">
                         <UploadCloud className="w-6 h-6 text-indigo-400" />
                       </div>
-                      <span className="text-sm font-medium text-gray-300">Click to upload PDF or Text</span>
-                      <span className="text-xs text-gray-500 mt-1">Content will be extracted and added below</span>
+                      <span className="text-sm font-medium text-gray-300">
+                        Click to upload PDF or Text
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        Content will be extracted and added below
+                      </span>
                     </>
                   )}
                 </div>
@@ -428,7 +525,9 @@ export const SettingsView = () => {
 
               <div className="mb-2 flex justify-between items-end">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Course Notes & Context</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Course Notes & Context
+                  </label>
                   <p className="text-xs text-gray-500">
                     The AI uses this text to answer your questions.
                   </p>
@@ -436,8 +535,10 @@ export const SettingsView = () => {
                 {knowledgeInput.length > 0 && (
                   <button
                     onClick={() => {
-                      if (window.confirm("Are you sure you want to clear all notes for this course?")) {
-                        setKnowledgeInput("");
+                      if (
+                        window.confirm('Are you sure you want to clear all notes for this course?')
+                      ) {
+                        setKnowledgeInput('');
                       }
                     }}
                     className="text-xs text-red-500 hover:text-red-400 font-medium flex items-center gap-1 px-2 py-1 hover:bg-red-900/20 rounded"

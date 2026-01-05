@@ -3,9 +3,11 @@
 ## 🎯 Important: Read This First
 
 ### Repository Location
+
 **Always work from:** `/Users/itamarmacbook/Desktop/SemesterFlow`
 
 **Current state:**
+
 - Branch: `main`
 - Status: Clean, up-to-date
 - Latest commit: Professional Git workflow tools added
@@ -20,6 +22,7 @@
 ```
 
 **Examples:**
+
 ```bash
 ./git-workflow.sh new-feature add-export-feature
 ./git-workflow.sh new-feature fix-calendar-bug
@@ -27,6 +30,7 @@
 ```
 
 This ensures:
+
 - ✅ Changes are isolated and reviewable
 - ✅ Main branch stays stable
 - ✅ Easy to rollback if needed
@@ -35,22 +39,26 @@ This ensures:
 ## 📋 Workflow for Every Task
 
 ### Step 1: Create Feature Branch
+
 ```bash
 cd /Users/itamarmacbook/Desktop/SemesterFlow
 ./git-workflow.sh new-feature <your-feature-name>
 ```
 
 ### Step 2: Make Your Changes
+
 - Write code
 - Test changes
 - Ensure everything works
 
 ### Step 3: Commit Changes
+
 ```bash
 ./git-workflow.sh commit "feat: description of what you added"
 ```
 
 Or manually:
+
 ```bash
 git add .
 git commit -m "feat: description of what you added"
@@ -58,7 +66,9 @@ git push -u origin <your-feature-name>
 ```
 
 ### Step 4: Notify User
+
 Tell the user:
+
 - ✅ What branch the changes are on
 - ✅ What was implemented
 - ✅ How to test it
@@ -79,6 +89,7 @@ chore: update dependencies
 ```
 
 **Examples:**
+
 ```
 feat: add CSV export functionality to assignments
 fix: resolve calendar sync issue with Google Calendar
@@ -89,11 +100,13 @@ refactor: simplify authentication context logic
 ## 🔍 Before You Start
 
 Always run a health check:
+
 ```bash
 ./git-workflow.sh health
 ```
 
 This shows:
+
 - Current branch
 - Uncommitted changes
 - Unpushed commits
@@ -118,6 +131,7 @@ This shows:
 **Read the complete guide:** `GIT_WORKFLOW_GUIDE.md`
 
 **Quick commands:**
+
 ```bash
 ./git-workflow.sh help              # Show all commands
 ./git-workflow.sh health            # Check repo status
@@ -157,6 +171,7 @@ git push -u origin add-dark-mode
 ## 🆘 If Something Goes Wrong
 
 **Made changes on main by mistake?**
+
 ```bash
 # Save your work
 git stash
@@ -173,6 +188,7 @@ git reset --hard origin/main
 ```
 
 **Need to undo last commit?**
+
 ```bash
 git reset --soft HEAD~1  # Keeps changes
 # or
@@ -180,6 +196,7 @@ git reset --hard HEAD~1  # Discards changes
 ```
 
 **Having merge conflicts?**
+
 ```bash
 # Ask the user for guidance
 # Don't try to resolve complex conflicts automatically

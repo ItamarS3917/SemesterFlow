@@ -33,6 +33,7 @@ Add the MCP server to your Claude configuration file:
 ```
 
 **Important**: Replace the paths with your actual paths:
+
 - `args[0]`: Full path to the built MCP server
 - `cwd`: Full path to the git repository you want to commit to
 
@@ -51,7 +52,8 @@ Please enable nightly commits using the schedule_nightly_commit tool
 ```
 
 Claude will use the tool with:
-- `enabled: true` 
+
+- `enabled: true`
 - `time: "0 22 * * *"` (10 PM daily)
 
 ### Manual Commit Check
@@ -67,6 +69,7 @@ Set up nightly commits for 11:30 PM using the schedule_nightly_commit tool
 ```
 
 Claude will use:
+
 - `enabled: true`
 - `time: "30 23 * * *"`
 
@@ -93,7 +96,7 @@ crontab -e
 1. **Change Detection**: Checks if there are any uncommitted changes
 2. **Code Validation**: Runs available validation scripts:
    - `npm run lint` (if exists)
-   - `npm run typecheck` (if exists) 
+   - `npm run typecheck` (if exists)
    - `npm run test` (if exists)
    - `npm run build` (if exists)
    - Falls back to `npx tsc --noEmit` for TypeScript projects
@@ -102,6 +105,7 @@ crontab -e
 ## Commit Message Examples
 
 The service generates descriptive commit messages:
+
 - `Nightly commit 2025-12-03 - 2 modified, 1 new files`
 - `Nightly commit 2025-12-03 - 5 modified files`
 - `Nightly commit 2025-12-03 - 1 new, 3 deleted files`
@@ -122,7 +126,7 @@ This file persists your schedule settings across restarts.
 ## Cron Schedule Examples
 
 - `"0 22 * * *"` - Every day at 10:00 PM
-- `"30 23 * * *"` - Every day at 11:30 PM  
+- `"30 23 * * *"` - Every day at 11:30 PM
 - `"0 22 * * 1-5"` - Weekdays only at 10:00 PM
 - `"0 22 * * 0,6"` - Weekends only at 10:00 PM
 - `"0 0 * * *"` - Every day at midnight
@@ -132,13 +136,14 @@ This file persists your schedule settings across restarts.
 For commits to succeed, ALL enabled validation steps must pass:
 
 ### Required npm Scripts (Optional)
+
 Add these to your `package.json` for comprehensive validation:
 
 ```json
 {
   "scripts": {
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "typecheck": "tsc --noEmit", 
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "build": "vite build"
   }
@@ -146,6 +151,7 @@ Add these to your `package.json` for comprehensive validation:
 ```
 
 ### What Causes Validation Failure
+
 - ESLint errors
 - TypeScript compilation errors
 - Test failures
@@ -154,18 +160,21 @@ Add these to your `package.json` for comprehensive validation:
 ## Troubleshooting
 
 ### MCP Server Not Loading
+
 1. Check Claude configuration file syntax
 2. Verify file paths are absolute and correct
 3. Ensure the server is built: `npm run build`
 4. Restart Claude Desktop
 
-### Commits Not Working  
+### Commits Not Working
+
 1. Ensure you're in a git repository
 2. Check that validation scripts pass manually
 3. Verify git configuration (user.name, user.email)
 4. Check file permissions
 
 ### Schedule Not Running
+
 1. Verify the schedule is enabled: check `.nightly-commit.json`
 2. For system cron: check with `crontab -l`
 3. Check system time and timezone settings

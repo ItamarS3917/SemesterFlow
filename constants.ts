@@ -1,4 +1,3 @@
-
 import { Assignment, AssignmentStatus, Course, CourseId, StudySession, UserStats } from './types';
 
 export const INITIAL_COURSES: Course[] = [
@@ -14,7 +13,7 @@ export const INITIAL_COURSES: Course[] = [
     totalAssignments: 8,
     completedAssignments: 4,
     nextExamDate: '2025-12-20',
-    weakConcepts: ['Eigenvectors', 'Subspaces']
+    weakConcepts: ['Eigenvectors', 'Subspaces'],
   },
   {
     id: CourseId.ALGORITHMS,
@@ -28,7 +27,7 @@ export const INITIAL_COURSES: Course[] = [
     totalAssignments: 6,
     completedAssignments: 1,
     nextExamDate: '2026-01-15',
-    weakConcepts: ['Dynamic Programming']
+    weakConcepts: ['Dynamic Programming'],
   },
   {
     id: CourseId.COMPLEXITY,
@@ -41,7 +40,7 @@ export const INITIAL_COURSES: Course[] = [
     hoursCompleted: 35,
     totalAssignments: 7,
     completedAssignments: 5,
-    weakConcepts: []
+    weakConcepts: [],
   },
   {
     id: CourseId.CPP,
@@ -54,15 +53,15 @@ export const INITIAL_COURSES: Course[] = [
     hoursCompleted: 25,
     totalAssignments: 6,
     completedAssignments: 2,
-    weakConcepts: ['Pointers', 'Memory Management']
-  }
+    weakConcepts: ['Pointers', 'Memory Management'],
+  },
 ];
 
 // Helper to get a date X days ago
 const daysAgo = (days: number) => {
-    const d = new Date();
-    d.setDate(d.getDate() - days);
-    return d.toISOString();
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString();
 };
 
 export const INITIAL_ASSIGNMENTS: Assignment[] = [
@@ -74,7 +73,7 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     estimatedHours: 12,
     status: AssignmentStatus.COMPLETED,
     createdAt: daysAgo(20),
-    startedAt: daysAgo(15) // Started 5 days after creation
+    startedAt: daysAgo(15), // Started 5 days after creation
   },
   {
     id: '2',
@@ -84,7 +83,7 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     estimatedHours: 15,
     status: AssignmentStatus.IN_PROGRESS,
     createdAt: daysAgo(14),
-    startedAt: daysAgo(1) // Started 13 days after creation (Procrastinated!)
+    startedAt: daysAgo(1), // Started 13 days after creation (Procrastinated!)
   },
   {
     id: '3',
@@ -93,7 +92,7 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     dueDate: '2025-11-18T23:59:00',
     estimatedHours: 8,
     status: AssignmentStatus.NOT_STARTED,
-    createdAt: daysAgo(10)
+    createdAt: daysAgo(10),
   },
   {
     id: '4',
@@ -102,7 +101,7 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     dueDate: '2025-11-25T23:59:00',
     estimatedHours: 10,
     status: AssignmentStatus.NOT_STARTED,
-    createdAt: daysAgo(5)
+    createdAt: daysAgo(5),
   },
   {
     id: '5',
@@ -111,8 +110,8 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     dueDate: '2025-12-01T23:59:00',
     estimatedHours: 14,
     status: AssignmentStatus.NOT_STARTED,
-    createdAt: daysAgo(2)
-  }
+    createdAt: daysAgo(2),
+  },
 ];
 
 export const INITIAL_SESSIONS: StudySession[] = [
@@ -124,7 +123,7 @@ export const INITIAL_SESSIONS: StudySession[] = [
     date: '2025-11-01',
     topic: 'Vector Spaces Review',
     difficulty: 3,
-    notes: 'Good progress'
+    notes: 'Good progress',
   },
   {
     id: 's2',
@@ -134,7 +133,7 @@ export const INITIAL_SESSIONS: StudySession[] = [
     date: '2025-11-02',
     topic: 'BFS Implementation',
     difficulty: 2,
-    notes: 'Easy implementation'
+    notes: 'Easy implementation',
   },
   {
     id: 's3',
@@ -144,7 +143,7 @@ export const INITIAL_SESSIONS: StudySession[] = [
     date: '2025-11-03',
     topic: 'Eigenvalues',
     difficulty: 5,
-    notes: 'Very abstract, need more examples'
+    notes: 'Very abstract, need more examples',
   },
   {
     id: 's4',
@@ -154,8 +153,8 @@ export const INITIAL_SESSIONS: StudySession[] = [
     date: '2025-11-04',
     topic: 'Turing Machines',
     difficulty: 4,
-    notes: 'Confusing logic'
-  }
+    notes: 'Confusing logic',
+  },
 ];
 
 export const INITIAL_USER_STATS: UserStats = {
@@ -164,6 +163,6 @@ export const INITIAL_USER_STATS: UserStats = {
   weeklyHours: 18.5,
   weeklyTarget: 28,
   currentPhase: 1,
-  phaseName: "Assignment Sprint",
-  phaseProgress: 73
+  phaseName: 'Assignment Sprint',
+  phaseProgress: 73,
 };

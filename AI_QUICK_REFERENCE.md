@@ -6,51 +6,61 @@
 
 ## 🎯 Your AI Tool → Your File
 
-| AI Tool | Instruction File | Setup |
-|---------|------------------|-------|
-| **Claude Code** | `.claude/llm-instructions.md` | ✅ Auto (done) |
-| **Cursor** | `.cursorrules` | ✅ Auto |
-| **Copilot** | `.github/copilot-instructions.md` | ⚠️ Enable workspace context |
-| **Antigravity** | `.antigravity/instructions.md` | 📋 Ask AI to read it |
-| **Gemini** | `.gemini/code-assist-instructions.md` | 📋 Copy/paste |
-| **ChatGPT** | `AI_INSTRUCTIONS.md` | 📋 Copy/paste |
+| AI Tool         | Instruction File                      | Setup                       |
+| --------------- | ------------------------------------- | --------------------------- |
+| **Claude Code** | `.claude/llm-instructions.md`         | ✅ Auto (done)              |
+| **Cursor**      | `.cursorrules`                        | ✅ Auto                     |
+| **Copilot**     | `.github/copilot-instructions.md`     | ⚠️ Enable workspace context |
+| **Antigravity** | `.antigravity/instructions.md`        | 📋 Ask AI to read it        |
+| **Gemini**      | `.gemini/code-assist-instructions.md` | 📋 Copy/paste               |
+| **ChatGPT**     | `AI_INSTRUCTIONS.md`                  | 📋 Copy/paste               |
 
 ---
 
 ## ⚡ Quick Prompts
 
 ### Claude Code / Cursor (Automatic)
+
 ```
 "Create a new component for displaying assignment deadlines"
 ```
+
 → **No extra context needed, AI already knows the project**
 
 ### Copilot (After setup)
+
 ```typescript
 // Just start typing:
 const MyComponent: React.FC = () => {
   const { courses
 ```
+
 → **Autocompletes with proper hooks and patterns**
 
 ### Antigravity
+
 ```
 "Read .antigravity/instructions.md and help me add a study timer feature"
 ```
+
 → **AI loads context from file, then implements**
 
 ### Gemini
+
 ```
 "Read .gemini/code-assist-instructions.md. Create a dashboard widget for weekly goals"
 ```
+
 → **AI loads context, follows standards**
 
 ### ChatGPT
+
 ```
 [Paste AI_INSTRUCTIONS.md content]
 
 "Help me implement a procrastination detection algorithm"
 ```
+
 → **AI has full context for session**
 
 ---

@@ -8,6 +8,7 @@
 ## 📚 Quick Navigation
 
 ### For LLM Agents Writing Code
+
 Start here to avoid errors and follow project standards:
 
 1. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design, data flow, patterns ⭐ **READ FIRST**
@@ -15,10 +16,12 @@ Start here to avoid errors and follow project standards:
 3. **[API_REFERENCE.md](./API_REFERENCE.md)** - Backend endpoints documentation
 
 ### For Deployment
+
 4. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Step-by-step production deployment guide
 5. **[SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md)** - Firebase → Supabase migration details
 
 ### For Project Planning
+
 6. **[masterplan.md](./masterplan.md)** - Project vision, goals, roadmap
 7. **[projectroadmap.md](./projectroadmap.md)** - Detailed progress tracker with checkboxes
 
@@ -26,16 +29,16 @@ Start here to avoid errors and follow project standards:
 
 ## 📋 Documentation Overview
 
-| Document | Purpose | Audience | Lines |
-|----------|---------|----------|-------|
-| **ARCHITECTURE.md** | System design, data flow, component structure | Developers, LLM Agents | ~800 |
-| **CONTRIBUTING.md** | Code standards, TypeScript rules, patterns | Developers, LLM Agents | ~600 |
-| **API_REFERENCE.md** | Backend API docs with examples | Developers, Frontend | ~450 |
-| **DEPLOYMENT.md** | Production deployment guide | DevOps, Developers | ~550 |
-| **SUPABASE_MIGRATION.md** | Migration from Firebase | Historical Reference | ~250 |
-| **masterplan.md** | Project vision and goals | Stakeholders, Team | ~500 |
-| **projectroadmap.md** | Detailed progress tracking | Team, Contributors | ~650 |
-| **README.md** (this file) | Documentation navigation | Everyone | ~100 |
+| Document                  | Purpose                                       | Audience               | Lines |
+| ------------------------- | --------------------------------------------- | ---------------------- | ----- |
+| **ARCHITECTURE.md**       | System design, data flow, component structure | Developers, LLM Agents | ~800  |
+| **CONTRIBUTING.md**       | Code standards, TypeScript rules, patterns    | Developers, LLM Agents | ~600  |
+| **API_REFERENCE.md**      | Backend API docs with examples                | Developers, Frontend   | ~450  |
+| **DEPLOYMENT.md**         | Production deployment guide                   | DevOps, Developers     | ~550  |
+| **SUPABASE_MIGRATION.md** | Migration from Firebase                       | Historical Reference   | ~250  |
+| **masterplan.md**         | Project vision and goals                      | Stakeholders, Team     | ~500  |
+| **projectroadmap.md**     | Detailed progress tracking                    | Team, Contributors     | ~650  |
+| **README.md** (this file) | Documentation navigation                      | Everyone               | ~100  |
 
 **Total**: ~3,900 lines of documentation
 
@@ -46,11 +49,13 @@ Start here to avoid errors and follow project standards:
 ### "I'm an LLM Agent - How do I write code without errors?"
 
 Read in this order:
+
 1. [ARCHITECTURE.md](./ARCHITECTURE.md#for-llm-agents-critical-rules) - Section: "For LLM Agents: Critical Rules"
 2. [CONTRIBUTING.md](./CONTRIBUTING.md#for-llm-agents-quick-reference) - Section: "For LLM Agents: Quick Reference"
 3. [ARCHITECTURE.md](./ARCHITECTURE.md#common-patterns--best-practices) - Section: "Common Patterns & Best Practices"
 
 **Key Rules**:
+
 - ✅ Always use context hooks (`useCourses`, `useAssignments`)
 - ✅ Never use `any` type in TypeScript
 - ✅ Import types from `types.ts`
@@ -60,6 +65,7 @@ Read in this order:
 ### "I'm deploying to production"
 
 Follow [DEPLOYMENT.md](./DEPLOYMENT.md) step-by-step:
+
 1. Set up Supabase database
 2. Deploy backend to Render
 3. Deploy frontend to Vercel
@@ -73,6 +79,7 @@ Follow [DEPLOYMENT.md](./DEPLOYMENT.md) step-by-step:
 See [ARCHITECTURE.md](./ARCHITECTURE.md#database-schema-supabase-postgresql) - Section: "Database Schema"
 
 Quick summary:
+
 - **courses** - Course data with knowledge base
 - **assignments** - Assignments with file attachments
 - **sessions** - Study session logs
@@ -84,6 +91,7 @@ All protected by Row Level Security (RLS).
 ### "I'm calling the backend API"
 
 See [API_REFERENCE.md](./API_REFERENCE.md) for:
+
 - `POST /api/chat` - AI chatbot
 - `POST /api/plan` - Generate study plans
 - `POST /api/grade` - (Future) Auto-grading
@@ -132,31 +140,31 @@ See [API_REFERENCE.md](./API_REFERENCE.md) for:
 
 ### "Where is X documented?"
 
-| Looking for... | Found in... |
-|----------------|-------------|
-| Database tables | [ARCHITECTURE.md](./ARCHITECTURE.md#database-schema-supabase-postgresql) |
-| API endpoints | [API_REFERENCE.md](./API_REFERENCE.md) |
-| Code standards | [CONTRIBUTING.md](./CONTRIBUTING.md) |
-| Deployment steps | [DEPLOYMENT.md](./DEPLOYMENT.md) |
-| Supabase setup | [SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md) |
-| Project goals | [masterplan.md](./masterplan.md) |
-| Feature progress | [projectroadmap.md](./projectroadmap.md) |
-| Component structure | [ARCHITECTURE.md](./ARCHITECTURE.md#directory-structure) |
-| TypeScript types | [ARCHITECTURE.md](./ARCHITECTURE.md#typescript-types-reference) |
+| Looking for...        | Found in...                                                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Database tables       | [ARCHITECTURE.md](./ARCHITECTURE.md#database-schema-supabase-postgresql)                                   |
+| API endpoints         | [API_REFERENCE.md](./API_REFERENCE.md)                                                                     |
+| Code standards        | [CONTRIBUTING.md](./CONTRIBUTING.md)                                                                       |
+| Deployment steps      | [DEPLOYMENT.md](./DEPLOYMENT.md)                                                                           |
+| Supabase setup        | [SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md)                                                           |
+| Project goals         | [masterplan.md](./masterplan.md)                                                                           |
+| Feature progress      | [projectroadmap.md](./projectroadmap.md)                                                                   |
+| Component structure   | [ARCHITECTURE.md](./ARCHITECTURE.md#directory-structure)                                                   |
+| TypeScript types      | [ARCHITECTURE.md](./ARCHITECTURE.md#typescript-types-reference)                                            |
 | Environment variables | [DEPLOYMENT.md](./DEPLOYMENT.md) or [SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md#environment-variables) |
 
 ### "How do I...?"
 
-| Question | Answer Location |
-|----------|-----------------|
-| Add a new feature | [projectroadmap.md](./projectroadmap.md) + [CONTRIBUTING.md](./CONTRIBUTING.md) |
-| Fix CORS errors | [API_REFERENCE.md](./API_REFERENCE.md#troubleshooting) |
-| Set up development | Project root `README.md` |
-| Deploy to production | [DEPLOYMENT.md](./DEPLOYMENT.md) |
-| Understand data flow | [ARCHITECTURE.md](./ARCHITECTURE.md#data-flow-architecture) |
-| Write tests | [CONTRIBUTING.md](./CONTRIBUTING.md#testing-guidelines-future) |
-| Scale the app | [DEPLOYMENT.md](./DEPLOYMENT.md#scaling-considerations) |
-| Migrate from Firebase | [SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md) |
+| Question              | Answer Location                                                                 |
+| --------------------- | ------------------------------------------------------------------------------- |
+| Add a new feature     | [projectroadmap.md](./projectroadmap.md) + [CONTRIBUTING.md](./CONTRIBUTING.md) |
+| Fix CORS errors       | [API_REFERENCE.md](./API_REFERENCE.md#troubleshooting)                          |
+| Set up development    | Project root `README.md`                                                        |
+| Deploy to production  | [DEPLOYMENT.md](./DEPLOYMENT.md)                                                |
+| Understand data flow  | [ARCHITECTURE.md](./ARCHITECTURE.md#data-flow-architecture)                     |
+| Write tests           | [CONTRIBUTING.md](./CONTRIBUTING.md#testing-guidelines-future)                  |
+| Scale the app         | [DEPLOYMENT.md](./DEPLOYMENT.md#scaling-considerations)                         |
+| Migrate from Firebase | [SUPABASE_MIGRATION.md](./SUPABASE_MIGRATION.md)                                |
 
 ---
 
@@ -165,18 +173,21 @@ See [API_REFERENCE.md](./API_REFERENCE.md) for:
 See [masterplan.md](./masterplan.md#technology-stack) for full details.
 
 **Frontend**:
+
 - React 19.2.0
 - TypeScript 5.8.2
 - Vite 6.2.0
 - Tailwind-like custom CSS
 
 **Backend**:
+
 - Supabase (PostgreSQL, Auth, Storage)
 - Express.js (AI API proxy)
 - Gemini API (AI features)
 - pgvector (Vector search for RAG)
 
 **Deployment**:
+
 - Vercel (Frontend)
 - Render (Backend)
 - Supabase Cloud (Database)
@@ -191,6 +202,7 @@ See [masterplan.md](./masterplan.md#technology-stack) for full details.
 See [projectroadmap.md](./projectroadmap.md#quick-status-overview) for detailed progress.
 
 **Recent Updates**:
+
 - ✅ Migrated from Firebase to Supabase
 - ✅ Added Row Level Security (RLS)
 - ✅ Implemented pgvector for AI
@@ -208,6 +220,7 @@ See [projectroadmap.md](./projectroadmap.md#quick-status-overview) for detailed 
 5. Update documentation if adding features
 
 **Commit Message Format**:
+
 ```
 feat: Add new feature
 fix: Fix bug
@@ -250,17 +263,20 @@ For more issues, check individual documentation files.
 ## 📞 Support & Resources
 
 ### Internal Documentation
+
 - All docs in `/docs` folder
 - Project root `README.md` for setup
 - `supabase_schema.sql` for database schema
 
 ### External Resources
+
 - [Supabase Docs](https://supabase.com/docs)
 - [Vite Docs](https://vitejs.dev)
 - [React Docs](https://react.dev)
 - [TypeScript Docs](https://www.typescriptlang.org/docs)
 
 ### Getting Help
+
 1. Check documentation first (you're here!)
 2. Review [ARCHITECTURE.md](./ARCHITECTURE.md) and [CONTRIBUTING.md](./CONTRIBUTING.md)
 3. Check issue tracker on GitHub
@@ -285,11 +301,13 @@ When making changes:
 ## 📦 Documentation Maintenance
 
 ### Review Schedule
+
 - **Weekly**: Update [projectroadmap.md](./projectroadmap.md) progress
 - **Monthly**: Review and update all docs for accuracy
 - **Per Release**: Update version numbers and completion status
 
 ### Version Control
+
 All documentation is version-controlled in Git alongside code.
 
 **Current Documentation Version**: 1.1 (Supabase migration update)
@@ -309,6 +327,7 @@ All documentation is version-controlled in Git alongside code.
 ### For LLM Agents
 
 **Before writing any code**:
+
 1. [ARCHITECTURE.md](./ARCHITECTURE.md#for-llm-agents-critical-rules) (5 min read)
 2. [CONTRIBUTING.md](./CONTRIBUTING.md#for-llm-agents-quick-reference) (3 min read)
 

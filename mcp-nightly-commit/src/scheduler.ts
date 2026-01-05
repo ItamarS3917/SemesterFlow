@@ -4,16 +4,16 @@ import { GitCommitService } from './git-service.js';
 
 async function runScheduledCommit() {
   const gitService = new GitCommitService();
-  
+
   console.log('Starting nightly commit check...');
-  
+
   try {
     const result = await gitService.checkAndCommit({
       validate: true,
     });
-    
+
     console.log('Commit result:', result);
-    
+
     if (result.success && result.hasChanges) {
       console.log(`✅ Successfully committed changes: ${result.commitHash}`);
     } else if (result.success && !result.hasChanges) {

@@ -1,9 +1,11 @@
 # SemesterFlow - GitHub Copilot Instructions
 
 ## Project Context
+
 Study tracker app with AI features | React 19 + TypeScript 5.8 + Supabase + Gemini AI
 
 ## Critical Rules
+
 1. **Use hooks**: useCourses(), useAssignments(), useSessions(), useStats(), useAuth()
 2. **No direct Supabase** - use services/supabaseDB.ts functions
 3. **Import types from types.ts** - never redefine
@@ -13,9 +15,11 @@ Study tracker app with AI features | React 19 + TypeScript 5.8 + Supabase + Gemi
 7. **Auth check** - const { user } = useAuth(); if (!user) return <LoginPage />;
 
 ## Database
+
 Supabase PostgreSQL with RLS | snake_case → camelCase conversion in supabaseDB.ts
 
 ## Component Template
+
 ```typescript
 import { Course } from '../types';
 import { useCourses } from '../hooks/useCourses';
@@ -31,7 +35,9 @@ export const MyComponent: React.FC<Props> = ({ title }) => {
 ```
 
 ## Key Files
-types.ts | services/supabaseDB.ts | contexts/*Context.tsx | hooks/use*.ts
+
+types.ts | services/supabaseDB.ts | contexts/_Context.tsx | hooks/use_.ts
 
 ## Documentation
+
 /docs/README.md for architecture, standards, API reference

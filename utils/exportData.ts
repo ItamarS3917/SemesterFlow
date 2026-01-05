@@ -5,7 +5,7 @@ import { Course, Assignment, StudySession } from '../types';
  * Export courses to CSV file
  */
 export const exportCoursesToCSV = (courses: Course[]) => {
-  const csvData = courses.map(course => ({
+  const csvData = courses.map((course) => ({
     id: course.id,
     name: course.name,
     color: course.color,
@@ -15,7 +15,7 @@ export const exportCoursesToCSV = (courses: Course[]) => {
     completedAssignments: course.completedAssignments,
     nextExamDate: course.nextExamDate || '',
     knowledge: course.knowledge || '',
-    weakConcepts: course.weakConcepts?.join('; ') || ''
+    weakConcepts: course.weakConcepts?.join('; ') || '',
   }));
 
   const csv = Papa.unparse(csvData);
@@ -26,7 +26,7 @@ export const exportCoursesToCSV = (courses: Course[]) => {
  * Export assignments to CSV file
  */
 export const exportAssignmentsToCSV = (assignments: Assignment[]) => {
-  const csvData = assignments.map(assignment => ({
+  const csvData = assignments.map((assignment) => ({
     id: assignment.id,
     courseId: assignment.courseId,
     name: assignment.name,
@@ -34,9 +34,9 @@ export const exportAssignmentsToCSV = (assignments: Assignment[]) => {
     estimatedHours: assignment.estimatedHours,
     status: assignment.status,
     notes: assignment.notes || '',
-    attachments: assignment.attachments?.map(a => `${a.name} (${a.url})`).join('; ') || '',
+    attachments: assignment.attachments?.map((a) => `${a.name} (${a.url})`).join('; ') || '',
     createdAt: assignment.createdAt,
-    startedAt: assignment.startedAt || ''
+    startedAt: assignment.startedAt || '',
   }));
 
   const csv = Papa.unparse(csvData);
@@ -47,8 +47,8 @@ export const exportAssignmentsToCSV = (assignments: Assignment[]) => {
  * Export study sessions to CSV file
  */
 export const exportSessionsToCSV = (sessions: StudySession[], courses: Course[]) => {
-  const csvData = sessions.map(session => {
-    const course = courses.find(c => c.id === session.courseId);
+  const csvData = sessions.map((session) => {
+    const course = courses.find((c) => c.id === session.courseId);
     return {
       id: session.id,
       courseId: session.courseId,
@@ -60,7 +60,7 @@ export const exportSessionsToCSV = (sessions: StudySession[], courses: Course[])
       durationHours: (session.durationSeconds / 3600).toFixed(2),
       topic: session.topic || '',
       difficulty: session.difficulty || '',
-      notes: session.notes || ''
+      notes: session.notes || '',
     };
   });
 
@@ -86,8 +86,8 @@ export const exportAllDataAsJSON = (
       totalCourses: courses.length,
       totalAssignments: assignments.length,
       totalSessions: sessions.length,
-      totalStudyHours: sessions.reduce((sum, s) => sum + s.durationSeconds / 3600, 0).toFixed(2)
-    }
+      totalStudyHours: sessions.reduce((sum, s) => sum + s.durationSeconds / 3600, 0).toFixed(2),
+    },
   };
 
   const json = JSON.stringify(data, null, 2);

@@ -1,10 +1,7 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import { GitCommitService } from "./git-service.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { GitCommitService } from './git-service.js';
 
 class NightlyCommitServer {
   private server: Server;
@@ -13,8 +10,8 @@ class NightlyCommitServer {
   constructor() {
     this.server = new Server(
       {
-        name: "nightly-commit",
-        version: "1.0.0",
+        name: 'nightly-commit',
+        version: '1.0.0',
       },
       {
         capabilities: {
@@ -32,40 +29,40 @@ class NightlyCommitServer {
       return {
         tools: [
           {
-            name: "check_and_commit",
-            description: "Check for changes and commit if code is valid",
+            name: 'check_and_commit',
+            description: 'Check for changes and commit if code is valid',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 message: {
-                  type: "string",
-                  description: "Custom commit message (optional)",
+                  type: 'string',
+                  description: 'Custom commit message (optional)',
                 },
                 validate: {
-                  type: "boolean",
-                  description: "Run validation before commit (default: true)",
+                  type: 'boolean',
+                  description: 'Run validation before commit (default: true)',
                   default: true,
                 },
               },
             },
           },
           {
-            name: "schedule_nightly_commit",
-            description: "Enable/disable nightly commit schedule",
+            name: 'schedule_nightly_commit',
+            description: 'Enable/disable nightly commit schedule',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
                 enabled: {
-                  type: "boolean",
-                  description: "Enable or disable the schedule",
+                  type: 'boolean',
+                  description: 'Enable or disable the schedule',
                 },
                 time: {
-                  type: "string",
-                  description: "Cron expression for schedule (default: 0 22 * * *)",
-                  default: "0 22 * * *",
+                  type: 'string',
+                  description: 'Cron expression for schedule (default: 0 22 * * *)',
+                  default: '0 22 * * *',
                 },
               },
-              required: ["enabled"],
+              required: ['enabled'],
             },
           },
         ],
@@ -76,12 +73,12 @@ class NightlyCommitServer {
       const { name, arguments: args } = request.params;
 
       switch (name) {
-        case "check_and_commit":
+        case 'check_and_commit':
           return await this.handleCheckAndCommit(args);
-        
-        case "schedule_nightly_commit":
+
+        case 'schedule_nightly_commit':
           return await this.handleScheduleNightlyCommit(args);
-        
+
         default:
           throw new Error(`Unknown tool: ${name}`);
       }
@@ -98,7 +95,7 @@ class NightlyCommitServer {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: JSON.stringify(result, null, 2),
           },
         ],
@@ -107,7 +104,7 @@ class NightlyCommitServer {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
           },
         ],
@@ -120,13 +117,13 @@ class NightlyCommitServer {
     try {
       const result = await this.gitService.setSchedule({
         enabled: args.enabled,
-        cronTime: args.time || "0 22 * * *",
+        cronTime: args.time || '0 22 * * *',
       });
 
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: JSON.stringify(result, null, 2),
           },
         ],
@@ -135,7 +132,7 @@ class NightlyCommitServer {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
           },
         ],
@@ -147,7 +144,7 @@ class NightlyCommitServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error("Nightly Commit MCP server running on stdio");
+    console.error('Nightly Commit MCP server running on stdio');
   }
 }
 

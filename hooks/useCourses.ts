@@ -2,9 +2,9 @@ import { useContext } from 'react';
 import { CoursesContext } from '../contexts/CoursesContext';
 
 export const useCourses = () => {
-    const context = useContext(CoursesContext);
-    if (context === undefined) {
-        throw new Error('useCourses must be used within a CoursesProvider');
-    }
-    return context;
+  const context = useContext(CoursesContext);
+  if (context === undefined) {
+    throw new Error('useCourses must be used within a CoursesProvider');
+  }
+  return context;
 };

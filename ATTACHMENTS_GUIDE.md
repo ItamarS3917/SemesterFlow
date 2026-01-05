@@ -5,6 +5,7 @@
 A **secure, validation-based attachment system** that allows you to link files from trusted cloud storage services without needing Firebase Cloud Storage.
 
 ### Features:
+
 - ✅ **Security-First**: Only accepts links from trusted domains
 - ✅ **URL Validation**: Blocks malicious URLs, shorteners, and suspicious patterns
 - ✅ **Multiple Services Supported**: Dropbox, OneDrive, Box, iCloud, MEGA
@@ -17,6 +18,7 @@ A **secure, validation-based attachment system** that allows you to link files f
 ## 🔒 Security Features
 
 ### Trusted Domains Only
+
 ```
 ✅ Dropbox (dropbox.com, dl.dropboxusercontent.com)
 ✅ OneDrive (onedrive.live.com, 1drv.ms)
@@ -27,6 +29,7 @@ A **secure, validation-based attachment system** that allows you to link files f
 ```
 
 ### Blocked Patterns
+
 ```
 ❌ URL shorteners (bit.ly, tinyurl, goo.gl)
 ❌ JavaScript/data URLs
@@ -56,6 +59,7 @@ A **secure, validation-based attachment system** that allows you to link files f
 In the assignments table, you'll see a **blue badge** with a 📎 icon showing the number of attachments.
 
 Click the badge to open the **Attachments Viewer** modal where you can:
+
 - See all attached files
 - View the full URL
 - Click **"Open"** to access the file in a new tab
@@ -65,11 +69,13 @@ Click the badge to open the **Attachments Viewer** modal where you can:
 ## 🔗 Getting Share Links
 
 ### Dropbox
+
 1. Right-click the file → **"Share"** → **"Create link"**
 2. Copy the link
 3. Paste into SemesterFlow
 
 ### OneDrive
+
 1. Right-click the file → **"Share"**
 2. Click **"Copy link"**
 3. Paste into SemesterFlow
@@ -105,18 +111,21 @@ SemesterFlow/
 ## 🎨 UI Components
 
 ### Attachment Input
+
 - Secure input form with validation
 - Shows trusted domains list
 - Real-time error feedback
 - Optional custom naming
 
 ### Attachment List
+
 - Shows service icon (Dropbox logo, etc.)
 - Displays file name and URL
 - Quick "Open" and "Remove" actions
 - Clean, retro design matching your app
 
 ### Attachments Viewer Modal
+
 - Full-screen modal for viewing all attachments
 - Click badge (📎 x) in assignments table
 - One-click access to all files
@@ -127,12 +136,14 @@ SemesterFlow/
 ## 💡 Tips & Best Practices
 
 ### ✅ DO:
+
 - Use direct links from trusted services
 - Organize files in Dropbox/OneDrive folders
 - Give attachments descriptive names
 - Check link sharing permissions
 
 ### ❌ DON'T:
+
 - Use URL shorteners (bit.ly, tinyurl)
 - Share links to malicious sites
 - Use non-HTTPS links
@@ -181,6 +192,7 @@ SemesterFlow/
 ## 📞 Support
 
 If you run into issues:
+
 1. Check the browser console for error messages
 2. Verify your link is from a trusted service
 3. Make sure the link starts with https://
